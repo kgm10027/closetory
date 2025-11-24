@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Closetory - 회원가입</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: "Noto Sans KR", sans-serif;
+            background: #f5f7fb;
+        }
+        .wrap {
+            max-width: 420px;
+            margin: 60px auto;
+            padding: 32px 28px;
+            background: #ffffff;
+            border-radius: 18px;
+            box-shadow: 0 14px 30px rgba(15,23,42,0.08);
+        }
+        h1 {
+            margin: 0 0 6px;
+            font-size: 24px;
+            font-weight: 900;
+        }
+        p.sub {
+            margin: 0 0 20px;
+            font-size: 13px;
+            color: #6b7280;
+        }
+        label {
+            display: block;
+            font-size: 13px;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+        input {
+            width: 100%;
+            padding: 9px 10px;
+            border-radius: 10px;
+            border: 1px solid #d1d5db;
+            font-size: 13px;
+            margin-bottom: 14px;
+            box-sizing: border-box;
+        }
+        input:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 1px rgba(79,70,229,0.15);
+        }
+        .btn-main {
+            width: 100%;
+            padding: 10px;
+            border-radius: 999px;
+            border: none;
+            background: #111827;
+            color: #f9fafb;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .btn-main:hover {
+            background: #020617;
+        }
+        .link-row {
+            margin-top: 14px;
+            font-size: 12px;
+            text-align: center;
+            color: #6b7280;
+        }
+        .link-row a {
+            color: #4f46e5;
+            text-decoration: none;
+        }
+        .error {
+            font-size: 12px;
+            color: #dc2626;
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <h1>회원가입</h1>
+    <p class="sub">Closetory에서 나만의 옷장을 만들어 보세요.</p>
+
+    <div id="errorBox" class="error" style="display:none;"></div>
+
+    <form id="signupForm">
+        <label for="userId">아이디</label>
+        <input type="text" id="userId" required>
+
+        <label for="password">비밀번호</label>
+        <input type="password" id="password" required>
+
+        <label for="password2">비밀번호 확인</label>
+        <input type="password" id="password2" required>
+
+        <label for="name">이름</label>
+        <input type="text" id="name" required>
+
+        <label for="address">주소</label>
+        <input type="text" id="address" required>
+
+        <button type="submit" class="btn-main">회원가입 완료</button>
+    </form>
+
+    <div class="link-row">
+        이미 계정이 있으신가요?
+        <a href="login.html">로그인 하러가기</a>
+    </div>
+</div>
+
+<script>
+    const form = document.getElementById('signupForm');
+    const errorBox = document.getElementById('errorBox');
+
+    form.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const userId = document.getElementById('userId').value.trim();
+        const pw1 = document.getElementById('password').value;
+        const pw2 = document.getElementById('password2').value;
+        const name = document.getElementById('name').value.trim();
+        const addr = document.getElementById('address').value.trim();
+
+        if (!userId || !pw1 || !pw2 || !name || !addr) {
+            showError('모든 필수 항목을 입력해 주세요.');
+            return;
+        }
+        if (pw1 !== pw2) {
+            showError('비밀번호가 서로 다릅니다.');
+            return;
+        }
+
+        // 이미 가입된 아이디인지 확인
+        const existing = localStorage.getItem('closetoryUser');
+        if (existing) {
+            const u = JSON.parse(existing);
+            if (u.userId === userId) {
+                showError('이미 사용 중인 아이디입니다.');
+                return;
+            }
+        }
+
+        const user = {
+            userId: userId,
+            password: pw1,
+            name: name,
+            address: addr
+        };
+        localStorage.setItem('closetoryUser', JSON.stringify(user));
+
+        alert('회원가입이 완료되었습니다. 이제 로그인 해 주세요.');
+        location.href = 'login.html';
+    });
+
+    function showError(msg) {
+        errorBox.style.display = 'block';
+        errorBox.textContent = msg;
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Closetory - 옷장에서 꺼내는 작은 행복</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: "Noto Sans KR", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f5f7fb;
+            color: #111827;
+        }
+
+        /* ===== 상단 고정 헤더 ===== */
+        .clo-topbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 72px;
+            background: #ffffff;
+            box-shadow: 0 6px 20px rgba(15,23,42,0.06);
+            z-index: 50;
+        }
+        .clo-top-inner {
+            max-width: 1180px;
+            margin: 0 auto;
+            height: 100%;
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .clo-top-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .clo-hamburger {
+            width: 36px;
+            height: 36px;
+            border-radius: 999px;
+            border: none;
+            background: #111827;
+            color: #f9fafb;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .clo-logo-main a {
+            text-decoration: none;
+            color: inherit;
+        }
+        .clo-logo-main {
+            font-size: 22px;
+            font-weight: 900;
+            letter-spacing: -0.4px;
+            cursor: pointer;
+        }
+        .clo-logo-sub {
+            font-size: 11px;
+            color: #9ca3af;
+            margin-top: 2px;
+        }
+        .clo-top-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .clo-search-form {
+            display: flex;
+            align-items: center;
+            background: #f3f4f6;
+            border-radius: 999px;
+            padding: 6px 12px;
+            min-width: 260px;
+        }
+        .clo-search-icon {
+            font-size: 14px;
+            color: #6b7280;
+            margin-right: 6px;
+        }
+        .clo-search-input {
+            border: none;
+            background: transparent;
+            outline: none;
+            font-size: 13px;
+            width: 100%;
+        }
+        .clo-top-btn {
+            height: 36px;
+            border-radius: 999px;
+            border: 1px solid #e5e7eb;
+            background: #ffffff;
+            padding: 0 14px;
+            font-size: 12px;
+            cursor: pointer;
+            color: #374151;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+        }
+        .clo-top-btn.primary {
+            background: #111827;
+            color: #f9fafb;
+            border-color: #111827;
+            font-weight: 600;
+        }
+        .clo-top-btn:hover {
+            background: #f3f4f6;
+        }
+        .clo-top-btn.primary:hover {
+            background: #020617;
+        }
+        .clo-user-status {
+            font-size: 12px;
+            color: #6b7280;
+            margin-right: 4px;
+        }
+
+        /* ===== 사이드바 ===== */
+        .clo-sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 230px;
+            background: #111827;
+            color: #e5e7eb;
+            padding: 24px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            transform: translateX(-100%);
+            transition: transform .25s ease-out;
+            z-index: 60;
+        }
+        body.clo-sidebar-open .clo-sidebar {
+            transform: translateX(0);
+        }
+        .clo-sidebar-header {
+            font-size: 18px;
+            font-weight: 800;
+        }
+        .clo-sidebar-sub {
+            font-size: 12px;
+            color: #9ca3af;
+            margin-top: 2px;
+        }
+        .clo-menu-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            font-size: 14px;
+        }
+        .clo-menu-list li {
+            padding: 8px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background .2s, color .2s;
+        }
+        .clo-menu-list li:hover {
+            background: #1f2937;
+            color: #f9fafb;
+        }
+        .clo-menu-list li.clo-active {
+            background: #fbbf24;
+            color: #111827;
+            font-weight: 700;
+        }
+        .clo-sidebar-footer {
+            margin-top: auto;
+            font-size: 11px;
+            color: #6b7280;
+        }
+        .clo-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(15,23,42,0.35);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .2s ease-out;
+            z-index: 55;
+        }
+        body.clo-sidebar-open .clo-backdrop {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* ===== 메인 컨텐츠 래퍼 ===== */
+        .clo-main-outer {
+            padding-top: 96px;
+        }
+        .clo-main-wrap {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 0 24px 40px;
+        }
+
+        /* 상단 타이틀 */
+        .clo-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .clo-title-box h1 {
+            margin: 0;
+            font-size: 32px;
+            font-weight: 900;
+            letter-spacing: -0.5px;
+        }
+        .clo-title-box p {
+            margin: 4px 0 0;
+            font-size: 14px;
+            color: #6b7280;
+        }
+        .clo-subtag {
+            font-size: 12px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: #e5f0ff;
+            color: #1d4ed8;
+        }
+
+        /* 날씨 바 */
+        .clo-weather-bar {
+            display: flex;
+            gap: 18px;
+            align-items: center;
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 18px 22px;
+            box-shadow: 0 12px 25px rgba(15,23,42,0.06);
+            margin-bottom: 18px;
+        }
+        .clo-weather-main {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+        .clo-temp-circle {
+            width: 82px;
+            height: 82px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #2563eb, #38bdf8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #f9fafb;
+            font-size: 24px;
+            font-weight: 800;
+        }
+        .clo-weather-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .clo-weather-info strong {
+            font-size: 16px;
+        }
+        .clo-weather-sub {
+            font-size: 12px;
+            color: #6b7280;
+        }
+        .clo-time-strip {
+            flex: 1;
+            background: #f3f4f6;
+            border-radius: 12px;
+            padding: 10px 14px 12px;
+            font-size: 12px;
+            color: #4b5563;
+        }
+        .clo-time-strip-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .clo-time-strip-line {
+            height: 6px;
+            border-radius: 999px;
+            background: linear-gradient(90deg,#22c55e,#f97316,#fb923c);
+            margin-bottom: 10px;
+        }
+        .clo-time-strip-grid {
+            display: grid;
+            grid-template-columns: repeat(24, minmax(0,1fr));
+            gap: 0;
+            text-align: center;
+        }
+        .clo-hour-cell {
+            font-size: 10px;
+            color: #6b7280;
+            margin-bottom: 2px;
+        }
+        .clo-hour-icon {
+            font-size: 13px;
+            margin-bottom: 1px;
+        }
+        .clo-hour-temp {
+            font-size: 11px;
+        }
+        .clo-hour-feel {
+            font-size: 9px;
+            color: #9ca3af;
+        }
+
+        /* ===== 오늘의 코디 슬라이드 ===== */
+        .clo-outfits-section {
+            position: relative;
+            margin-bottom: 14px;
+        }
+        .clo-outfits-viewport {
+            overflow: hidden;
+        }
+        .clo-outfits-track {
+            display: flex;
+            gap: 18px;
+            will-change: transform;
+        }
+        .clo-outfit-card {
+            flex: 0 0 calc((100% - 2 * 18px) / 3);
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 16px 16px 18px;
+            box-shadow: 0 10px 22px rgba(15,23,42,0.05);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .clo-outfit-avatar {
+            width: 72px;
+            height: 72px;
+            margin: 0 auto;
+            border-radius: 50%;
+            border: 2px dashed #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            color: #9ca3af;
+        }
+        .clo-badge-row {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            font-size: 11px;
+        }
+        .clo-badge {
+            padding: 4px 8px;
+            border-radius: 999px;
+            background: #eef2ff;
+            color: #4f46e5;
+        }
+        .clo-outfit-title {
+            text-align: center;
+            font-size: 14px;
+            font-weight: 700;
+        }
+        .clo-outfit-desc {
+            text-align: center;
+            font-size: 12px;
+            color: #6b7280;
+        }
+        .clo-outfit-button {
+            margin-top: 4px;
+            align-self: center;
+            border: none;
+            padding: 7px 14px;
+            font-size: 12px;
+            border-radius: 999px;
+            background: #111827;
+            color: #f9fafb;
+            cursor: pointer;
+        }
+        .clo-outfit-button:hover {
+            background: #020617;
+        }
+
+        .clo-slide-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 32px;
+            height: 32px;
+            border-radius: 999px;
+            border: none;
+            background: rgba(15,23,42,0.7);
+            color: #f9fafb;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            z-index: 10;
+        }
+        .clo-slide-btn:hover {
+            background: rgba(15,23,42,0.9);
+        }
+        .clo-slide-btn.prev { left: -16px; }
+        .clo-slide-btn.next { right: -16px; }
+
+        /* 아래 3단 영역 */
+        .clo-bottom-row {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 18px;
+            margin-top: 8px;
+        }
+        .clo-panel {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 14px 16px 16px;
+            box-shadow: 0 8px 20px rgba(15,23,42,0.04);
+            font-size: 13px;
+        }
+        .clo-panel h3 {
+            margin: 0 0 8px;
+            font-size: 14px;
+            font-weight: 800;
+        }
+        .clo-panel small {
+            display: block;
+            margin-bottom: 6px;
+            color: #9ca3af;
+        }
+        .clo-panel ul {
+            margin: 0;
+            padding-left: 18px;
+        }
+        .clo-tip {
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        .clo-ai-banner {
+            border-radius: 16px;
+            background: linear-gradient(135deg, #111827, #1f2937);
+            color: #e5e7eb;
+            padding: 16px 18px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .clo-ai-banner strong {
+            font-size: 14px;
+        }
+        .clo-ai-banner p {
+            margin: 2px 0 10px;
+            font-size: 12px;
+            color: #d1d5db;
+        }
+        .clo-ai-button {
+            align-self: flex-start;
+            border-radius: 999px;
+            border: none;
+            padding: 8px 14px;
+            font-size: 12px;
+            cursor: pointer;
+            background: #fbbf24;
+            color: #111827;
+            font-weight: 600;
+        }
+        .clo-ai-button:hover {
+            background: #facc15;
+        }
+
+        /* 반응형 */
+        @media (max-width: 960px) {
+            .clo-top-inner { padding: 0 16px; }
+            .clo-main-wrap { padding: 0 16px 28px; }
+            .clo-bottom-row { grid-template-columns: 1fr; }
+            .clo-outfit-card { flex: 0 0 80%; }
+            .clo-slide-btn.prev { left: 4px; }
+            .clo-slide-btn.next { right: 4px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- 사이드바 -->
+<nav class="clo-sidebar">
+    <div>
+        <div class="clo-sidebar-header">메뉴</div>
+        <div class="clo-sidebar-sub">Closetory 옷장 메뉴</div>
+    </div>
+    <ul class="clo-menu-list">
+        <li onclick="location.href='closet.html'">나만의 옷장</li>
+        <li onclick="location.href='color.html'">코디 색감 추천</li>
+        <li onclick="location.href='situation.html'">상황별 코디 추천</li>
+        <li onclick="location.href='calendar.html'">주간 코디 캘린더</li>
+        <li onclick="location.href='ranking.html'">인기 코디 랭킹</li>
+    </ul>
+    <div class="clo-sidebar-footer">
+        Closetory · 옷장에서 꺼내는 작은 행복
+    </div>
+</nav>
+<div class="clo-backdrop"></div>
+
+<!-- 상단바 -->
+<header class="clo-topbar">
+    <div class="clo-top-inner">
+        <div class="clo-top-left">
+            <button class="clo-hamburger" id="cloMenuBtn">☰</button>
+            <div>
+                <div class="clo-logo-main">
+                    <a href="index.html">Closetory</a>
+                </div>
+                <div class="clo-logo-sub">옷장에서 꺼내는 작은 행복</div>
+            </div>
+        </div>
+        <div class="clo-top-right">
+            <form class="clo-search-form" onsubmit="return false;">
+                <span class="clo-search-icon">🔍</span>
+                <input class="clo-search-input" type="text" placeholder="코디, 아이템 검색">
+            </form>
+            <span class="clo-user-status" id="userStatus"></span>
+            <button class="clo-top-btn" id="loginBtn">로그인</button>
+            <button class="clo-top-btn" id="signupBtn">회원가입</button>
+            <button class="clo-top-btn primary" id="mypageBtn" style="display:none;">마이페이지</button>
+            <button class="clo-top-btn" id="logoutBtn" style="display:none;">로그아웃</button>
+        </div>
+    </div>
+</header>
+
+<!-- 메인 -->
+<div class="clo-main-outer">
+    <main class="clo-main-wrap">
+        <!-- 제목 -->
+        <section class="clo-header">
+            <div class="clo-title-box">
+                <h1>오늘의 코디, Closetory</h1>
+                <p>날씨·시간·상황에 맞춰 옷장에서 가장 잘 어울리는 코디를 찾아드립니다.</p>
+            </div>
+            <div class="clo-subtag">옷장 기반 날씨 코디 추천</div>
+        </section>
+
+        <!-- 날씨 -->
+        <section class="clo-weather-bar">
+            <div class="clo-weather-main">
+                <div class="clo-temp-circle" id="currentTemp">4°C</div>
+                <div class="clo-weather-info">
+                    <strong id="currentLocation">경기 고양시, 현재 체감 기온</strong>
+                    <span class="clo-weather-sub" id="currentSummary">흐림 · 약한 바람 · 패딩/니트 추천</span>
+                </div>
+            </div>
+            <div class="clo-time-strip">
+                <div class="clo-time-strip-title">시간별 날씨 &amp; 온도</div>
+                <div class="clo-time-strip-line"></div>
+                <div class="clo-time-strip-grid" id="hourlyGrid">
+                    <!-- JS에서 시간대 05~04시 채워 넣음 -->
+                </div>
+            </div>
+        </section>
+
+        <!-- 오늘의 코디 슬라이드 -->
+        <section class="clo-outfits-section">
+            <button class="clo-slide-btn prev" id="cloPrevBtn">‹</button>
+            <div class="clo-outfits-viewport">
+                <div class="clo-outfits-track" id="cloOutfitTrack">
+                    <!-- 실제 카드 8개 -->
+                    <article class="clo-outfit-card">
+                        <div class="clo-outfit-avatar">여행</div>
+                        <div class="clo-badge-row">
+                            <span class="clo-badge">여행룩</span>
+                            <span class="clo-badge">레이어드</span>
+                        </div>
+                        <div class="clo-outfit-title">주말 여행 코디</div>
+                        <p class="clo-outfit-desc">후드 + 경량 패딩 + 청바지로 이동하기 편한 여행 룩.</p>
+                        <button class="clo-outfit-button">설명 보기</button>
+                    </article>
+
+                    <article class="clo-outfit-card">
+                        <div class="clo-outfit-avatar">캠퍼스</div>
+                        <div class="clo-badge-row">
+                            <span class="clo-badge">데일리룩</span>
+                            <span class="clo-badge">후드 + 패딩</span>
+                        </div>
+                        <div class="clo-outfit-title">캠퍼스 캐주얼 코디</div>
+                        <p class="clo-outfit-desc">후드티와 패딩, 조거 팬츠 조합으로 편하면서도 따뜻한 룩.</p>
+                        <button class="clo-outfit-button">설명 보기</button>
+                    </article>
+
+                    <article class="clo-outfit-card">
+                        <div class="clo-outfit-avatar">발표</div>
+                        <div class="clo-badge-row">
+                            <span class="clo-badge">세미포멀</span>
+                            <span class="clo-badge">셔츠</span>
+                        </div>
+                        <div class="clo-outfit-title">발표날 코디</div>
+                        <p class="clo-outfit-desc">화이트 셔츠와 슬랙스, 재킷으로 단정하게 준비하는 발표 룩.</p>
+                        <button class="clo-outfit-button">설명 보기</button>
+                    </article>
+
+                    <article class="clo-outfit-card">
+                        <div class="clo-outfit-avatar">데이트</div>
+                        <div class="clo-badge-row">
+                            <span class="clo-badge">따뜻한 톤</span>
+                            <span class="clo-badge">코트</span>
+                        </div>
+                        <div class="clo-outfit-title">감성 데이트 코디</div>
+                        <p class="clo-outfit-desc">롱코트와 니트, 슬랙스로 깔끔하게 연출하는 데이트용 코디.</p>
+                        <button class="clo-outfit-button">설명 보기</button>
+                    </article>
+
+                    <article class="clo-outfit-card">
+                        <div class="clo-outfit-avatar">집</div>
+                        <div class="clo-badge-row">
+                            <span class="clo-badge">홈웨어</span>
+                            <span class="clo-badge">트레이닝</span>
+                        </div>
+                        <div class="clo-outfit-title">집콕 편안 코디</div>
+                        <p class="clo-outfit-desc">루즈핏 맨투맨과 조거 팬츠로 편안하게 보내는 집콕 룩.</p>
+                        <button class="clo-outfit-button">설명 보기</button>
+                    </article>
+
+                    <article class="clo-outfit-card">
+                        <div class="clo-outfit-avatar">비 오는 날</div>
+                        <div class="clo-badge-row">
+                            <span class="clo-badge">방수</span>
+                            <span class="clo-badge">코트/자켓</span>
+                        </div>
+                        <div class="clo-outfit-title">레인 데이 코디</div>
+                        <p class="clo-outfit-desc">방수 재킷과 롤업 팬츠, 스니커즈로 깔끔하게 비를 대비.</p>
+                        <button class="clo-outfit-button">설명 보기</button>
+                    </article>
+
+                    <article class="clo-outfit-card">
+                        <div class="clo-outfit-avatar">프레젠테이션</div>
+                        <div class="clo-badge-row">
+                            <span class="clo-badge">세미포멀</span>
+                            <span class="clo-badge">셔츠</span>
+                        </div>
+                        <div class="clo-outfit-title">세미포멀 프레젠 코디</div>
+                        <p class="clo-outfit-desc">네이비 자켓과 슬랙스로 차분하게 발표를 준비하는 룩.</p>
+                        <button class="clo-outfit-button">설명 보기</button>
+                    </article>
+
+                    <article class="clo-outfit-card">
+                        <div class="clo-outfit-avatar">운동</div>
+                        <div class="clo-badge-row">
+                            <span class="clo-badge">스포츠</span>
+                            <span class="clo-badge">레이어드</span>
+                        </div>
+                        <div class="clo-outfit-title">러닝/헬스 코디</div>
+                        <p class="clo-outfit-desc">기능성 티와 조거 팬츠, 바람막이로 운동하기 좋은 코디.</p>
+                        <button class="clo-outfit-button">설명 보기</button>
+                    </article>
+                </div>
+            </div>
+            <button class="clo-slide-btn next" id="cloNextBtn">›</button>
+        </section>
+
+        <!-- 아래 3단 -->
+        <section class="clo-bottom-row">
+            <div class="clo-panel">
+                <h3>최신 트렌드</h3>
+                <small>이번 시즌 많이 찾는 코디</small>
+                <ul>
+                    <li>2025 겨울 트렌드 · 숏패딩 + 와이드 팬츠 조합</li>
+                    <li>이번 주 많이 본 코디 · 롱코트 + 머플러 레이어링</li>
+                    <li>캠퍼스룩 인기 · 후드 집업 위에 롱패딩</li>
+                </ul>
+            </div>
+            <div class="clo-panel">
+                <h3>하루 하나 코디 Tip</h3>
+                <p class="clo-tip">
+                    바람이 강한 날에는 목 주변을 따뜻하게 하는 것이 중요해요.
+                    목폴라나 머플러를 추가하면 같은 코디도 훨씬 보온성이 좋아집니다.
+                </p>
+            </div>
+            <div class="clo-ai-banner">
+                <div>
+                    <strong>AI 스타일 유형 테스트</strong>
+                    <p>몇 가지 질문에 답하면, 나에게 어울리는 스타일과 추천 코디를 한 번에 알려드립니다.</p>
+                </div>
+                <button class="clo-ai-button">테스트 시작하기</button>
+            </div>
+        </section>
+    </main>
+</div>
+
+<script>
+    /* ===== 사이드바 토글 ===== */
+    const bodyEl  = document.body;
+    const menuBtn = document.getElementById('cloMenuBtn');
+    const backdrop = document.querySelector('.clo-backdrop');
+
+    function toggleSidebar() {
+        bodyEl.classList.toggle('clo-sidebar-open');
+    }
+    menuBtn.addEventListener('click', toggleSidebar);
+    backdrop.addEventListener('click', toggleSidebar);
+
+    /* ===== 로그인 / 회원가입 / 마이페이지 / 로그아웃 ===== */
+    const loginBtn   = document.getElementById('loginBtn');
+    const signupBtn  = document.getElementById('signupBtn');
+    const logoutBtn  = document.getElementById('logoutBtn');
+    const mypageBtn  = document.getElementById('mypageBtn');
+    const userStatus = document.getElementById('userStatus');
+
+    // 예시: localStorage에 closetoryUser 가 있으면 로그인 한 상태로 간주
+    function checkAuthState() {
+        const raw = localStorage.getItem('closetoryUser');
+        if (raw) {
+            const user = JSON.parse(raw);
+            userStatus.textContent = (user.name || '사용자') + ' 님 로그인 중';
+            loginBtn.style.display   = 'none';
+            signupBtn.style.display  = 'none';
+            mypageBtn.style.display  = 'inline-flex';
+            logoutBtn.style.display  = 'inline-flex';
+        } else {
+            userStatus.textContent = '';
+            loginBtn.style.display   = 'inline-flex';
+            signupBtn.style.display  = 'inline-flex';
+            mypageBtn.style.display  = 'none';
+            logoutBtn.style.display  = 'none';
+        }
+    }
+
+    loginBtn.addEventListener('click', () => {
+        window.location.href = 'login.html';
+    });
+
+    signupBtn.addEventListener('click', () => {
+        window.location.href = 'signup.html';
+    });
+
+    mypageBtn.addEventListener('click', () => {
+        window.location.href = 'mypage.html';
+    });
+
+    logoutBtn.addEventListener('click', () => {
+        localStorage.removeItem('closetoryUser');
+        checkAuthState();
+        alert('로그아웃 되었습니다.');
+    });
+
+    checkAuthState();
+
+    /* ===== 시간별 날씨 더미 데이터 (05시~다음날 04시) ===== */
+    const hourlyGrid = document.getElementById('hourlyGrid');
+    const hours = [];
+    for (let i = 5; i < 24; i++) hours.push(i);     // 오늘 05~23
+    for (let i = 0; i <= 4; i++) hours.push(i);     // 내일 00~04
+
+    // 아이콘 간단하게 패턴 돌려줌 (실제 API쓰면 여기만 바꾸면 됨)
+    const icons = ['🌙','🌙','☀️','☀️','☀️','☀️','☁️','☁️','🌧','🌧','☁️','☁️'];
+    const baseTemps = [-1,-1,0,1,3,4,6,7,8,8,7,6,4,3,2,1,0,-1,-2,-2,-2,-2,-1,-1];
+
+    hours.forEach((h, idx) => {
+        const cell = document.createElement('div');
+
+        const hour = document.createElement('div');
+        hour.className = 'clo-hour-cell';
+        hour.textContent = (h < 10 ? '0' + h : h) + '시';
+
+        const icon = document.createElement('div');
+        icon.className = 'clo-hour-icon';
+        icon.textContent = icons[idx % icons.length];
+
+        const temp = document.createElement('div');
+        temp.className = 'clo-hour-temp';
+        temp.textContent = baseTemps[idx] + '°C';
+
+        const feel = document.createElement('div');
+        feel.className = 'clo-hour-feel';
+        feel.textContent = (baseTemps[idx] - 1) + '°C';
+
+        cell.appendChild(hour);
+        cell.appendChild(icon);
+        cell.appendChild(temp);
+        cell.appendChild(feel);
+
+        hourlyGrid.appendChild(cell);
+    });
+
+    /* ===== 오늘의 코디 무한 슬라이드 (한 칸씩, 빈 공간 없이) ===== */
+    const track = document.getElementById('cloOutfitTrack');
+    const prevBtn = document.getElementById('cloPrevBtn');
+    const nextBtn = document.getElementById('cloNextBtn');
+
+    const VISIBLE_COUNT = 3;
+    const GAP = 18; // CSS gap 과 동일
+
+    let slides = Array.from(track.children);
+
+    // 앞/뒤에 카드 복제해서 무한 루프 구성
+    const headClones = slides.slice(0, VISIBLE_COUNT).map(c => c.cloneNode(true));
+    const tailClones = slides.slice(-VISIBLE_COUNT).map(c => c.cloneNode(true));
+
+    headClones.forEach(c => track.appendChild(c));
+    tailClones.reverse().forEach(c => track.insertBefore(c, track.firstChild));
+
+    slides = Array.from(track.children);
+
+    let currentIndex = VISIBLE_COUNT; // 실제 첫 카드
+    let cardStep = 0;
+    let isAnimating = false;
+
+    function updateMetrics() {
+        // 카드 하나 너비 + gap
+        if (slides.length === 0) return;
+        cardStep = slides[0].offsetWidth + GAP;
+        track.style.transition = 'none';
+        track.style.transform = `translateX(-${currentIndex * cardStep}px)`;
+        // reflow 후 다시 transition 활성화
+        requestAnimationFrame(() => {
+            track.style.transition = 'transform .35s ease';
+        });
+    }
+
+    window.addEventListener('load', updateMetrics);
+    window.addEventListener('resize', updateMetrics);
+
+    function goTo(index) {
+        if (isAnimating || cardStep === 0) return;
+        isAnimating = true;
+        currentIndex = index;
+        track.style.transform = `translateX(-${currentIndex * cardStep}px)`;
+    }
+
+    track.addEventListener('transitionend', () => {
+        const total = slides.length;
+        const lastRealIndex = total - VISIBLE_COUNT - 1; // 마지막 실제 카드 인덱스(복제 앞)
+
+        if (currentIndex > lastRealIndex) {
+            // 맨 끝 복제 영역 -> 실제 첫 카드로 점프
+            currentIndex = VISIBLE_COUNT;
+            track.style.transition = 'none';
+            track.style.transform = `translateX(-${currentIndex * cardStep}px)`;
+            requestAnimationFrame(() => {
+                track.style.transition = 'transform .35s ease';
+            });
+        } else if (currentIndex < VISIBLE_COUNT) {
+            // 맨 앞 복제 영역 -> 실제 마지막 카드로 점프
+            currentIndex = lastRealIndex;
+            track.style.transition = 'none';
+            track.style.transform = `translateX(-${currentIndex * cardStep}px)`;
+            requestAnimationFrame(() => {
+                track.style.transition = 'transform .35s ease';
+            });
+        }
+        isAnimating = false;
+    });
+
+    prevBtn.addEventListener('click', () => {
+        goTo(currentIndex - 1);  // 한 칸씩 왼쪽
+    });
+
+    nextBtn.addEventListener('click', () => {
+        goTo(currentIndex + 1);  // 한 칸씩 오른쪽
+    });
+</script>
+</body>
+</html>

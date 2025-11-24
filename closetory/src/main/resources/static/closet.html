@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Closetory - 나만의 옷장</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: "Noto Sans KR", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f5f7fb;
+            color: #111827;
+        }
+
+        /* ===== 상단 고정 헤더 (index와 동일) ===== */
+        .clo-topbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 72px;
+            background: #ffffff;
+            box-shadow: 0 6px 20px rgba(15,23,42,0.06);
+            z-index: 50;
+        }
+        .clo-top-inner {
+            max-width: 1180px;
+            margin: 0 auto;
+            height: 100%;
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .clo-top-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .clo-hamburger {
+            width: 36px;
+            height: 36px;
+            border-radius: 999px;
+            border: none;
+            background: #111827;
+            color: #f9fafb;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .clo-logo-main {
+            font-size: 22px;
+            font-weight: 900;
+            letter-spacing: -0.4px;
+        }
+        .clo-logo-sub {
+            font-size: 11px;
+            color: #9ca3af;
+            margin-top: 2px;
+        }
+        .clo-top-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .clo-search-form {
+            display: flex;
+            align-items: center;
+            background: #f3f4f6;
+            border-radius: 999px;
+            padding: 6px 12px;
+            min-width: 260px;
+        }
+        .clo-search-icon {
+            font-size: 14px;
+            color: #6b7280;
+            margin-right: 6px;
+        }
+        .clo-search-input {
+            border: none;
+            background: transparent;
+            outline: none;
+            font-size: 13px;
+            width: 100%;
+        }
+        .clo-top-btn {
+            height: 36px;
+            border-radius: 999px;
+            border: 1px solid #e5e7eb;
+            background: #ffffff;
+            padding: 0 14px;
+            font-size: 12px;
+            cursor: pointer;
+            color: #374151;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+        }
+        .clo-top-btn.primary {
+            background: #111827;
+            color: #f9fafb;
+            border-color: #111827;
+            font-weight: 600;
+        }
+        .clo-top-btn:hover { background: #f3f4f6; }
+        .clo-top-btn.primary:hover { background: #020617; }
+        .clo-user-label {
+            font-size: 12px;
+            color: #4b5563;
+        }
+
+        /* ===== 사이드바 (index와 동일, active만 다름) ===== */
+        .clo-sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 230px;
+            background: #111827;
+            color: #e5e7eb;
+            padding: 24px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            transform: translateX(-100%);
+            transition: transform .25s ease-out;
+            z-index: 60;
+        }
+        body.clo-sidebar-open .clo-sidebar {
+            transform: translateX(0);
+        }
+        .clo-sidebar-header {
+            font-size: 18px;
+            font-weight: 800;
+        }
+        .clo-sidebar-sub {
+            font-size: 12px;
+            color: #9ca3af;
+            margin-top: 2px;
+        }
+        .clo-menu-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            font-size: 14px;
+        }
+        .clo-menu-list li {
+            padding: 8px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background .2s, color .2s;
+        }
+        .clo-menu-list li:hover {
+            background: #1f2937;
+            color: #f9fafb;
+        }
+        .clo-menu-list li.clo-active {
+            background: #fbbf24;
+            color: #111827;
+            font-weight: 700;
+        }
+        .clo-sidebar-footer {
+            margin-top: auto;
+            font-size: 11px;
+            color: #6b7280;
+        }
+        .clo-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(15,23,42,0.35);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .2s ease-out;
+            z-index: 55;
+        }
+        body.clo-sidebar-open .clo-backdrop {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* ===== 메인 래퍼 ===== */
+        .clo-main-outer { padding-top: 96px; }
+        .clo-main-wrap {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 0 24px 40px;
+        }
+
+        /* ===== 나만의 옷장 헤더 ===== */
+        .closet-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .closet-title h1 {
+            margin: 0;
+            font-size: 30px;
+            font-weight: 900;
+            letter-spacing: -0.5px;
+        }
+        .closet-title p {
+            margin: 4px 0 0;
+            font-size: 14px;
+            color: #6b7280;
+        }
+        .closet-tagline {
+            font-size: 12px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: #e5f0ff;
+            color: #1d4ed8;
+        }
+
+        /* ===== 필터 영역 ===== */
+        .closet-filters {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 14px 16px;
+            box-shadow: 0 8px 20px rgba(15,23,42,0.04);
+            margin-bottom: 18px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px 18px;
+        }
+        .filter-label {
+            font-size: 13px;
+            font-weight: 700;
+        }
+        .color-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .chip {
+            border-radius: 999px;
+            padding: 4px 10px;
+            font-size: 12px;
+            border: 1px solid #e5e7eb;
+            background: #f9fafb;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .chip-color-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 999px;
+        }
+        .chip.active {
+            border-color: #111827;
+            background: #111827;
+            color: #f9fafb;
+        }
+        .chip-reset {
+            font-size: 12px;
+            color: #6b7280;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+        .closet-toggle {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: #4b5563;
+        }
+
+        /* ===== 카드 그리드 ===== */
+        .closet-grid {
+            margin-top: 10px;
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 18px;
+        }
+        .closet-card {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 14px 14px 16px;
+            box-shadow: 0 10px 24px rgba(15,23,42,0.06);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            position: relative;
+        }
+        .closet-card-thumb {
+            height: 150px;
+            border-radius: 14px;
+            background: linear-gradient(135deg,#e5e7eb,#f3f4f6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #6b7280;
+        }
+        .closet-card-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            font-size: 11px;
+        }
+        .closet-tag {
+            padding: 3px 7px;
+            border-radius: 999px;
+            background: #f3f4ff;
+            color: #4f46e5;
+        }
+        .closet-card-title {
+            font-size: 14px;
+            font-weight: 700;
+        }
+        .closet-card-desc {
+            font-size: 12px;
+            color: #6b7280;
+        }
+        .closet-card-footer {
+            margin-top: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            color: #9ca3af;
+        }
+        .closet-like-btn {
+            border: none;
+            background: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            color: #6b7280;
+        }
+        .closet-like-btn .heart {
+            font-size: 16px;
+        }
+        .closet-card.liked .closet-like-btn .heart {
+            color: #f97316;
+        }
+        .closet-card.liked .closet-like-btn span.label {
+            color: #f97316;
+            font-weight: 600;
+        }
+
+        .closet-empty {
+            grid-column: 1 / -1;
+            text-align: center;
+            font-size: 13px;
+            color: #9ca3af;
+            padding: 40px 0;
+        }
+
+        /* 반응형 */
+        @media (max-width: 960px) {
+            .clo-top-inner { padding: 0 16px; }
+            .clo-main-wrap { padding: 0 16px 28px; }
+            .closet-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+        @media (max-width: 720px) {
+            .closet-grid {
+                grid-template-columns: 1fr;
+            }
+            .closet-toggle {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- 사이드바 -->
+<nav class="clo-sidebar">
+    <div>
+        <div class="clo-sidebar-header">메뉴</div>
+        <div class="clo-sidebar-sub">Closetory 옷장 메뉴</div>
+    </div>
+    <ul class="clo-menu-list">
+        <li class="clo-active" onclick="location.href='closet.html'">나만의 옷장</li>
+        <li onclick="location.href='color.html'">코디 색감 추천</li>
+        <li onclick="location.href='situation.html'">상황별 코디 추천</li>
+        <li onclick="location.href='calendar.html'">주간 코디 캘린더</li>
+        <li onclick="location.href='ranking.html'">인기 코디 랭킹</li>
+    </ul>
+    <div class="clo-sidebar-footer">
+        Closetory · 옷장에서 꺼내는 작은 행복
+    </div>
+</nav>
+<div class="clo-backdrop"></div>
+
+<!-- 상단바 (로그인 상태 표시용) -->
+<header class="clo-topbar">
+    <div class="clo-top-inner">
+        <div class="clo-top-left">
+            <button class="clo-hamburger" id="cloMenuBtn">☰</button>
+            <div>
+                <a href="index.html" class="clo-logo-link" style="text-decoration:none; color:inherit;">
+                    <div class="clo-logo-main">Closetory</div>
+                    <div class="clo-logo-sub">옷장에서 꺼내는 작은 행복</div>
+                </a>
+            </div>
+        </div>
+        <div class="clo-top-right">
+            <form class="clo-search-form">
+                <span class="clo-search-icon">🔍</span>
+                <input class="clo-search-input" type="text" placeholder="코디, 아이템 검색">
+            </form>
+
+            <!-- 비로그인 -->
+            <div id="cloAuthLoggedOut">
+                <button class="clo-top-btn" onclick="location.href='login.html'">로그인</button>
+                <button class="clo-top-btn" onclick="location.href='signup.html'">회원가입</button>
+            </div>
+
+            <!-- 로그인 -->
+            <div id="cloAuthLoggedIn" style="display:none;align-items:center;gap:8px;">
+                <span class="clo-user-label">
+                    <strong id="cloUserName"></strong> 님
+                </span>
+                <button class="clo-top-btn" onclick="location.href='mypage.html'">마이페이지</button>
+                <button class="clo-top-btn primary" id="cloLogoutBtn">로그아웃</button>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- 메인 -->
+<div class="clo-main-outer">
+    <main class="clo-main-wrap">
+
+        <!-- 나만의 옷장 헤더 -->
+        <section class="closet-header">
+            <div class="closet-title">
+                <h1>나만의 옷장</h1>
+                <p>내가 찜한 코디와 좋아하는 색감 조합을 한 곳에서 관리해 보세요.</p>
+            </div>
+            <div class="closet-tagline">즐겨찾기 코디 · 컬러 조합 실험실</div>
+        </section>
+
+        <!-- 필터 영역 -->
+        <section class="closet-filters">
+            <div class="filter-label">색감 필터</div>
+            <div class="color-chips" id="colorChips">
+                <button class="chip" data-color="warm">
+                    <span class="chip-color-dot" style="background:#f97316;"></span> 웜톤
+                </button>
+                <button class="chip" data-color="cool">
+                    <span class="chip-color-dot" style="background:#3b82f6;"></span> 쿨톤
+                </button>
+                <button class="chip" data-color="neutral">
+                    <span class="chip-color-dot" style="background:#6b7280;"></span> 뉴트럴
+                </button>
+                <button class="chip" data-color="mono">
+                    <span class="chip-color-dot" style="background:#111827;"></span> 모노톤
+                </button>
+            </div>
+            <span class="chip-reset" id="resetFilters">필터 초기화</span>
+
+            <label class="closet-toggle">
+                <input type="checkbox" id="onlyLiked">
+                찜한 코디만 보기
+            </label>
+        </section>
+
+        <!-- 코디 카드 그리드 -->
+        <section class="closet-grid" id="closetGrid">
+            <!-- 카드 예시 1 -->
+            <article class="closet-card" data-color="warm">
+                <div class="closet-card-thumb">패딩 + 조거 팬츠 (웜톤)</div>
+                <div class="closet-card-tags">
+                    <span class="closet-tag">패딩</span>
+                    <span class="closet-tag">후드</span>
+                    <span class="closet-tag">캠퍼스</span>
+                    <span class="closet-tag">웜톤</span>
+                </div>
+                <div class="closet-card-title">겨울 캠퍼스 웜톤 코디</div>
+                <p class="closet-card-desc">크림색 패딩과 베이지 조거 팬츠 조합으로 부드러운 느낌의 데일리룩.</p>
+                <div class="closet-card-footer">
+                    <span>F/W 데일리</span>
+                    <button class="closet-like-btn">
+                        <span class="heart">♡</span>
+                        <span class="label">찜하기</span>
+                    </button>
+                </div>
+            </article>
+
+            <!-- 카드 예시 2 -->
+            <article class="closet-card" data-color="cool">
+                <div class="closet-card-thumb">코트 + 데님 (쿨톤)</div>
+                <div class="closet-card-tags">
+                    <span class="closet-tag">롱코트</span>
+                    <span class="closet-tag">데님</span>
+                    <span class="closet-tag">데이트</span>
+                    <span class="closet-tag">쿨톤</span>
+                </div>
+                <div class="closet-card-title">겨울 데이트 쿨톤 코디</div>
+                <p class="closet-card-desc">네이비 코트와 중청 데님 조합으로 차분한 무드의 데이트 룩.</p>
+                <div class="closet-card-footer">
+                    <span>F/W 데이트</span>
+                    <button class="closet-like-btn">
+                        <span class="heart">♡</span>
+                        <span class="label">찜하기</span>
+                    </button>
+                </div>
+            </article>
+
+            <!-- 카드 예시 3 -->
+            <article class="closet-card" data-color="neutral">
+                <div class="closet-card-thumb">니트 + 슬랙스 (뉴트럴)</div>
+                <div class="closet-card-tags">
+                    <span class="closet-tag">니트</span>
+                    <span class="closet-tag">슬랙스</span>
+                    <span class="closet-tag">오피스</span>
+                    <span class="closet-tag">뉴트럴</span>
+                </div>
+                <div class="closet-card-title">오피스 뉴트럴 코디</div>
+                <p class="closet-card-desc">그레이 니트와 블랙 슬랙스로 깔끔하게 맞춘 출근용 무난 코디.</p>
+                <div class="closet-card-footer">
+                    <span>사무실 / 발표</span>
+                    <button class="closet-like-btn">
+                        <span class="heart">♡</span>
+                        <span class="label">찜하기</span>
+                    </button>
+                </div>
+            </article>
+
+            <!-- 카드 예시 4 -->
+            <article class="closet-card" data-color="mono">
+                <div class="closet-card-thumb">올블랙 모노톤</div>
+                <div class="closet-card-tags">
+                    <span class="closet-tag">블루종</span>
+                    <span class="closet-tag">조거</span>
+                    <span class="closet-tag">스트릿</span>
+                    <span class="closet-tag">모노톤</span>
+                </div>
+                <div class="closet-card-title">올블랙 스트릿 코디</div>
+                <p class="closet-card-desc">블랙 블루종과 블랙 조거 팬츠로 깔끔한 스트릿 무드 연출.</p>
+                <div class="closet-card-footer">
+                    <span>스트릿</span>
+                    <button class="closet-like-btn">
+                        <span class="heart">♡</span>
+                        <span class="label">찜하기</span>
+                    </button>
+                </div>
+            </article>
+
+            <!-- 필요하면 카드 더 추가해서 8개, 10개로 늘리면 됨 -->
+        </section>
+
+    </main>
+</div>
+
+<script>
+    // ===== 사이드바 토글 =====
+    const bodyEl = document.body;
+    const menuBtn = document.getElementById('cloMenuBtn');
+    const backdrop = document.querySelector('.clo-backdrop');
+
+    function toggleSidebar() {
+        bodyEl.classList.toggle('clo-sidebar-open');
+    }
+    menuBtn.addEventListener('click', toggleSidebar);
+    backdrop.addEventListener('click', toggleSidebar);
+
+    // ===== 로그인 상태 UI (index와 동일 로직 재사용) =====
+    function refreshAuthUI() {
+        const data = localStorage.getItem('closetoryUser');
+        const loggedInFlag = localStorage.getItem('closetoryLoggedIn') === 'true';
+        const user = data ? JSON.parse(data) : null;
+        const isLoggedIn = !!(loggedInFlag && user);
+
+        const outBox = document.getElementById('cloAuthLoggedOut');
+        const inBox  = document.getElementById('cloAuthLoggedIn');
+        const nameSpan = document.getElementById('cloUserName');
+
+        if (!outBox || !inBox) return;
+
+        if (isLoggedIn) {
+            outBox.style.display = 'none';
+            inBox.style.display  = 'flex';
+            if (nameSpan) {
+                nameSpan.textContent = user.name || user.userId || '사용자';
+            }
+        } else {
+            outBox.style.display = 'flex';
+            inBox.style.display  = 'none';
+        }
+    }
+
+    function setupLogout() {
+        const btn = document.getElementById('cloLogoutBtn');
+        if (!btn) return;
+        btn.addEventListener('click', function () {
+            localStorage.setItem('closetoryLoggedIn', 'false');
+            alert('로그아웃 되었습니다.');
+            refreshAuthUI();
+        });
+    }
+
+    // ===== 나만의 옷장 : 색상 필터 + 찜 필터 =====
+    const chips = document.querySelectorAll('.chip[data-color]');
+    const resetBtn = document.getElementById('resetFilters');
+    const onlyLikedChk = document.getElementById('onlyLiked');
+    const cards = document.querySelectorAll('.closet-card');
+
+    let activeColor = null;
+
+    function applyClosetFilter() {
+        let anyVisible = false;
+        cards.forEach(card => {
+            const color = card.dataset.color;
+            const liked = card.classList.contains('liked');
+            let visible = true;
+
+            if (activeColor && color !== activeColor) {
+                visible = false;
+            }
+            if (onlyLikedChk.checked && !liked) {
+                visible = false;
+            }
+
+            card.style.display = visible ? '' : 'none';
+            if (visible) anyVisible = true;
+        });
+
+        // 없다면 "비어 있음" 메시지 표시
+        let emptyEl = document.querySelector('.closet-empty');
+        if (!anyVisible) {
+            if (!emptyEl) {
+                emptyEl = document.createElement('div');
+                emptyEl.className = 'closet-empty';
+                emptyEl.textContent = '조건에 맞는 코디가 아직 없습니다. 새로운 코디를 추가해 보세요.';
+                document.getElementById('closetGrid').appendChild(emptyEl);
+            }
+        } else if (emptyEl) {
+            emptyEl.remove();
+        }
+    }
+
+    chips.forEach(chip => {
+        chip.addEventListener('click', () => {
+            const color = chip.dataset.color;
+            if (activeColor === color) {
+                activeColor = null;
+            } else {
+                activeColor = color;
+            }
+            chips.forEach(c => c.classList.toggle('active', c.dataset.color === activeColor));
+            applyClosetFilter();
+        });
+    });
+
+    if (resetBtn) {
+        resetBtn.addEventListener('click', () => {
+            activeColor = null;
+            chips.forEach(c => c.classList.remove('active'));
+            onlyLikedChk.checked = false;
+            applyClosetFilter();
+        });
+    }
+
+    if (onlyLikedChk) {
+        onlyLikedChk.addEventListener('change', applyClosetFilter);
+    }
+
+    // 찜하기 버튼
+    const likeBtns = document.querySelectorAll('.closet-like-btn');
+    likeBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const card = btn.closest('.closet-card');
+            card.classList.toggle('liked');
+            const heart = btn.querySelector('.heart');
+            const label = btn.querySelector('.label');
+            const isLiked = card.classList.contains('liked');
+            heart.textContent = isLiked ? '❤️' : '♡';
+            label.textContent = isLiked ? '찜됨' : '찜하기';
+            applyClosetFilter();
+        });
+    });
+
+    // 초기 실행
+    refreshAuthUI();
+    setupLogout();
+    applyClosetFilter();
+</script>
+</body>
+</html>

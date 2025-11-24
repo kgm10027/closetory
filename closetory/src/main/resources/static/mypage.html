@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Closetory - 마이페이지</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: "Noto Sans KR", sans-serif;
+            background: #f5f7fb;
+        }
+        .wrap {
+            max-width: 780px;
+            margin: 50px auto;
+            padding: 30px 28px;
+            background: #ffffff;
+            border-radius: 18px;
+            box-shadow: 0 14px 30px rgba(15,23,42,0.08);
+        }
+        h1 {
+            margin: 0 0 6px;
+            font-size: 24px;
+            font-weight: 900;
+        }
+        p.sub {
+            margin: 0 0 20px;
+            font-size: 13px;
+            color: #6b7280;
+        }
+        h2 {
+            margin: 24px 0 10px;
+            font-size: 18px;
+            font-weight: 800;
+        }
+        label {
+            display: block;
+            font-size: 13px;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+        input, select {
+            width: 100%;
+            padding: 9px 10px;
+            border-radius: 10px;
+            border: 1px solid #d1d5db;
+            font-size: 13px;
+            margin-bottom: 14px;
+            box-sizing: border-box;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 1px rgba(79,70,229,0.15);
+        }
+        .row-2 {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0,1fr));
+            gap: 14px 18px;
+        }
+        .btn-main, .btn-sub {
+            border-radius: 999px;
+            border: none;
+            padding: 9px 18px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .btn-main {
+            background: #111827;
+            color: #f9fafb;
+        }
+        .btn-main:hover { background: #020617; }
+        .btn-sub {
+            background: #f3f4f6;
+            color: #374151;
+        }
+        .btn-sub:hover { background: #e5e7eb; }
+        .btn-row {
+            margin-top: 4px;
+            display: flex;
+            gap: 10px;
+        }
+        .error {
+            font-size: 12px;
+            color: #dc2626;
+            margin-bottom: 6px;
+        }
+        .success {
+            font-size: 12px;
+            color: #16a34a;
+            margin-bottom: 6px;
+        }
+        .top-links {
+            text-align: right;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+        .top-links a {
+            color: #4f46e5;
+            text-decoration: none;
+            margin-left: 8px;
+        }
+        .feature-list {
+            margin: 0 0 10px;
+            padding-left: 18px;
+            font-size: 13px;
+            color: #4b5563;
+        }
+        .feature-list li + li {
+            margin-top: 4px;
+        }
+        .hint {
+            font-size: 11px;
+            color: #9ca3af;
+            margin-top: -6px;
+        }
+        @media (max-width: 720px) {
+            .row-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <div class="top-links">
+        <a href="index.html">메인으로</a>
+        <a href="#" id="logoutBtn">로그아웃</a>
+    </div>
+
+    <h1>마이페이지</h1>
+    <p class="sub">회원 정보 확인, 비밀번호 변경, 지역 설정 등을 관리할 수 있습니다.</p>
+
+    <!-- 이 페이지에서 할 수 있는 것들 목록 -->
+    <section>
+        <h2>이 페이지에서 할 수 있는 것</h2>
+        <ul class="feature-list">
+            <li>내 기본 회원 정보(이름, 주소) 확인 및 수정</li>
+            <li>로그인 비밀번호 변경</li>
+            <li>날씨 연동을 위한 기본 지역 설정</li>
+            <li>관심 스타일 / 코디 취향 관리 (추후 확장 예정)</li>
+            <li>찜한 코디 및 최근 본 코디 관리 (추후 확장 예정)</li>
+        </ul>
+    </section>
+
+    <!-- 사용자 정보 수정 -->
+    <section>
+        <h2>회원 정보</h2>
+        <div id="infoMsg" class="error" style="display:none;"></div>
+        <form id="infoForm">
+            <div class="row-2">
+                <div>
+                    <label for="userId">아이디 (수정 불가)</label>
+                    <input type="text" id="userId" disabled>
+                </div>
+                <div>
+                    <label for="name">이름</label>
+                    <input type="text" id="name" required>
+                </div>
+            </div>
+            <label for="address">주소</label>
+            <input type="text" id="address" required>
+
+            <div class="btn-row">
+                <button type="submit" class="btn-main">회원 정보 저장</button>
+            </div>
+        </form>
+    </section>
+
+    <!-- 지역 설정 (날씨 연동) -->
+    <section>
+        <h2>지역 설정 (날씨 연동)</h2>
+        <p class="sub" style="margin-bottom:8px;">
+            여기서 선택한 지역은 메인 화면의 &lt;오늘의 코디&gt; 날씨 정보에 사용됩니다.
+        </p>
+        <div id="regionMsg" class="error" style="display:none;"></div>
+        <form id="regionForm">
+            <label for="region">기본 지역</label>
+            <select id="region">
+                <option value="">지역을 선택해 주세요</option>
+                <option value="서울">서울</option>
+                <option value="경기 고양시">경기 고양시</option>
+                <option value="인천">인천</option>
+                <option value="부산">부산</option>
+                <option value="대구">대구</option>
+                <option value="광주">광주</option>
+                <option value="대전">대전</option>
+                <option value="울산">울산</option>
+            </select>
+            <p class="hint">※ 실제 날씨 API 연동 시 이 지역을 기준으로 온도·날씨를 불러올 예정입니다.</p>
+
+            <div class="btn-row">
+                <button type="submit" class="btn-main">지역 설정 저장</button>
+            </div>
+        </form>
+    </section>
+
+    <!-- 비밀번호 변경 -->
+    <section>
+        <h2>비밀번호 변경</h2>
+        <div id="pwMsg" class="error" style="display:none;"></div>
+        <div id="pwOk" class="success" style="display:none;"></div>
+        <form id="pwForm">
+            <label for="currentPw">현재 비밀번호</label>
+            <input type="password" id="currentPw" required>
+
+            <label for="newPw">새 비밀번호</label>
+            <input type="password" id="newPw" required>
+
+            <label for="newPw2">새 비밀번호 확인</label>
+            <input type="password" id="newPw2" required>
+
+            <div class="btn-row">
+                <button type="submit" class="btn-main">비밀번호 변경</button>
+            </div>
+        </form>
+    </section>
+</div>
+
+<script>
+    // 로그인 여부 확인
+    const loggedIn = localStorage.getItem('closetoryLoggedIn') === 'true';
+    const data = localStorage.getItem('closetoryUser');
+
+    if (!loggedIn || !data) {
+        alert('로그인 후 이용 가능한 페이지입니다.');
+        location.href = 'login.html';
+    }
+
+    let user = data ? JSON.parse(data) : null;
+
+    // 폼 요소
+    const userIdInput = document.getElementById('userId');
+    const nameInput = document.getElementById('name');
+    const addrInput = document.getElementById('address');
+
+    const infoForm = document.getElementById('infoForm');
+    const infoMsg = document.getElementById('infoMsg');
+
+    const regionForm = document.getElementById('regionForm');
+    const regionSelect = document.getElementById('region');
+    const regionMsg = document.getElementById('regionMsg');
+
+    const pwForm = document.getElementById('pwForm');
+    const pwMsg = document.getElementById('pwMsg');
+    const pwOk = document.getElementById('pwOk');
+
+    const logoutBtn = document.getElementById('logoutBtn');
+
+    // 초기 값 세팅
+    if (user) {
+        userIdInput.value = user.userId || '';
+        nameInput.value = user.name || '';
+        addrInput.value = user.address || '';
+    }
+
+    // 저장된 지역 불러오기 (user.region 또는 별도 key)
+    const storedRegion = localStorage.getItem('closetoryRegion') || (user && user.region);
+    if (storedRegion) {
+        regionSelect.value = storedRegion;
+    }
+
+    // 회원 정보 저장
+    infoForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        infoMsg.style.display = 'none';
+
+        const name = nameInput.value.trim();
+        const address = addrInput.value.trim();
+
+        if (!name || !address) {
+            infoMsg.textContent = '이름과 주소를 모두 입력해 주세요.';
+            infoMsg.style.display = 'block';
+            return;
+        }
+
+        user = {
+            ...user,
+            name: name,
+            address: address
+        };
+        localStorage.setItem('closetoryUser', JSON.stringify(user));
+        alert('회원 정보가 저장되었습니다.');
+    });
+
+    // 지역 설정 저장
+    regionForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        regionMsg.style.display = 'none';
+
+        const region = regionSelect.value;
+        if (!region) {
+            regionMsg.textContent = '기본 지역을 선택해 주세요.';
+            regionMsg.style.display = 'block';
+            return;
+        }
+
+        // user 객체에도 region 보관
+        user = {
+            ...user,
+            region: region
+        };
+        localStorage.setItem('closetoryUser', JSON.stringify(user));
+
+        // 메인 날씨에서 사용할 지역
+        localStorage.setItem('closetoryRegion', region);
+
+        alert('지역 설정이 저장되었습니다. 메인 화면의 날씨 정보에 반영됩니다.');
+    });
+
+    // 비밀번호 변경
+    pwForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        pwMsg.style.display = 'none';
+        pwOk.style.display = 'none';
+
+        const currentPw = document.getElementById('currentPw').value;
+        const newPw = document.getElementById('newPw').value;
+        const newPw2 = document.getElementById('newPw2').value;
+
+        if (!currentPw || !newPw || !newPw2) {
+            pwMsg.textContent = '모든 항목을 입력해 주세요.';
+            pwMsg.style.display = 'block';
+            return;
+        }
+        if (currentPw !== user.password) {
+            pwMsg.textContent = '현재 비밀번호가 올바르지 않습니다.';
+            pwMsg.style.display = 'block';
+            return;
+        }
+        if (newPw !== newPw2) {
+            pwMsg.textContent = '새 비밀번호가 서로 다릅니다.';
+            pwMsg.style.display = 'block';
+            return;
+        }
+        if (newPw === currentPw) {
+            pwMsg.textContent = '이전과 다른 비밀번호를 입력해 주세요.';
+            pwMsg.style.display = 'block';
+            return;
+        }
+
+        user = {
+            ...user,
+            password: newPw
+        };
+        localStorage.setItem('closetoryUser', JSON.stringify(user));
+        pwOk.textContent = '비밀번호가 변경되었습니다.';
+        pwOk.style.display = 'block';
+
+        // 입력칸 비우기
+        document.getElementById('currentPw').value = '';
+        document.getElementById('newPw').value = '';
+        document.getElementById('newPw2').value = '';
+    });
+
+    // 로그아웃
+    logoutBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        localStorage.setItem('closetoryLoggedIn', 'false');
+        alert('로그아웃 되었습니다.');
+        location.href = 'index.html';
+    });
+</script>
+</body>
+</html>
