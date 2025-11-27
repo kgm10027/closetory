@@ -369,6 +369,34 @@
             font-size: 12px;
             color: #6b7280;
         }
+
+        /* === 카드 하단 찜 버튼 === */
+        .clo-card-footer {
+            margin-top: 4px;
+            display: flex;
+            justify-content: center;
+        }
+        .clo-like-btn {
+            border-radius: 999px;
+            border: 1px solid #e5e7eb;
+            padding: 4px 10px;
+            font-size: 11px;
+            cursor: pointer;
+            background: #ffffff;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            color: #6b7280;
+        }
+        .clo-like-btn .clo-like-icon {
+            font-size: 13px;
+        }
+        .clo-like-btn.is-active {
+            border-color: #f97316;
+            background: #fff7ed;
+            color: #ea580c;
+        }
+
         .clo-outfit-button {
             margin-top: 4px;
             align-self: center;
@@ -481,6 +509,93 @@
             .clo-slide-btn.prev { left: 4px; }
             .clo-slide-btn.next { right: 4px; }
         }
+        /* ===== AI 스타일 유형 테스트 모달 ===== */
+.ai-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15,23,42,0.45);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 80;
+}
+.ai-modal-backdrop.show { display: flex; }
+
+.ai-modal {
+    width: 520px;
+    max-width: 90vw;
+    max-height: 85vh;
+    background: #ffffff;
+    border-radius: 18px;
+    box-shadow: 0 18px 42px rgba(15,23,42,0.35);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.ai-modal-header {
+    padding: 14px 18px 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8px;
+}
+.ai-modal-header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 800;
+}
+.ai-modal-close {
+    border: none;
+    background: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #9ca3af;
+}
+
+.ai-modal-body {
+    padding: 4px 18px 14px;
+    overflow-y: auto;
+    font-size: 13px;
+}
+.ai-q-box {
+    margin-top: 10px;
+    padding: 8px 10px;
+    border-radius: 12px;
+    background: #f9fafb;
+}
+.ai-q-title {
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+.ai-q-options label {
+    display: block;
+    margin: 2px 0;
+    cursor: pointer;
+}
+
+.ai-modal-footer {
+    padding: 10px 18px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid #e5e7eb;
+    gap: 10px;
+}
+.ai-result-text {
+    font-size: 12px;
+    color: #6b7280;
+}
+.ai-start-btn {
+    border-radius: 999px;
+    border: none;
+    background: #111827;
+    color: #f9fafb;
+    padding: 8px 16px;
+    font-size: 12px;
+    cursor: pointer;
+}
+.ai-start-btn:hover { background: #020617; }
     </style>
 </head>
 <body>
@@ -545,28 +660,31 @@
         <!-- 날씨 -->
         <section class="clo-weather-bar">
             <div class="clo-weather-main">
-                <div class="clo-temp-circle" id="currentTemp">4°C</div>
+                <div class="clo-temp-circle" id="currentTemp">--°C</div>
                 <div class="clo-weather-info">
-                    <strong id="currentLocation">경기 고양시, 현재 체감 기온</strong>
-                    <span class="clo-weather-sub" id="currentSummary">흐림 · 약한 바람 · 패딩/니트 추천</span>
+                    <strong id="currentLocation">지역 · 현재 체감 기온</strong>
+                    <span class="clo-weather-sub" id="currentSummary">날씨 정보를 불러오는 중입니다…</span>
                 </div>
             </div>
             <div class="clo-time-strip">
-                <div class="clo-time-strip-title">시간별 날씨 &amp; 온도</div>
+                <div class="clo-time-strip-title">시간별 날씨 &amp; 온도 (실시간 예보)</div>
                 <div class="clo-time-strip-line"></div>
                 <div class="clo-time-strip-grid" id="hourlyGrid">
-                    <!-- JS에서 시간대 05~04시 채워 넣음 -->
+                    <!-- JS에서 실제 예보 24시간 채움 -->
                 </div>
             </div>
         </section>
 
-        <!-- 오늘의 코디 슬라이드 -->
+        <!-- 오늘의 코디 슬라이드 (레이아웃 그대로) -->
         <section class="clo-outfits-section">
             <button class="clo-slide-btn prev" id="cloPrevBtn">‹</button>
             <div class="clo-outfits-viewport">
                 <div class="clo-outfits-track" id="cloOutfitTrack">
-                    <!-- 실제 카드 8개 -->
-                    <article class="clo-outfit-card">
+                    <!-- 각 카드에 데이터 속성 추가 (id / colors / image) -->
+                    <article class="clo-outfit-card"
+                             data-outfit-id="trip_weekend"
+                             data-colors="블루"
+                             data-image="images/trip.jpg">
                         <div class="clo-outfit-avatar">여행</div>
                         <div class="clo-badge-row">
                             <span class="clo-badge">여행룩</span>
@@ -574,10 +692,19 @@
                         </div>
                         <div class="clo-outfit-title">주말 여행 코디</div>
                         <p class="clo-outfit-desc">후드 + 경량 패딩 + 청바지로 이동하기 편한 여행 룩.</p>
-                        <button class="clo-outfit-button">설명 보기</button>
+                        <button class="clo-outfit-button" type="button">설명 보기</button>
+                        <div class="clo-card-footer">
+                            <button class="clo-like-btn" type="button">
+                                <span class="clo-like-icon">♡</span>
+                                <span class="clo-like-label">찜하기</span>
+                            </button>
+                        </div>
                     </article>
 
-                    <article class="clo-outfit-card">
+                    <article class="clo-outfit-card"
+                             data-outfit-id="campus_daily"
+                             data-colors="블루"
+                             data-image="images/campus.jpg">
                         <div class="clo-outfit-avatar">캠퍼스</div>
                         <div class="clo-badge-row">
                             <span class="clo-badge">데일리룩</span>
@@ -585,10 +712,19 @@
                         </div>
                         <div class="clo-outfit-title">캠퍼스 캐주얼 코디</div>
                         <p class="clo-outfit-desc">후드티와 패딩, 조거 팬츠 조합으로 편하면서도 따뜻한 룩.</p>
-                        <button class="clo-outfit-button">설명 보기</button>
+                        <button class="clo-outfit-button" type="button">설명 보기</button>
+                        <div class="clo-card-footer">
+                            <button class="clo-like-btn" type="button">
+                                <span class="clo-like-icon">♡</span>
+                                <span class="clo-like-label">찜하기</span>
+                            </button>
+                        </div>
                     </article>
 
-                    <article class="clo-outfit-card">
+                    <article class="clo-outfit-card"
+                             data-outfit-id="presentation_formal"
+                             data-colors="그레이,화이트"
+                             data-image="images/presentation.jpg">
                         <div class="clo-outfit-avatar">발표</div>
                         <div class="clo-badge-row">
                             <span class="clo-badge">세미포멀</span>
@@ -596,10 +732,19 @@
                         </div>
                         <div class="clo-outfit-title">발표날 코디</div>
                         <p class="clo-outfit-desc">화이트 셔츠와 슬랙스, 재킷으로 단정하게 준비하는 발표 룩.</p>
-                        <button class="clo-outfit-button">설명 보기</button>
+                        <button class="clo-outfit-button" type="button">설명 보기</button>
+                        <div class="clo-card-footer">
+                            <button class="clo-like-btn" type="button">
+                                <span class="clo-like-icon">♡</span>
+                                <span class="clo-like-label">찜하기</span>
+                            </button>
+                        </div>
                     </article>
 
-                    <article class="clo-outfit-card">
+                    <article class="clo-outfit-card"
+                             data-outfit-id="date_warm"
+                             data-colors="브라운"
+                             data-image="images/date.jpg">
                         <div class="clo-outfit-avatar">데이트</div>
                         <div class="clo-badge-row">
                             <span class="clo-badge">따뜻한 톤</span>
@@ -607,10 +752,19 @@
                         </div>
                         <div class="clo-outfit-title">감성 데이트 코디</div>
                         <p class="clo-outfit-desc">롱코트와 니트, 슬랙스로 깔끔하게 연출하는 데이트용 코디.</p>
-                        <button class="clo-outfit-button">설명 보기</button>
+                        <button class="clo-outfit-button" type="button">설명 보기</button>
+                        <div class="clo-card-footer">
+                            <button class="clo-like-btn" type="button">
+                                <span class="clo-like-icon">♡</span>
+                                <span class="clo-like-label">찜하기</span>
+                            </button>
+                        </div>
                     </article>
 
-                    <article class="clo-outfit-card">
+                    <article class="clo-outfit-card"
+                             data-outfit-id="home_comfy"
+                             data-colors="블랙,그레이"
+                             data-image="images/home.jpg">
                         <div class="clo-outfit-avatar">집</div>
                         <div class="clo-badge-row">
                             <span class="clo-badge">홈웨어</span>
@@ -618,10 +772,19 @@
                         </div>
                         <div class="clo-outfit-title">집콕 편안 코디</div>
                         <p class="clo-outfit-desc">루즈핏 맨투맨과 조거 팬츠로 편안하게 보내는 집콕 룩.</p>
-                        <button class="clo-outfit-button">설명 보기</button>
+                        <button class="clo-outfit-button" type="button">설명 보기</button>
+                        <div class="clo-card-footer">
+                            <button class="clo-like-btn" type="button">
+                                <span class="clo-like-icon">♡</span>
+                                <span class="clo-like-label">찜하기</span>
+                            </button>
+                        </div>
                     </article>
 
-                    <article class="clo-outfit-card">
+                    <article class="clo-outfit-card"
+                             data-outfit-id="rain_day"
+                             data-colors="카키"
+                             data-image="images/rain.jpg">
                         <div class="clo-outfit-avatar">비 오는 날</div>
                         <div class="clo-badge-row">
                             <span class="clo-badge">방수</span>
@@ -629,10 +792,19 @@
                         </div>
                         <div class="clo-outfit-title">레인 데이 코디</div>
                         <p class="clo-outfit-desc">방수 재킷과 롤업 팬츠, 스니커즈로 깔끔하게 비를 대비.</p>
-                        <button class="clo-outfit-button">설명 보기</button>
+                        <button class="clo-outfit-button" type="button">설명 보기</button>
+                        <div class="clo-card-footer">
+                            <button class="clo-like-btn" type="button">
+                                <span class="clo-like-icon">♡</span>
+                                <span class="clo-like-label">찜하기</span>
+                            </button>
+                        </div>
                     </article>
 
-                    <article class="clo-outfit-card">
+                    <article class="clo-outfit-card"
+                             data-outfit-id="presentation_semi"
+                             data-colors="그레이"
+                             data-image="images/semi_presentation.jpg">
                         <div class="clo-outfit-avatar">프레젠테이션</div>
                         <div class="clo-badge-row">
                             <span class="clo-badge">세미포멀</span>
@@ -640,10 +812,19 @@
                         </div>
                         <div class="clo-outfit-title">세미포멀 프레젠 코디</div>
                         <p class="clo-outfit-desc">네이비 자켓과 슬랙스로 차분하게 발표를 준비하는 룩.</p>
-                        <button class="clo-outfit-button">설명 보기</button>
+                        <button class="clo-outfit-button" type="button">설명 보기</button>
+                        <div class="clo-card-footer">
+                            <button class="clo-like-btn" type="button">
+                                <span class="clo-like-icon">♡</span>
+                                <span class="clo-like-label">찜하기</span>
+                            </button>
+                        </div>
                     </article>
 
-                    <article class="clo-outfit-card">
+                    <article class="clo-outfit-card"
+                             data-outfit-id="sport_running"
+                             data-colors="블루,그린"
+                             data-image="images/sport.jpg">
                         <div class="clo-outfit-avatar">운동</div>
                         <div class="clo-badge-row">
                             <span class="clo-badge">스포츠</span>
@@ -651,7 +832,13 @@
                         </div>
                         <div class="clo-outfit-title">러닝/헬스 코디</div>
                         <p class="clo-outfit-desc">기능성 티와 조거 팬츠, 바람막이로 운동하기 좋은 코디.</p>
-                        <button class="clo-outfit-button">설명 보기</button>
+                        <button class="clo-outfit-button" type="button">설명 보기</button>
+                        <div class="clo-card-footer">
+                            <button class="clo-like-btn" type="button">
+                                <span class="clo-like-icon">♡</span>
+                                <span class="clo-like-label">찜하기</span>
+                            </button>
+                        </div>
                     </article>
                 </div>
             </div>
@@ -681,9 +868,91 @@
                     <strong>AI 스타일 유형 테스트</strong>
                     <p>몇 가지 질문에 답하면, 나에게 어울리는 스타일과 추천 코디를 한 번에 알려드립니다.</p>
                 </div>
-                <button class="clo-ai-button">테스트 시작하기</button>
+                <button class="clo-ai-button" type="button">테스트 시작하기</button>
             </div>
         </section>
+        <!-- AI 스타일 유형 테스트 모달 -->
+        <div class="ai-modal-backdrop" id="aiStyleModal">
+            <div class="ai-modal">
+                <div class="ai-modal-header">
+                    <h3>AI 스타일 유형 테스트</h3>
+                    <button class="ai-modal-close" id="aiModalClose">×</button>
+                </div>
+                <div class="ai-modal-body">
+                    <p style="margin:0 0 6px; color:#6b7280;">
+                        아래 질문에 가장 가까운 선택지를 골라 주세요.
+                        결과는 나만의 옷장 분석에도 활용됩니다.
+                    </p>
+
+                    <!-- Q1 -->
+                    <div class="ai-q-box">
+                        <div class="ai-q-title">1. 학교/캠퍼스에 갈 때 가장 자주 입는 코디는?</div>
+                        <div class="ai-q-options ai-q-group" data-q="1">
+                            <label><input type="radio" name="ai-q1" value="minimal" /> 깔끔한 셔츠 + 슬랙스처럼 심플한 코디</label>
+                            <label><input type="radio" name="ai-q1" value="casual" /> 후드/맨투맨 + 청바지 같은 캐주얼 코디</label>
+                            <label><input type="radio" name="ai-q1" value="lovely" /> 니트/가디건 + 스커트 등 포인트가 있는 코디</label>
+                            <label><input type="radio" name="ai-q1" value="vintage" /> 셔츠, 조끼 등 레이어드한 감성 코디</label>
+                            <label><input type="radio" name="ai-q1" value="sporty" /> 트레이닝/조거 팬츠 위주의 편한 코디</label>
+                        </div>
+                    </div>
+
+                    <!-- Q2 -->
+                    <div class="ai-q-box">
+                        <div class="ai-q-title">2. 옷장에 가장 많은 색감은?</div>
+                        <div class="ai-q-options ai-q-group" data-q="2">
+                            <label><input type="radio" name="ai-q2" value="minimal" /> 블랙·화이트·그레이 같은 무채색</label>
+                            <label><input type="radio" name="ai-q2" value="casual" /> 네이비·블루·그린 등 기본 컬러</label>
+                            <label><input type="radio" name="ai-q2" value="lovely" /> 핑크·베이지·파스텔 톤</label>
+                            <label><input type="radio" name="ai-q2" value="vintage" /> 브라운·카키·딥그린 등 톤다운 컬러</label>
+                            <label><input type="radio" name="ai-q2" value="sporty" /> 형광/원색 포인트 컬러</label>
+                        </div>
+                    </div>
+
+                    <!-- Q3 -->
+                    <div class="ai-q-box">
+                        <div class="ai-q-title">3. 상의 실루엣/핏은 어떤 걸 선호해?</div>
+                        <div class="ai-q-options ai-q-group" data-q="3">
+                            <label><input type="radio" name="ai-q3" value="minimal" /> 너무 크지 않은 정핏 / 슬림핏</label>
+                            <label><input type="radio" name="ai-q3" value="casual" /> 살짝 루즈한 오버핏</label>
+                            <label><input type="radio" name="ai-q3" value="lovely" /> 퍼프, 프릴 등 디테일 있는 디자인</label>
+                            <label><input type="radio" name="ai-q3" value="vintage" /> 셔츠, 카디건 등 레이어드하기 좋은 핏</label>
+                            <label><input type="radio" name="ai-q3" value="sporty" /> 후드/트레이닝처럼 아주 편한 오버핏</label>
+                        </div>
+                    </div>
+
+                    <!-- Q4 -->
+                    <div class="ai-q-box">
+                        <div class="ai-q-title">4. 신발을 한 켤레만 고른다면?</div>
+                        <div class="ai-q-options ai-q-group" data-q="4">
+                            <label><input type="radio" name="ai-q4" value="minimal" /> 깔끔한 블랙/화이트 스니커즈</label>
+                            <label><input type="radio" name="ai-q4" value="casual" /> 캔버스 스니커즈나 데일리 운동화</label>
+                            <label><input type="radio" name="ai-q4" value="lovely" /> 로퍼·플랫슈즈 같은 단정한 신발</label>
+                            <label><input type="radio" name="ai-q4" value="vintage" /> 워커·부츠·더비슈즈</label>
+                            <label><input type="radio" name="ai-q4" value="sporty" /> 러닝화·트레이닝화</label>
+                        </div>
+                    </div>
+
+                    <!-- Q5 -->
+                    <div class="ai-q-box">
+                        <div class="ai-q-title">5. 옷을 살 때 가장 중요하게 보는 기준은?</div>
+                        <div class="ai-q-options ai-q-group" data-q="5">
+                            <label><input type="radio" name="ai-q5" value="minimal" /> 깔끔하고 오래 입을 수 있는지</label>
+                            <label><input type="radio" name="ai-q5" value="casual" /> 편하고 아무 데나 잘 어울리는지</label>
+                            <label><input type="radio" name="ai-q5" value="lovely" /> 나만의 개성/포인트가 있는지</label>
+                            <label><input type="radio" name="ai-q5" value="vintage" /> 색감·핏이 감성 있고 유니크한지</label>
+                            <label><input type="radio" name="ai-q5" value="sporty" /> 활동성, 기능성, 편안함</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ai-modal-footer">
+                    <div class="ai-result-text" id="aiResultText">
+                        테스트를 진행하면 나에게 맞는 스타일 유형을 알려드려요.
+                    </div>
+                    <button class="ai-start-btn" id="aiSubmitBtn">결과 보기</button>
+                </div>
+            </div>
+        </div>
     </main>
 </div>
 
@@ -706,7 +975,6 @@
     const mypageBtn  = document.getElementById('mypageBtn');
     const userStatus = document.getElementById('userStatus');
 
-    // 예시: localStorage에 closetoryUser 가 있으면 로그인 한 상태로 간주
     function checkAuthState() {
         const raw = localStorage.getItem('closetoryUser');
         if (raw) {
@@ -741,58 +1009,218 @@
         localStorage.removeItem('closetoryUser');
         checkAuthState();
         alert('로그아웃 되었습니다.');
+        location.href = 'index.html';
     });
 
     checkAuthState();
 
-    /* ===== 시간별 날씨 더미 데이터 (05시~다음날 04시) ===== */
-    const hourlyGrid = document.getElementById('hourlyGrid');
-    const hours = [];
-    for (let i = 5; i < 24; i++) hours.push(i);     // 오늘 05~23
-    for (let i = 0; i <= 4; i++) hours.push(i);     // 내일 00~04
+    /* ===== 지역 → 격자 좌표 (nx, ny) 매핑 ===== */
+    function getRegionGrid() {
+        const raw = localStorage.getItem('closetoryUser');
+        let regionText = '경기 고양시';
+        if (raw) {
+            try {
+                const user = JSON.parse(raw);
+                if (user.region) regionText = user.region;
+            } catch (_) {}
+        }
 
-    // 아이콘 간단하게 패턴 돌려줌 (실제 API쓰면 여기만 바꾸면 됨)
-    const icons = ['🌙','🌙','☀️','☀️','☀️','☀️','☁️','☁️','🌧','🌧','☁️','☁️'];
-    const baseTemps = [-1,-1,0,1,3,4,6,7,8,8,7,6,4,3,2,1,0,-1,-2,-2,-2,-2,-1,-1];
+        const REGION_GRID = {
+            '경기 고양시': { nx: 55, ny: 129 },
+            '서울 강남구': { nx: 61, ny: 126 },
+            '서울 마포구': { nx: 58, ny: 126 },
+            '서울특별시': { nx: 60, ny: 127 },
+            '서울':       { nx: 60, ny: 127 },
+            '부산 해운대구': { nx: 98, ny: 76 },
+            '부산광역시': { nx: 98, ny: 76 },
+            '부산':       { nx: 98, ny: 76 },
+            '대구 중구': { nx: 89, ny: 90 },
+            '대구광역시': { nx: 89, ny: 90 },
+            '대구':       { nx: 89, ny: 90 },
+            '광주광역시': { nx: 58, ny: 74 },
+            '광주':       { nx: 58, ny: 74 },
+            '인천광역시': { nx: 55, ny: 124 },
+            '인천':       { nx: 55, ny: 124 },
+            '대전광역시': { nx: 67, ny: 100 },
+            '대전':       { nx: 67, ny: 100 },
+            '울산광역시': { nx: 102, ny: 84 },
+            '울산':       { nx: 102, ny: 84 },
+            '제주특별자치도': { nx: 52, ny: 38 },
+            '제주도':     { nx: 52, ny: 38 },
+            '제주':       { nx: 52, ny: 38 },
+            '전남':       { nx: 51, ny: 67 },
+            '경남':       { nx: 91, ny: 77 }
+        };
 
-    hours.forEach((h, idx) => {
-        const cell = document.createElement('div');
+        const key = REGION_GRID[regionText] ? regionText : '경기 고양시';
+        return {
+            regionLabel: regionText,
+            nx: REGION_GRID[key].nx,
+            ny: REGION_GRID[key].ny
+        };
+    }
 
-        const hour = document.createElement('div');
-        hour.className = 'clo-hour-cell';
-        hour.textContent = (h < 10 ? '0' + h : h) + '시';
+    /* ===== 기준 시각 계산 ===== */
+    function getBaseDateTime(now) {
+        const baseTimes = [2, 5, 8, 11, 14, 17, 20, 23];
+        const copy = new Date(now.getTime());
+        let hour = copy.getHours();
+        let baseHour = baseTimes[0];
 
-        const icon = document.createElement('div');
-        icon.className = 'clo-hour-icon';
-        icon.textContent = icons[idx % icons.length];
+        for (let i = 0; i < baseTimes.length; i++) {
+            if (hour >= baseTimes[i]) baseHour = baseTimes[i];
+        }
+        if (hour < 2) {
+            copy.setDate(copy.getDate() - 1);
+            baseHour = 23;
+        }
 
-        const temp = document.createElement('div');
-        temp.className = 'clo-hour-temp';
-        temp.textContent = baseTemps[idx] + '°C';
+        const y = copy.getFullYear();
+        const m = String(copy.getMonth() + 1).padStart(2, '0');
+        const d = String(copy.getDate()).padStart(2, '0');
+        const baseDate = `${y}${m}${d}`;
+        const baseTime = String(baseHour).padStart(2, '0') + '00';
+        return { baseDate, baseTime };
+    }
 
-        const feel = document.createElement('div');
-        feel.className = 'clo-hour-feel';
-        feel.textContent = (baseTemps[idx] - 1) + '°C';
+    function getWeatherIcon(sky, pty) {
+        if (pty && pty !== '0') {
+            if (pty === '1' || pty === '5') return '🌧';
+            if (pty === '2' || pty === '6') return '🌨';
+            if (pty === '3' || pty === '7') return '❄️';
+        }
+        if (sky === '1') return '☀️';
+        if (sky === '3') return '🌤';
+        if (sky === '4') return '☁️';
+        return '🌤';
+    }
 
-        cell.appendChild(hour);
-        cell.appendChild(icon);
-        cell.appendChild(temp);
-        cell.appendChild(feel);
+    function buildSummary(temp, sky, pty) {
+        let parts = [];
+        if (pty && pty !== '0') {
+            if (pty === '1' || pty === '5') parts.push('비');
+            else if (pty === '2' || pty === '6') parts.push('비/눈');
+            else if (pty === '3' || pty === '7') parts.push('눈');
+        } else {
+            if (sky === '1') parts.push('맑음');
+            else if (sky === '3') parts.push('구름 많음');
+            else if (sky === '4') parts.push('흐림');
+        }
+        const t = Number(temp);
+        if (!Number.isNaN(t)) {
+            if (t <= 0) parts.push('매우 추움 · 패딩 추천');
+            else if (t <= 5) parts.push('쌀쌀함 · 코트/니트 추천');
+            else if (t <= 15) parts.push('선선함 · 자켓/가디건 추천');
+            else parts.push('따뜻함 · 가벼운 아우터');
+        }
+        return parts.join(' · ');
+    }
 
-        hourlyGrid.appendChild(cell);
-    });
+    const SERVICE_KEY =
+      '48a16c551e1a11eec2d625eb700bc9c57ee89be025327224ce31e16d75d2b869';
 
-    /* ===== 오늘의 코디 무한 슬라이드 (한 칸씩, 빈 공간 없이) ===== */
+    async function fetchWeather() {
+        const now = new Date();
+        const { baseDate, baseTime } = getBaseDateTime(now);
+        const { regionLabel, nx, ny } = getRegionGrid();
+
+        const url =
+          'https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst'
+          + `?serviceKey=${SERVICE_KEY}`
+          + '&pageNo=1&numOfRows=1000&dataType=JSON'
+          + `&base_date=${baseDate}&base_time=${baseTime}`
+          + `&nx=${nx}&ny=${ny}`;
+
+        const tempEl = document.getElementById('currentTemp');
+        const locEl  = document.getElementById('currentLocation');
+        const sumEl  = document.getElementById('currentSummary');
+        const gridEl = document.getElementById('hourlyGrid');
+
+        try {
+            const res = await fetch(url);
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            const data = await res.json();
+            const items = data?.response?.body?.items?.item || [];
+            if (!items.length) throw new Error('예보 데이터 없음');
+
+            const byKey = {};
+            for (const it of items) {
+                const key = it.fcstDate + it.fcstTime;
+                if (!byKey[key]) byKey[key] = {};
+                byKey[key][it.category] = it.fcstValue;
+            }
+
+            const slots = [];
+            const start = new Date();
+            for (let i = 0; i < 24; i++) {
+                const t = new Date(start.getTime() + i * 60 * 60 * 1000);
+                const y = t.getFullYear();
+                const m = String(t.getMonth() + 1).padStart(2, '0');
+                const d2 = String(t.getDate()).padStart(2, '0');
+                const hh = String(t.getHours()).padStart(2, '0');
+                const key = `${y}${m}${d2}${hh}00`;
+                const rec = byKey[key] || {};
+                slots.push({
+                    dateKey: key,
+                    hourStr: `${hh}시`,
+                    TMP: rec.TMP,
+                    SKY: rec.SKY,
+                    PTY: rec.PTY
+                });
+            }
+
+            const cur = slots[0];
+            const curTemp = cur.TMP ?? '--';
+            const curIcon = getWeatherIcon(cur.SKY, cur.PTY);
+            tempEl.textContent = `${curTemp}°C`;
+            locEl.textContent  = `${regionLabel} · 현재 체감 기온`;
+            sumEl.textContent  = `${curIcon}  ${buildSummary(curTemp, cur.SKY, cur.PTY)}`;
+
+            gridEl.innerHTML = '';
+            for (const s of slots) {
+                const cell = document.createElement('div');
+
+                const hour = document.createElement('div');
+                hour.className = 'clo-hour-cell';
+                hour.textContent = s.hourStr;
+
+                const icon = document.createElement('div');
+                icon.className = 'clo-hour-icon';
+                icon.textContent = getWeatherIcon(s.SKY, s.PTY);
+
+                const temp = document.createElement('div');
+                temp.className = 'clo-hour-temp';
+                temp.textContent = (s.TMP !== undefined ? s.TMP : '--') + '°C';
+
+                const feel = document.createElement('div');
+                feel.className = 'clo-hour-feel';
+                feel.textContent = '';
+
+                cell.appendChild(hour);
+                cell.appendChild(icon);
+                cell.appendChild(temp);
+                cell.appendChild(feel);
+                gridEl.appendChild(cell);
+            }
+        } catch (err) {
+            console.error('날씨 API 오류', err);
+            const { regionLabel } = getRegionGrid();
+            tempEl.textContent = '--°C';
+            locEl.textContent = `${regionLabel} · 현재 체감 기온`;
+            sumEl.textContent = '날씨 정보를 불러오지 못했습니다. 기본 코디를 참고해 주세요.';
+        }
+    }
+
+    /* ===== 오늘의 코디 무한 슬라이드 ===== */
     const track = document.getElementById('cloOutfitTrack');
     const prevBtn = document.getElementById('cloPrevBtn');
     const nextBtn = document.getElementById('cloNextBtn');
 
     const VISIBLE_COUNT = 3;
-    const GAP = 18; // CSS gap 과 동일
+    const GAP = 18;
 
     let slides = Array.from(track.children);
 
-    // 앞/뒤에 카드 복제해서 무한 루프 구성
     const headClones = slides.slice(0, VISIBLE_COUNT).map(c => c.cloneNode(true));
     const tailClones = slides.slice(-VISIBLE_COUNT).map(c => c.cloneNode(true));
 
@@ -801,24 +1229,19 @@
 
     slides = Array.from(track.children);
 
-    let currentIndex = VISIBLE_COUNT; // 실제 첫 카드
+    let currentIndex = VISIBLE_COUNT;
     let cardStep = 0;
     let isAnimating = false;
 
     function updateMetrics() {
-        // 카드 하나 너비 + gap
         if (slides.length === 0) return;
         cardStep = slides[0].offsetWidth + GAP;
         track.style.transition = 'none';
         track.style.transform = `translateX(-${currentIndex * cardStep}px)`;
-        // reflow 후 다시 transition 활성화
         requestAnimationFrame(() => {
             track.style.transition = 'transform .35s ease';
         });
     }
-
-    window.addEventListener('load', updateMetrics);
-    window.addEventListener('resize', updateMetrics);
 
     function goTo(index) {
         if (isAnimating || cardStep === 0) return;
@@ -829,10 +1252,9 @@
 
     track.addEventListener('transitionend', () => {
         const total = slides.length;
-        const lastRealIndex = total - VISIBLE_COUNT - 1; // 마지막 실제 카드 인덱스(복제 앞)
+        const lastRealIndex = total - VISIBLE_COUNT - 1;
 
         if (currentIndex > lastRealIndex) {
-            // 맨 끝 복제 영역 -> 실제 첫 카드로 점프
             currentIndex = VISIBLE_COUNT;
             track.style.transition = 'none';
             track.style.transform = `translateX(-${currentIndex * cardStep}px)`;
@@ -840,7 +1262,6 @@
                 track.style.transition = 'transform .35s ease';
             });
         } else if (currentIndex < VISIBLE_COUNT) {
-            // 맨 앞 복제 영역 -> 실제 마지막 카드로 점프
             currentIndex = lastRealIndex;
             track.style.transition = 'none';
             track.style.transform = `translateX(-${currentIndex * cardStep}px)`;
@@ -851,13 +1272,210 @@
         isAnimating = false;
     });
 
-    prevBtn.addEventListener('click', () => {
-        goTo(currentIndex - 1);  // 한 칸씩 왼쪽
-    });
+    prevBtn.addEventListener('click', () => goTo(currentIndex - 1));
+    nextBtn.addEventListener('click', () => goTo(currentIndex + 1));
 
-    nextBtn.addEventListener('click', () => {
-        goTo(currentIndex + 1);  // 한 칸씩 오른쪽
+    /* ===== 찜(즐겨찾기) 기능 – 나만의 옷장 연동 ===== */
+    const FAVORITES_KEY = 'closetoryFavorites';
+    let favorites = [];
+
+    function loadFavorites() {
+        try {
+            const raw = localStorage.getItem(FAVORITES_KEY);
+            return raw ? JSON.parse(raw) : [];
+        } catch {
+            return [];
+        }
+    }
+    function saveFavorites() {
+        localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
+    }
+    function isFavorite(id) {
+        return favorites.some(f => f.id === id);
+    }
+    function syncFavoriteUI(id) {
+        const active = isFavorite(id);
+        document.querySelectorAll(`.clo-outfit-card[data-outfit-id="${id}"] .clo-like-btn`)
+            .forEach(btn => {
+                btn.classList.toggle('is-active', active);
+                const icon = btn.querySelector('.clo-like-icon');
+                const label = btn.querySelector('.clo-like-label');
+                if (icon) icon.textContent = active ? '♥' : '♡';
+                if (label) label.textContent = active ? '찜됨' : '찜하기';
+            });
+    }
+
+    function toggleFavoriteForCard(card) {
+        const id = card.dataset.outfitId;
+        if (!id) return;
+
+        const idx = favorites.findIndex(f => f.id === id);
+        if (idx >= 0) {
+            favorites.splice(idx, 1);
+        } else {
+            const titleEl = card.querySelector('.clo-outfit-title');
+            const descEl  = card.querySelector('.clo-outfit-desc');
+            const colors  = (card.dataset.colors || '').split(',').map(v => v.trim()).filter(Boolean);
+            const img     = card.dataset.image || '';
+
+            favorites.push({
+                id,
+                title: titleEl ? titleEl.textContent.trim() : '',
+                desc: descEl ? descEl.textContent.trim() : '',
+                colors,
+                image: img,
+                createdAt: Date.now()
+            });
+        }
+        saveFavorites();
+        syncFavoriteUI(id);
+    }
+
+    function initFavoriteButtons() {
+        favorites = loadFavorites();
+        document.querySelectorAll('.clo-outfit-card').forEach(card => {
+            const btn = card.querySelector('.clo-like-btn');
+            const id  = card.dataset.outfitId;
+            if (!btn || !id) return;
+            btn.addEventListener('click', () => toggleFavoriteForCard(card));
+            syncFavoriteUI(id);
+        });
+    }
+
+    /* ===== 초기화 ===== */
+    window.addEventListener('load', () => {
+        updateMetrics();
+        fetchWeather();
+        initFavoriteButtons();
     });
+    window.addEventListener('resize', updateMetrics);
+
+    /* ===== AI 스타일 테스트 모달 열기/닫기 ===== */
+const aiButton      = document.querySelector('.clo-ai-button'); // 기존 노란 버튼
+const aiModal       = document.getElementById('aiStyleModal');
+const aiModalClose  = document.getElementById('aiModalClose');
+const aiSubmitBtn   = document.getElementById('aiSubmitBtn');
+const aiResultText  = document.getElementById('aiResultText');
+
+function openAiModal() {
+  aiModal.classList.add('show');
+}
+function closeAiModal() {
+  aiModal.classList.remove('show');
+}
+
+if (aiButton)  aiButton.addEventListener('click', openAiModal);
+if (aiModalClose) aiModalClose.addEventListener('click', closeAiModal);
+if (aiModal) {
+  aiModal.addEventListener('click', (e) => {
+    if (e.target === aiModal) closeAiModal();
+  });
+}
+/* ===== AI 스타일 결과 계산 ===== */
+const STYLE_TYPES = {
+  minimal: '미니멀 모노톤',
+  casual:  '캐주얼 스트릿',
+  lovely:  '러블리 / 감성',
+  vintage: '빈티지 / 아메카지',
+  sporty:  '스포츠 / 애슬레저'
+};
+    // 각 스타일에 대한 설명 (메인/서브 설명용)
+const STYLE_DESCRIPTIONS = {
+  minimal: '무채색과 심플한 실루엣을 선호하는 깔끔한 타입으로, 발표·면접·일상 어디에나 잘 어울리는 코디를 좋아해요.',
+  casual:  '후드, 맨투맨, 데님처럼 편하고 데일리하게 입을 수 있는 아이템을 중심으로 코디하는 타입이에요.',
+  lovely:  '파스텔 톤, 니트, 가디건 등 포인트가 있는 아이템으로 부드럽고 러블리한 분위기를 내는 스타일이에요.',
+  vintage: '톤다운된 색감과 레이어드를 활용해 감성 있고 유니크한 무드를 좋아하는 빈티지/아메카지 스타일이에요.',
+  sporty:  '트레이닝, 조거 팬츠, 기능성 티 등 활동성과 편안함을 최우선으로 하는 스포츠/애슬레저 스타일이에요.'
+};
+
+// AI 스타일 결과를 저장할 localStorage 키
+const STYLE_STORAGE_KEY = 'closetoryStyleProfile';
+
+// 5문항의 라디오 선택지를 기반으로 스타일 점수 계산
+function computeAiStyleResult() {
+  const groups = document.querySelectorAll('.ai-q-group');
+  const scores = {
+    minimal: 0,
+    casual:  0,
+    lovely:  0,
+    vintage: 0,
+    sporty:  0
+  };
+
+  let answered = 0;
+  const totalQuestions = groups.length;
+
+  groups.forEach(group => {
+    const qIndex = group.dataset.q; // "1" ~ "5"
+    const checked = document.querySelector(`input[name="ai-q${qIndex}"]:checked`);
+    if (checked) {
+      answered++;
+      const key = checked.value; // minimal / casual / lovely / vintage / sporty
+      if (scores[key] !== undefined) {
+        scores[key]++;
+      }
+    }
+  });
+
+  // 아직 안 고른 문항이 있으면 알림
+  if (answered < totalQuestions) {
+    alert(`아직 ${totalQuestions - answered}문항이 남았어요. 모든 문항을 선택해 주세요.`);
+    return null;
+  }
+
+  // 점수 높은 순으로 정렬해서 메인/서브 스타일 결정
+  const entries = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+  const [mainKey, mainScore] = entries[0];
+  const [subKey, subScore]   = entries[1]; // 서브 스타일 (2등)
+
+  return {
+    mainKey,
+    subKey,
+    mainLabel: STYLE_TYPES[mainKey],
+    subLabel:  STYLE_TYPES[subKey],
+    scores
+  };
+}
+
+// "결과 보기" 버튼 클릭 시 처리
+if (aiSubmitBtn) {
+  aiSubmitBtn.addEventListener('click', () => {
+    const result = computeAiStyleResult();
+    if (!result) return; // 문항 덜 선택한 경우
+
+    const { mainKey, subKey, mainLabel, subLabel, scores } = result;
+
+    // localStorage에 스타일 프로필 저장 → closet.html에서 그대로 활용
+    const profile = {
+      mainKey,
+      subKey,
+      mainLabel,
+      subLabel,
+      scores,
+      updatedAt: new Date().toISOString()
+    };
+
+    try {
+      localStorage.setItem(STYLE_STORAGE_KEY, JSON.stringify(profile));
+    } catch (e) {
+      console.warn('스타일 프로필 저장 실패', e);
+    }
+
+    // 결과 문구 UI 업데이트
+    const descMain = STYLE_DESCRIPTIONS[mainKey] || '';
+    const descSub  = STYLE_DESCRIPTIONS[subKey]  || '';
+
+    aiResultText.innerHTML =
+      `<strong>${mainLabel}</strong> 타입이에요.` +
+      (subKey ? ` (서브 스타일: <strong>${subLabel}</strong>)` : '') +
+      `<br><span style="color:#6b7280;font-size:11px;">${descMain}</span>` +
+      (descSub
+        ? `<br><span style="color:#9ca3af;font-size:11px;">+ ${descSub}</span>`
+        : ''
+      ) +
+      `<br><span style="color:#9ca3af;font-size:11px;">※ 이 결과는 나만의 옷장(closet) 추천에 활용됩니다.</span>`;
+  });
+}
 </script>
 </body>
 </html>

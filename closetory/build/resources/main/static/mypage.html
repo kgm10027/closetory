@@ -4,361 +4,469 @@
     <meta charset="UTF-8">
     <title>Closetory - 마이페이지</title>
     <style>
+        * { box-sizing: border-box; }
         body {
             margin: 0;
-            font-family: "Noto Sans KR", sans-serif;
+            font-family: "Noto Sans KR", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
             background: #f5f7fb;
+            color: #111827;
         }
-        .wrap {
-            max-width: 780px;
-            margin: 50px auto;
-            padding: 30px 28px;
+
+        /* ===== 공통 상단 헤더 ===== */
+        .clo-topbar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 72px;
             background: #ffffff;
-            border-radius: 18px;
-            box-shadow: 0 14px 30px rgba(15,23,42,0.08);
+            box-shadow: 0 6px 20px rgba(15,23,42,0.06);
+            z-index: 50;
         }
-        h1 {
-            margin: 0 0 6px;
-            font-size: 24px;
-            font-weight: 900;
+        .clo-top-inner {
+            max-width: 1180px;
+            margin: 0 auto;
+            height: 100%;
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
-        p.sub {
-            margin: 0 0 20px;
-            font-size: 13px;
-            color: #6b7280;
-        }
-        h2 {
-            margin: 24px 0 10px;
-            font-size: 18px;
-            font-weight: 800;
-        }
-        label {
-            display: block;
-            font-size: 13px;
-            margin-bottom: 6px;
-            font-weight: 600;
-        }
-        input, select {
-            width: 100%;
-            padding: 9px 10px;
-            border-radius: 10px;
-            border: 1px solid #d1d5db;
-            font-size: 13px;
-            margin-bottom: 14px;
-            box-sizing: border-box;
-        }
-        input:focus, select:focus {
-            outline: none;
-            border-color: #4f46e5;
-            box-shadow: 0 0 0 1px rgba(79,70,229,0.15);
-        }
-        .row-2 {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0,1fr));
-            gap: 14px 18px;
-        }
-        .btn-main, .btn-sub {
+        .clo-top-left { display: flex; align-items: center; gap: 14px; }
+        .clo-hamburger {
+            width: 36px; height: 36px;
             border-radius: 999px;
             border: none;
-            padding: 9px 18px;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-        .btn-main {
             background: #111827;
             color: #f9fafb;
+            font-size: 18px;
+            cursor: pointer;
         }
-        .btn-main:hover { background: #020617; }
-        .btn-sub {
-            background: #f3f4f6;
-            color: #374151;
-        }
-        .btn-sub:hover { background: #e5e7eb; }
-        .btn-row {
-            margin-top: 4px;
-            display: flex;
-            gap: 10px;
-        }
-        .error {
-            font-size: 12px;
-            color: #dc2626;
-            margin-bottom: 6px;
-        }
-        .success {
-            font-size: 12px;
-            color: #16a34a;
-            margin-bottom: 6px;
-        }
-        .top-links {
-            text-align: right;
-            font-size: 12px;
-            margin-bottom: 10px;
-        }
-        .top-links a {
-            color: #4f46e5;
+        .clo-logo-main a {
             text-decoration: none;
-            margin-left: 8px;
+            color: inherit;
         }
-        .feature-list {
-            margin: 0 0 10px;
-            padding-left: 18px;
-            font-size: 13px;
-            color: #4b5563;
+        .clo-logo-main {
+            font-size: 22px;
+            font-weight: 900;
+            letter-spacing: -0.4px;
+            cursor: pointer;
         }
-        .feature-list li + li {
-            margin-top: 4px;
-        }
-        .hint {
+        .clo-logo-sub {
             font-size: 11px;
             color: #9ca3af;
-            margin-top: -6px;
+            margin-top: 2px;
         }
-        @media (max-width: 720px) {
-            .row-2 {
-                grid-template-columns: 1fr;
-            }
+        .clo-top-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .clo-search-form {
+            display: flex;
+            align-items: center;
+            background: #f3f4f6;
+            border-radius: 999px;
+            padding: 6px 12px;
+            min-width: 260px;
+        }
+        .clo-search-icon {
+            font-size: 14px;
+            color: #6b7280;
+            margin-right: 6px;
+        }
+        .clo-search-input {
+            border: none;
+            background: transparent;
+            outline: none;
+            font-size: 13px;
+            width: 100%;
+        }
+        .clo-top-btn {
+            height: 36px;
+            border-radius: 999px;
+            border: 1px solid #e5e7eb;
+            background: #ffffff;
+            padding: 0 14px;
+            font-size: 12px;
+            cursor: pointer;
+            color: #374151;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+        }
+        .clo-top-btn.primary {
+            background: #111827;
+            color: #f9fafb;
+            border-color: #111827;
+            font-weight: 600;
+        }
+        .clo-top-btn:hover { background: #f3f4f6; }
+        .clo-top-btn.primary:hover { background: #020617; }
+        .clo-user-status {
+            font-size: 12px;
+            color: #6b7280;
+            margin-right: 4px;
+        }
+
+        /* ===== 본문 레이아웃 ===== */
+        .clo-main-outer { padding-top: 96px; }
+        .clo-main-wrap {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 24px 40px;
+        }
+        h1 {
+            font-size: 26px;
+            margin-bottom: 10px;
+        }
+        .clo-desc {
+            font-size: 13px;
+            color: #6b7280;
+            margin-bottom: 24px;
+        }
+        .clo-section {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 20px 22px 24px;
+            box-shadow: 0 12px 28px rgba(15,23,42,0.06);
+            margin-bottom: 20px;
+        }
+        .clo-section-title {
+            font-size: 16px;
+            font-weight: 800;
+            margin-bottom: 12px;
+        }
+        .clo-section-sub {
+            font-size: 12px;
+            color: #6b7280;
+            margin-bottom: 14px;
+        }
+        .clo-grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px 24px;
+        }
+        .clo-field { margin-bottom: 12px; }
+        .clo-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+        .clo-input, .clo-select {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+            font-size: 13px;
+            outline: none;
+        }
+        .clo-input:focus, .clo-select:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 1px rgba(37,99,235,0.2);
+        }
+        .clo-input[readonly] {
+            background: #f9fafb;
+            color: #6b7280;
+        }
+        .clo-btn-row {
+            margin-top: 10px;
+            display: flex;
+            justify-content: flex-end;
+        }
+        .clo-btn {
+            border-radius: 999px;
+            border: none;
+            padding: 9px 16px;
+            font-size: 13px;
+            cursor: pointer;
+            background: #111827;
+            color: #f9fafb;
+            font-weight: 600;
+        }
+        .clo-btn:hover { background: #020617; }
+
+        @media (max-width: 768px) {
+            .clo-grid-2 { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
-<div class="wrap">
-    <div class="top-links">
-        <a href="index.html">메인으로</a>
-        <a href="#" id="logoutBtn">로그아웃</a>
+
+<header class="clo-topbar">
+    <div class="clo-top-inner">
+        <div class="clo-top-left">
+            <button class="clo-hamburger" disabled>☰</button>
+            <div>
+                <div class="clo-logo-main">
+                    <a href="index.html">Closetory</a>
+                </div>
+                <div class="clo-logo-sub">옷장에서 꺼내는 작은 행복</div>
+            </div>
+        </div>
+        <div class="clo-top-right">
+            <form class="clo-search-form" onsubmit="return false;">
+                <span class="clo-search-icon">🔍</span>
+                <input class="clo-search-input" type="text" placeholder="코디, 아이템 검색">
+            </form>
+            <span class="clo-user-status" id="userStatus"></span>
+            <button class="clo-top-btn" id="loginBtn">로그인</button>
+            <button class="clo-top-btn" id="signupBtn">회원가입</button>
+            <button class="clo-top-btn primary" id="mypageBtn">마이페이지</button>
+            <button class="clo-top-btn" id="logoutBtn">로그아웃</button>
+        </div>
     </div>
+</header>
 
-    <h1>마이페이지</h1>
-    <p class="sub">회원 정보 확인, 비밀번호 변경, 지역 설정 등을 관리할 수 있습니다.</p>
+<div class="clo-main-outer">
+    <main class="clo-main-wrap">
+        <h1>마이페이지</h1>
+        <p class="clo-desc">프로필 정보와 지역 설정, 비밀번호를 변경할 수 있습니다.</p>
 
-    <!-- 이 페이지에서 할 수 있는 것들 목록 -->
-    <section>
-        <h2>이 페이지에서 할 수 있는 것</h2>
-        <ul class="feature-list">
-            <li>내 기본 회원 정보(이름, 주소) 확인 및 수정</li>
-            <li>로그인 비밀번호 변경</li>
-            <li>날씨 연동을 위한 기본 지역 설정</li>
-            <li>관심 스타일 / 코디 취향 관리 (추후 확장 예정)</li>
-            <li>찜한 코디 및 최근 본 코디 관리 (추후 확장 예정)</li>
-        </ul>
-    </section>
-
-    <!-- 사용자 정보 수정 -->
-    <section>
-        <h2>회원 정보</h2>
-        <div id="infoMsg" class="error" style="display:none;"></div>
-        <form id="infoForm">
-            <div class="row-2">
-                <div>
-                    <label for="userId">아이디 (수정 불가)</label>
-                    <input type="text" id="userId" disabled>
+        <!-- 기본 정보 -->
+        <section class="clo-section">
+            <div class="clo-section-title">기본 정보</div>
+            <div class="clo-section-sub">아이디는 수정할 수 없고, 이름과 주소만 변경 가능합니다.</div>
+            <div class="clo-grid-2">
+                <div class="clo-field">
+                    <label class="clo-label" for="userId">아이디 (수정 불가)</label>
+                    <input class="clo-input" id="userId" readonly>
                 </div>
-                <div>
-                    <label for="name">이름</label>
-                    <input type="text" id="name" required>
+                <div class="clo-field">
+                    <label class="clo-label" for="userName">이름</label>
+                    <input class="clo-input" id="userName">
+                </div>
+                <div class="clo-field" style="grid-column:1 / -1;">
+                    <label class="clo-label" for="userAddress">주소</label>
+                    <input class="clo-input" id="userAddress">
                 </div>
             </div>
-            <label for="address">주소</label>
-            <input type="text" id="address" required>
-
-            <div class="btn-row">
-                <button type="submit" class="btn-main">회원 정보 저장</button>
+            <div class="clo-btn-row">
+                <button class="clo-btn" id="saveProfileBtn">회원 정보 저장</button>
             </div>
-        </form>
-    </section>
+        </section>
 
-    <!-- 지역 설정 (날씨 연동) -->
-    <section>
-        <h2>지역 설정 (날씨 연동)</h2>
-        <p class="sub" style="margin-bottom:8px;">
-            여기서 선택한 지역은 메인 화면의 &lt;오늘의 코디&gt; 날씨 정보에 사용됩니다.
-        </p>
-        <div id="regionMsg" class="error" style="display:none;"></div>
-        <form id="regionForm">
-            <label for="region">기본 지역</label>
-            <select id="region">
-                <option value="">지역을 선택해 주세요</option>
-                <option value="서울">서울</option>
-                <option value="경기 고양시">경기 고양시</option>
-                <option value="인천">인천</option>
-                <option value="부산">부산</option>
-                <option value="대구">대구</option>
-                <option value="광주">광주</option>
-                <option value="대전">대전</option>
-                <option value="울산">울산</option>
-            </select>
-            <p class="hint">※ 실제 날씨 API 연동 시 이 지역을 기준으로 온도·날씨를 불러올 예정입니다.</p>
-
-            <div class="btn-row">
-                <button type="submit" class="btn-main">지역 설정 저장</button>
+        <!-- 지역 설정 -->
+        <section class="clo-section">
+            <div class="clo-section-title">지역 설정 (날씨 연동)</div>
+            <div class="clo-section-sub">
+                여기서 선택한 시/도는 메인 화면 &lt;오늘의 코디&gt; 날씨 정보에 사용됩니다.
             </div>
-        </form>
-    </section>
+            <div class="clo-field">
+                <label class="clo-label" for="regionSelect">기본 지역 (전국 시/도)</label>
+                <select class="clo-select" id="regionSelect">
+                    <!-- 지역 이름은 index.html의 REGION_GRID 키랑 반드시 같아야 함 -->
+                    <option value="경기 고양시">경기 고양시</option>
+                    <option value="서울 강남구">서울 강남구</option>
+                    <option value="서울 마포구">서울 마포구</option>
 
-    <!-- 비밀번호 변경 -->
-    <section>
-        <h2>비밀번호 변경</h2>
-        <div id="pwMsg" class="error" style="display:none;"></div>
-        <div id="pwOk" class="success" style="display:none;"></div>
-        <form id="pwForm">
-            <label for="currentPw">현재 비밀번호</label>
-            <input type="password" id="currentPw" required>
+                    <option value="서울특별시">서울특별시(전체)</option>
+                    <option value="부산 해운대구">부산 해운대구</option>
+                    <option value="부산광역시">부산광역시(전체)</option>
+                    <option value="인천광역시">인천광역시</option>
+                    <option value="광주광역시">광주광역시</option>
+                    <option value="대전광역시">대전광역시</option>
+                    <option value="대구 중구">대구 중구</option>
+                    <option value="대구광역시">대구광역시(전체)</option>
+                    <option value="울산광역시">울산광역시</option>
+                    <option value="제주특별자치도">제주특별자치도</option>
 
-            <label for="newPw">새 비밀번호</label>
-            <input type="password" id="newPw" required>
+                    <!-- 도(道) 단위 큰 지역 -->
+                    <option value="전남">전라남도(대표)</option>
+                    <option value="경남">경상남도(대표)</option>
 
-            <label for="newPw2">새 비밀번호 확인</label>
-            <input type="password" id="newPw2" required>
-
-            <div class="btn-row">
-                <button type="submit" class="btn-main">비밀번호 변경</button>
+                    <option value="기타">기타 (직접 입력 주소 기준)</option>
+                </select>
             </div>
-        </form>
-    </section>
+            <div class="clo-btn-row">
+                <button class="clo-btn" id="saveRegionBtn">지역 설정 저장</button>
+            </div>
+        </section>
+
+        <!-- 비밀번호 변경 -->
+        <section class="clo-section">
+            <div class="clo-section-title">비밀번호 변경</div>
+            <div class="clo-section-sub">
+                현재 비밀번호를 확인한 후 새 비밀번호로 변경합니다.
+                변경 후 새 비밀번호로 다시 로그인할 수 있습니다.
+            </div>
+            <div class="clo-field">
+                <label class="clo-label" for="currentPw">현재 비밀번호</label>
+                <input class="clo-input" id="currentPw" type="password">
+            </div>
+            <div class="clo-field">
+                <label class="clo-label" for="newPw">새 비밀번호</label>
+                <input class="clo-input" id="newPw" type="password">
+            </div>
+            <div class="clo-field">
+                <label class="clo-label" for="newPw2">새 비밀번호 확인</label>
+                <input class="clo-input" id="newPw2" type="password">
+            </div>
+            <div class="clo-btn-row">
+                <button class="clo-btn" id="changePwBtn">비밀번호 변경</button>
+            </div>
+        </section>
+    </main>
 </div>
 
 <script>
-    // 로그인 여부 확인
-    const loggedIn = localStorage.getItem('closetoryLoggedIn') === 'true';
-    const data = localStorage.getItem('closetoryUser');
+    /* ===== 공통 로그인 상태 처리 ===== */
+    const loginBtn   = document.getElementById('loginBtn');
+    const signupBtn  = document.getElementById('signupBtn');
+    const logoutBtn  = document.getElementById('logoutBtn');
+    const mypageBtn  = document.getElementById('mypageBtn');
+    const userStatus = document.getElementById('userStatus');
 
-    if (!loggedIn || !data) {
-        alert('로그인 후 이용 가능한 페이지입니다.');
-        location.href = 'login.html';
+    function checkAuthState() {
+        const raw = localStorage.getItem('closetoryUser');
+        if (raw) {
+            try {
+                const user = JSON.parse(raw);
+                userStatus.textContent = (user.name || '사용자') + ' 님 로그인 중';
+                loginBtn.style.display   = 'none';
+                signupBtn.style.display  = 'none';
+                mypageBtn.style.display  = 'inline-flex';
+                logoutBtn.style.display  = 'inline-flex';
+            } catch (e) {
+                console.error(e);
+                userStatus.textContent = '';
+                loginBtn.style.display   = 'inline-flex';
+                signupBtn.style.display  = 'inline-flex';
+                mypageBtn.style.display  = 'none';
+                logoutBtn.style.display  = 'none';
+            }
+        } else {
+            userStatus.textContent = '';
+            loginBtn.style.display   = 'inline-flex';
+            signupBtn.style.display  = 'inline-flex';
+            mypageBtn.style.display  = 'none';
+            logoutBtn.style.display  = 'none';
+        }
     }
 
-    let user = data ? JSON.parse(data) : null;
-
-    // 폼 요소
-    const userIdInput = document.getElementById('userId');
-    const nameInput = document.getElementById('name');
-    const addrInput = document.getElementById('address');
-
-    const infoForm = document.getElementById('infoForm');
-    const infoMsg = document.getElementById('infoMsg');
-
-    const regionForm = document.getElementById('regionForm');
-    const regionSelect = document.getElementById('region');
-    const regionMsg = document.getElementById('regionMsg');
-
-    const pwForm = document.getElementById('pwForm');
-    const pwMsg = document.getElementById('pwMsg');
-    const pwOk = document.getElementById('pwOk');
-
-    const logoutBtn = document.getElementById('logoutBtn');
-
-    // 초기 값 세팅
-    if (user) {
-        userIdInput.value = user.userId || '';
-        nameInput.value = user.name || '';
-        addrInput.value = user.address || '';
-    }
-
-    // 저장된 지역 불러오기 (user.region 또는 별도 key)
-    const storedRegion = localStorage.getItem('closetoryRegion') || (user && user.region);
-    if (storedRegion) {
-        regionSelect.value = storedRegion;
-    }
-
-    // 회원 정보 저장
-    infoForm.addEventListener('submit', function (e) {
-        e.preventDefault();
-        infoMsg.style.display = 'none';
-
-        const name = nameInput.value.trim();
-        const address = addrInput.value.trim();
-
-        if (!name || !address) {
-            infoMsg.textContent = '이름과 주소를 모두 입력해 주세요.';
-            infoMsg.style.display = 'block';
-            return;
-        }
-
-        user = {
-            ...user,
-            name: name,
-            address: address
-        };
-        localStorage.setItem('closetoryUser', JSON.stringify(user));
-        alert('회원 정보가 저장되었습니다.');
-    });
-
-    // 지역 설정 저장
-    regionForm.addEventListener('submit', function (e) {
-        e.preventDefault();
-        regionMsg.style.display = 'none';
-
-        const region = regionSelect.value;
-        if (!region) {
-            regionMsg.textContent = '기본 지역을 선택해 주세요.';
-            regionMsg.style.display = 'block';
-            return;
-        }
-
-        // user 객체에도 region 보관
-        user = {
-            ...user,
-            region: region
-        };
-        localStorage.setItem('closetoryUser', JSON.stringify(user));
-
-        // 메인 날씨에서 사용할 지역
-        localStorage.setItem('closetoryRegion', region);
-
-        alert('지역 설정이 저장되었습니다. 메인 화면의 날씨 정보에 반영됩니다.');
-    });
-
-    // 비밀번호 변경
-    pwForm.addEventListener('submit', function (e) {
-        e.preventDefault();
-        pwMsg.style.display = 'none';
-        pwOk.style.display = 'none';
-
-        const currentPw = document.getElementById('currentPw').value;
-        const newPw = document.getElementById('newPw').value;
-        const newPw2 = document.getElementById('newPw2').value;
-
-        if (!currentPw || !newPw || !newPw2) {
-            pwMsg.textContent = '모든 항목을 입력해 주세요.';
-            pwMsg.style.display = 'block';
-            return;
-        }
-        if (currentPw !== user.password) {
-            pwMsg.textContent = '현재 비밀번호가 올바르지 않습니다.';
-            pwMsg.style.display = 'block';
-            return;
-        }
-        if (newPw !== newPw2) {
-            pwMsg.textContent = '새 비밀번호가 서로 다릅니다.';
-            pwMsg.style.display = 'block';
-            return;
-        }
-        if (newPw === currentPw) {
-            pwMsg.textContent = '이전과 다른 비밀번호를 입력해 주세요.';
-            pwMsg.style.display = 'block';
-            return;
-        }
-
-        user = {
-            ...user,
-            password: newPw
-        };
-        localStorage.setItem('closetoryUser', JSON.stringify(user));
-        pwOk.textContent = '비밀번호가 변경되었습니다.';
-        pwOk.style.display = 'block';
-
-        // 입력칸 비우기
-        document.getElementById('currentPw').value = '';
-        document.getElementById('newPw').value = '';
-        document.getElementById('newPw2').value = '';
-    });
-
-    // 로그아웃
-    logoutBtn.addEventListener('click', function (e) {
-        e.preventDefault();
-        localStorage.setItem('closetoryLoggedIn', 'false');
+    loginBtn.addEventListener('click', () => location.href = 'login.html');
+    signupBtn.addEventListener('click', () => location.href = 'signup.html');
+    mypageBtn.addEventListener('click', () => location.href = 'mypage.html');
+    logoutBtn.addEventListener('click', () => {
+        localStorage.removeItem('closetoryUser');
         alert('로그아웃 되었습니다.');
         location.href = 'index.html';
+    });
+
+    checkAuthState();
+
+    /* ===== 마이페이지 데이터 로딩 ===== */
+    const userIdInput      = document.getElementById('userId');
+    const userNameInput    = document.getElementById('userName');
+    const userAddressInput = document.getElementById('userAddress');
+    const regionSelect     = document.getElementById('regionSelect');
+
+    function loadUser() {
+        const raw = localStorage.getItem('closetoryUser');
+        if (!raw) {
+            alert('로그인이 필요합니다.');
+            location.href = 'login.html';
+            return;
+        }
+        try {
+            const user = JSON.parse(raw);
+
+            userIdInput.value      = user.id || '';
+            userNameInput.value    = user.name || '';
+            userAddressInput.value = user.address || '';
+
+            // region이 셀렉트 옵션에 있으면 그 값으로, 없으면 '경기 고양시'로
+if (user.region) {
+    const exists = Array.from(regionSelect.options)
+        .some(o => o.value === user.region);
+
+    regionSelect.value = exists ? user.region : '경기 고양시';
+} else {
+    regionSelect.value = '경기 고양시';
+}
+
+        } catch (e) {
+            console.error(e);
+            alert('사용자 정보를 불러오는 중 오류가 발생했습니다.');
+        }
+    }
+
+    loadUser();
+
+    /* ===== 회원 정보 저장 (이름, 주소) ===== */
+    document.getElementById('saveProfileBtn').addEventListener('click', () => {
+        const raw = localStorage.getItem('closetoryUser');
+        if (!raw) return;
+
+        try {
+            const user = JSON.parse(raw);
+            user.name    = userNameInput.value.trim();
+            user.address = userAddressInput.value.trim();
+
+            localStorage.setItem('closetoryUser', JSON.stringify(user));
+            alert('회원 정보가 저장되었습니다.');
+            checkAuthState();
+        } catch (e) {
+            console.error(e);
+            alert('회원 정보를 저장하는 중 오류가 발생했습니다.');
+        }
+    });
+
+    /* ===== 지역 설정 저장 ===== */
+    document.getElementById('saveRegionBtn').addEventListener('click', () => {
+        const raw = localStorage.getItem('closetoryUser');
+        if (!raw) return;
+
+        try {
+            const user = JSON.parse(raw);
+            user.region = regionSelect.value;
+
+            localStorage.setItem('closetoryUser', JSON.stringify(user));
+            alert('지역 설정이 저장되었습니다.\n메인 화면의 날씨 지역에 반영됩니다.');
+        } catch (e) {
+            console.error(e);
+            alert('지역 설정을 저장하는 중 오류가 발생했습니다.');
+        }
+    });
+
+    /* ===== 비밀번호 변경 ===== */
+    document.getElementById('changePwBtn').addEventListener('click', () => {
+        const raw = localStorage.getItem('closetoryUser');
+        if (!raw) return;
+
+        try {
+            const user = JSON.parse(raw);
+
+            const currentPw = document.getElementById('currentPw').value;
+            const newPw     = document.getElementById('newPw').value;
+            const newPw2    = document.getElementById('newPw2').value;
+
+            if (!currentPw || !newPw || !newPw2) {
+                alert('모든 비밀번호 입력 칸을 채워 주세요.');
+                return;
+            }
+
+            if (currentPw !== user.password) {
+                alert('현재 비밀번호가 일치하지 않습니다.');
+                return;
+            }
+
+            if (newPw !== newPw2) {
+                alert('새 비밀번호가 서로 일치하지 않습니다.');
+                return;
+            }
+
+            user.password = newPw;
+            localStorage.setItem('closetoryUser', JSON.stringify(user));
+
+            alert('비밀번호가 변경되었습니다. 새 비밀번호로 다시 로그인해 주세요.');
+            // 계정은 그대로 두고, 로그인만 풀고 싶으면 아래 한 줄은 주석 처리해도 됨
+            localStorage.removeItem('closetoryUser');
+            location.href = 'login.html';
+        } catch (e) {
+            console.error(e);
+            alert('비밀번호 변경 중 오류가 발생했습니다.');
+        }
     });
 </script>
 </body>

@@ -4,160 +4,361 @@
     <meta charset="UTF-8">
     <title>Closetory - 회원가입</title>
     <style>
+        * { box-sizing: border-box; }
         body {
             margin: 0;
-            font-family: "Noto Sans KR", sans-serif;
+            font-family: "Noto Sans KR", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
             background: #f5f7fb;
+            color: #111827;
         }
-        .wrap {
-            max-width: 420px;
-            margin: 60px auto;
-            padding: 32px 28px;
+
+        /* ===== 공통 상단 헤더 ===== */
+        .clo-topbar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 72px;
             background: #ffffff;
-            border-radius: 18px;
-            box-shadow: 0 14px 30px rgba(15,23,42,0.08);
+            box-shadow: 0 6px 20px rgba(15,23,42,0.06);
+            z-index: 50;
         }
-        h1 {
-            margin: 0 0 6px;
-            font-size: 24px;
-            font-weight: 900;
+        .clo-top-inner {
+            max-width: 1180px;
+            margin: 0 auto;
+            height: 100%;
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
-        p.sub {
-            margin: 0 0 20px;
-            font-size: 13px;
-            color: #6b7280;
+        .clo-top-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
         }
-        label {
-            display: block;
-            font-size: 13px;
-            margin-bottom: 6px;
-            font-weight: 600;
-        }
-        input {
-            width: 100%;
-            padding: 9px 10px;
-            border-radius: 10px;
-            border: 1px solid #d1d5db;
-            font-size: 13px;
-            margin-bottom: 14px;
-            box-sizing: border-box;
-        }
-        input:focus {
-            outline: none;
-            border-color: #4f46e5;
-            box-shadow: 0 0 0 1px rgba(79,70,229,0.15);
-        }
-        .btn-main {
-            width: 100%;
-            padding: 10px;
+        .clo-hamburger {
+            width: 36px; height: 36px;
             border-radius: 999px;
             border: none;
             background: #111827;
             color: #f9fafb;
-            font-size: 14px;
-            font-weight: 600;
+            font-size: 18px;
             cursor: pointer;
         }
-        .btn-main:hover {
+        .clo-logo-main a {
+            text-decoration: none;
+            color: inherit;
+        }
+        .clo-logo-main {
+            font-size: 22px;
+            font-weight: 900;
+            letter-spacing: -0.4px;
+            cursor: pointer;
+        }
+        .clo-logo-sub {
+            font-size: 11px;
+            color: #9ca3af;
+            margin-top: 2px;
+        }
+        .clo-top-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .clo-search-form {
+            display: flex;
+            align-items: center;
+            background: #f3f4f6;
+            border-radius: 999px;
+            padding: 6px 12px;
+            min-width: 260px;
+        }
+        .clo-search-icon {
+            font-size: 14px;
+            color: #6b7280;
+            margin-right: 6px;
+        }
+        .clo-search-input {
+            border: none;
+            background: transparent;
+            outline: none;
+            font-size: 13px;
+            width: 100%;
+        }
+        .clo-top-btn {
+            height: 36px;
+            border-radius: 999px;
+            border: 1px solid #e5e7eb;
+            background: #ffffff;
+            padding: 0 14px;
+            font-size: 12px;
+            cursor: pointer;
+            color: #374151;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+        }
+        .clo-top-btn.primary {
+            background: #111827;
+            color: #f9fafb;
+            border-color: #111827;
+            font-weight: 600;
+        }
+        .clo-top-btn:hover {
+            background: #f3f4f6;
+        }
+        .clo-top-btn.primary:hover {
             background: #020617;
         }
-        .link-row {
-            margin-top: 14px;
+        .clo-user-status {
             font-size: 12px;
-            text-align: center;
+            color: #6b7280;
+            margin-right: 4px;
+        }
+
+        /* ===== 본문 ===== */
+        .clo-main-outer { padding-top: 96px; }
+        .clo-main-wrap {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 0 24px 40px;
+        }
+        h1 {
+            font-size: 26px;
+            margin-bottom: 10px;
+        }
+        .clo-desc {
+            font-size: 13px;
+            color: #6b7280;
+            margin-bottom: 24px;
+        }
+        .clo-form-card {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 22px 24px 26px;
+            box-shadow: 0 12px 28px rgba(15,23,42,0.06);
+        }
+        .clo-field {
+            margin-bottom: 16px;
+        }
+        .clo-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+        .clo-input, .clo-select {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+            font-size: 13px;
+            outline: none;
+        }
+        .clo-input:focus, .clo-select:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 1px rgba(37,99,235,0.2);
+        }
+        .clo-submit {
+            margin-top: 12px;
+            width: 100%;
+            border-radius: 999px;
+            border: none;
+            padding: 11px 16px;
+            font-size: 14px;
+            cursor: pointer;
+            background: #111827;
+            color: #f9fafb;
+            font-weight: 600;
+        }
+        .clo-submit:hover {
+            background: #020617;
+        }
+        .clo-helper {
+            margin-top: 12px;
+            font-size: 12px;
             color: #6b7280;
         }
-        .link-row a {
-            color: #4f46e5;
+        .clo-helper a {
+            color: #2563eb;
             text-decoration: none;
-        }
-        .error {
-            font-size: 12px;
-            color: #dc2626;
-            margin-bottom: 8px;
         }
     </style>
 </head>
 <body>
-<div class="wrap">
-    <h1>회원가입</h1>
-    <p class="sub">Closetory에서 나만의 옷장을 만들어 보세요.</p>
 
-    <div id="errorBox" class="error" style="display:none;"></div>
-
-    <form id="signupForm">
-        <label for="userId">아이디</label>
-        <input type="text" id="userId" required>
-
-        <label for="password">비밀번호</label>
-        <input type="password" id="password" required>
-
-        <label for="password2">비밀번호 확인</label>
-        <input type="password" id="password2" required>
-
-        <label for="name">이름</label>
-        <input type="text" id="name" required>
-
-        <label for="address">주소</label>
-        <input type="text" id="address" required>
-
-        <button type="submit" class="btn-main">회원가입 완료</button>
-    </form>
-
-    <div class="link-row">
-        이미 계정이 있으신가요?
-        <a href="login.html">로그인 하러가기</a>
+<header class="clo-topbar">
+    <div class="clo-top-inner">
+        <div class="clo-top-left">
+            <button class="clo-hamburger" disabled>☰</button>
+            <div>
+                <div class="clo-logo-main">
+                    <a href="index.html">Closetory</a>
+                </div>
+                <div class="clo-logo-sub">옷장에서 꺼내는 작은 행복</div>
+            </div>
+        </div>
+        <div class="clo-top-right">
+            <form class="clo-search-form" onsubmit="return false;">
+                <span class="clo-search-icon">🔍</span>
+                <input class="clo-search-input" type="text" placeholder="코디, 아이템 검색">
+            </form>
+            <span class="clo-user-status" id="userStatus"></span>
+            <button class="clo-top-btn" id="loginBtn">로그인</button>
+            <button class="clo-top-btn primary" id="signupBtn">회원가입</button>
+            <button class="clo-top-btn" id="mypageBtn" style="display:none;">마이페이지</button>
+            <button class="clo-top-btn" id="logoutBtn" style="display:none;">로그아웃</button>
+        </div>
     </div>
+</header>
+
+<div class="clo-main-outer">
+    <main class="clo-main-wrap">
+        <h1>회원가입</h1>
+        <p class="clo-desc">Closetory 계정을 만들어 나만의 옷장과 코디를 관리해 보세요.</p>
+
+        <section class="clo-form-card">
+            <form id="signupForm">
+                <div class="clo-field">
+                    <label class="clo-label" for="signupId">아이디</label>
+                    <input class="clo-input" id="signupId" required>
+                </div>
+                <div class="clo-field">
+                    <label class="clo-label" for="signupPw">비밀번호</label>
+                    <input class="clo-input" id="signupPw" type="password" required>
+                </div>
+                <div class="clo-field">
+                    <label class="clo-label" for="signupPw2">비밀번호 확인</label>
+                    <input class="clo-input" id="signupPw2" type="password" required>
+                </div>
+                <div class="clo-field">
+                    <label class="clo-label" for="signupName">이름</label>
+                    <input class="clo-input" id="signupName" required>
+                </div>
+                <div class="clo-field">
+                    <label class="clo-label" for="signupAddress">주소</label>
+                    <input class="clo-input" id="signupAddress" placeholder="예: 경기도 고양시 일산서구" required>
+                </div>
+                <div class="clo-field">
+                    <label class="clo-label" for="signupRegion">기본 지역 (날씨 연동)</label>
+                    <select class="clo-select" id="signupRegion">
+                        <option value="경기 고양시">경기 고양시</option>
+                        <option value="서울 강남구">서울 강남구</option>
+                        <option value="서울 마포구">서울 마포구</option>
+                        <option value="부산 해운대구">부산 해운대구</option>
+                        <option value="대구 중구">대구 중구</option>
+                        <option value="기타">기타 (직접 입력 주소 기준)</option>
+                    </select>
+                </div>
+                <button type="submit" class="clo-submit">회원가입 완료</button>
+            </form>
+            <p class="clo-helper">
+                이미 계정이 있으신가요? <a href="login.html">로그인 하기</a>
+            </p>
+        </section>
+    </main>
 </div>
 
 <script>
-    const form = document.getElementById('signupForm');
-    const errorBox = document.getElementById('errorBox');
-
-    form.addEventListener('submit', function (e) {
-        e.preventDefault();
-
-        const userId = document.getElementById('userId').value.trim();
-        const pw1 = document.getElementById('password').value;
-        const pw2 = document.getElementById('password2').value;
-        const name = document.getElementById('name').value.trim();
-        const addr = document.getElementById('address').value.trim();
-
-        if (!userId || !pw1 || !pw2 || !name || !addr) {
-            showError('모든 필수 항목을 입력해 주세요.');
-            return;
+    /* ===== Auth 유틸 ===== */
+    function getUsers() {
+        try {
+            return JSON.parse(localStorage.getItem('closetoryUsers')) || [];
+        } catch (e) {
+            return [];
         }
-        if (pw1 !== pw2) {
-            showError('비밀번호가 서로 다릅니다.');
-            return;
+    }
+    function saveUsers(users) {
+        localStorage.setItem('closetoryUsers', JSON.stringify(users));
+    }
+    function getCurrentUser() {
+        const currentId = localStorage.getItem('closetoryCurrentUser');
+        if (!currentId) return null;
+        const users = getUsers();
+        return users.find(u => u.id === currentId) || null;
+    }
+    function setCurrentUser(id) {
+        localStorage.setItem('closetoryCurrentUser', id);
+    }
+    function clearCurrentUser() {
+        localStorage.removeItem('closetoryCurrentUser');
+    }
+
+    const loginBtn   = document.getElementById('loginBtn');
+    const signupBtn  = document.getElementById('signupBtn');
+    const logoutBtn  = document.getElementById('logoutBtn');
+    const mypageBtn  = document.getElementById('mypageBtn');
+    const userStatus = document.getElementById('userStatus');
+
+    function checkAuthState() {
+        const user = getCurrentUser();
+        if (user) {
+            userStatus.textContent = (user.name || '사용자') + ' 님 로그인 중';
+            loginBtn.style.display   = 'none';
+            signupBtn.style.display  = 'none';
+            mypageBtn.style.display  = 'inline-flex';
+            logoutBtn.style.display  = 'inline-flex';
+        } else {
+            userStatus.textContent = '';
+            loginBtn.style.display   = 'inline-flex';
+            signupBtn.style.display  = 'inline-flex';
+            mypageBtn.style.display  = 'none';
+            logoutBtn.style.display  = 'none';
         }
+    }
 
-        // 이미 가입된 아이디인지 확인
-        const existing = localStorage.getItem('closetoryUser');
-        if (existing) {
-            const u = JSON.parse(existing);
-            if (u.userId === userId) {
-                showError('이미 사용 중인 아이디입니다.');
-                return;
-            }
-        }
-
-        const user = {
-            userId: userId,
-            password: pw1,
-            name: name,
-            address: addr
-        };
-        localStorage.setItem('closetoryUser', JSON.stringify(user));
-
-        alert('회원가입이 완료되었습니다. 이제 로그인 해 주세요.');
-        location.href = 'login.html';
+    loginBtn.addEventListener('click', () => location.href = 'login.html');
+    signupBtn.addEventListener('click', () => location.href = 'signup.html');
+    mypageBtn.addEventListener('click', () => location.href = 'mypage.html');
+    logoutBtn.addEventListener('click', () => {
+        clearCurrentUser();
+        checkAuthState();
+        alert('로그아웃 되었습니다.');
+        location.href = 'index.html';
     });
 
-    function showError(msg) {
-        errorBox.style.display = 'block';
-        errorBox.textContent = msg;
-    }
+    checkAuthState();
+
+    /* ===== 회원가입 처리 ===== */
+    const signupForm = document.getElementById('signupForm');
+
+    signupForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const id       = document.getElementById('signupId').value.trim();
+        const pw       = document.getElementById('signupPw').value;
+        const pw2      = document.getElementById('signupPw2').value;
+        const name     = document.getElementById('signupName').value.trim();
+        const address  = document.getElementById('signupAddress').value.trim();
+        const region   = document.getElementById('signupRegion').value;
+
+        if (pw !== pw2) {
+            alert('비밀번호가 서로 일치하지 않습니다.');
+            return;
+        }
+
+        if (!id || !pw || !name || !address) {
+            alert('모든 필수 항목을 입력해 주세요.');
+            return;
+        }
+
+        const users = getUsers();
+        const exists = users.some(u => u.id === id);
+        if (exists) {
+            alert('이미 사용 중인 아이디입니다.');
+            return;
+        }
+
+        const userObj = { id, password: pw, name, address, region };
+        users.push(userObj);
+        saveUsers(users);
+
+        // 방금 가입한 계정을 바로 로그인 상태로
+        setCurrentUser(id);
+
+        alert('회원가입이 완료되었습니다. 메인 화면으로 이동합니다.');
+        location.href = 'index.html';
+    });
 </script>
 </body>
 </html>
