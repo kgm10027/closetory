@@ -577,11 +577,20 @@
 .ai-modal-footer {
     padding: 10px 18px 14px;
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column;      /* 세로 정렬로 변경 */
+    align-items: flex-end;       /* 버튼을 오른쪽 아래로 붙이고 싶으면 */
     border-top: 1px solid #e5e7eb;
-    gap: 10px;
+    gap: 8px;
 }
+
+.ai-result-text {
+    align-self: stretch;         /* 텍스트는 전체 폭 사용 */
+}
+
+.ai-start-btn {
+    align-self: flex-end;        /* 버튼은 오른쪽 아래 정렬 */
+}
+
 .ai-result-text {
     font-size: 12px;
     color: #6b7280;
@@ -596,6 +605,32 @@
     cursor: pointer;
 }
 .ai-start-btn:hover { background: #020617; }
+
+        /* 큰 아바타 이미지 영역 */
+.clo-outfit-img-large {
+    width: 100%;
+    height: 180px; /* 필요하면 200~260까지 늘려도 됨 */
+    border-radius: 16px;
+    overflow: hidden;
+    background: #f3f4f6;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.clo-outfit-img-large img {
+    height: 100%;
+    width: auto;
+    object-fit: cover;
+}
+        /* 텍스트가 '설명 보기'인 버튼 숨기기 */
+button:contains("설명 보기"),
+button:contains("설명보기"),
+div:contains("설명 보기"),
+div:contains("설명보기") {
+    display: none !important;
+}
     </style>
 </head>
 <body>
@@ -705,7 +740,9 @@
                              data-outfit-id="campus_daily"
                              data-colors="블루"
                              data-image="images/campus.jpg">
-                        <div class="clo-outfit-avatar">캠퍼스</div>
+                        <div class="clo-outfit-img-large">
+                            <img src="images/avatar_campus.png" alt="캠퍼스 캐주얼" />
+                        </div>
                         <div class="clo-badge-row">
                             <span class="clo-badge">데일리룩</span>
                             <span class="clo-badge">후드 + 패딩</span>
@@ -725,7 +762,9 @@
                              data-outfit-id="presentation_formal"
                              data-colors="그레이,화이트"
                              data-image="images/presentation.jpg">
-                        <div class="clo-outfit-avatar">발표</div>
+                        <div class="clo-outfit-img-large">
+                            <img src="images/avatar_presentation.png" alt="발표날 코디" />
+                        </div>
                         <div class="clo-badge-row">
                             <span class="clo-badge">세미포멀</span>
                             <span class="clo-badge">셔츠</span>
@@ -1476,6 +1515,64 @@ if (aiSubmitBtn) {
       `<br><span style="color:#9ca3af;font-size:11px;">※ 이 결과는 나만의 옷장(closet) 추천에 활용됩니다.</span>`;
   });
 }
+    /* ===== 하루 하나 코디 Tip – 10개 로테이션 ===== */
+const DAILY_TIPS = [
+  '바람이 강한 날에는 목 주변을 따뜻하게 해 주세요. 머플러나 목폴라를 더하면 같은 코디도 보온성이 확 달라집니다.',
+  '실내·실외 온도 차가 큰 날에는 가벼운 아우터를 꼭 챙기세요. 벗었다 입었다 하기 쉬운 집업이나 가디건이 좋아요.',
+  '무채색 코디에는 가방이나 신발로 한 가지 포인트 컬러를 넣어 보세요. 전체 인상이 훨씬 세련돼 보여요.',
+  '하의 핏이 넉넉하면 상의는 좀 더 슬림하게, 상의가 오버핏이면 하의는 슬림하게 입으면 비율이 좋아 보입니다.',
+  '추운 날 패딩 안에는 너무 두꺼운 니트 대신 얇은 이너를 여러 겹 레이어드하면 더 따뜻하고 덜 부해 보여요.',
+  '운동하는 날에는 상·하의 중 하나만 타이트하게, 나머지는 여유 있게 입으면 활동성도 좋고 실루엣도 예쁩니다.',
+  '발표·면접 코디에는 구김이 적은 소재를 선택해 주세요. 아침에 아이롱 한 번만 해도 하루 종일 깔끔한 인상을 줄 수 있어요.',
+  '비 오는 날에는 밑단이 긴 하의보다 발목이 드러나는 바지와 방수 재질 신발을 매치하면 훨씬 편하게 이동할 수 있습니다.',
+  '옷이 밋밋하게 느껴질 때는 벨트, 목걸이, 시계 등 작은 액세서리 하나만 추가해도 분위기가 완전히 달라져요.',
+  '오늘 코디가 어색하게 느껴진다면, 상·하의 컬러 중 하나를 “신발이나 가방” 색과 맞춰 통일감을 만들어 보세요.'
+];
+
+// 기준일을 하나 정해 두고, (오늘-기준일) 일수로 인덱스를 만들기
+function getDailyTipIndex() {
+  const now = new Date();
+  const base = new Date(2025, 0, 1); // 2025-01-01 기준
+  const diffDays = Math.floor((now - base) / (1000 * 60 * 60 * 24));
+  const len = DAILY_TIPS.length;
+  return ((diffDays % len) + len) % len; // 항상 0~len-1
+}
+
+function updateDailyTip() {
+  const tipEl = document.querySelector('.clo-tip');
+  if (!tipEl) return;
+  const idx = getDailyTipIndex();
+  tipEl.textContent = DAILY_TIPS[idx];
+}
+
+// 자정(24:00)에 자동으로 다음 팁으로 변경
+function scheduleNextTipUpdate() {
+  const now = new Date();
+  const next = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate() + 1,
+    0, 0, 1
+  ); // 다음날 00:00:01
+  const delay = next.getTime() - now.getTime();
+  setTimeout(() => {
+    updateDailyTip();
+    scheduleNextTipUpdate();
+  }, delay);
+}
+
+// 페이지 로드 시 한 번 적용 + 다음 자정 예약
+updateDailyTip();
+scheduleNextTipUpdate();
+        document.addEventListener("DOMContentLoaded", () => {
+        const btns = document.querySelectorAll("button, div");
+
+        btns.forEach(btn => {
+            if (btn.textContent.trim() === "설명 보기") {
+                btn.style.display = "none";
+            }
+        });
+    });
 </script>
 </body>
 </html>

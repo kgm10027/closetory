@@ -346,17 +346,35 @@
           transform: translateY(-3px);
           box-shadow: 0 14px 28px rgba(15,23,42,0.08);
         }
-        .clo-card-img-wrap {
-          position: relative;
-          height: 220px;
-          background: #e5e7eb;
-        }
-        .clo-card-img {
+        /* 카드 이미지: 전체가 보이도록 contain + 가운데 정렬 */
+.clo-card-img-wrap {
+  position: relative;
+  height: 260px;               /* 조금 더 키워서 세로 이미지도 여유 있게 */
+  background: #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.clo-card-img {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;          /* ✨ 잘리지 않고 통째로 보이게 */
+  display: block;
+}
+        /* 이미지 없을 때 텍스트 플레이스홀더 (깨진 이미지 아이콘 안 보이게) */
+        .clo-card-img-placeholder {
           width: 100%;
           height: 100%;
-          object-fit: cover;
-          display: block;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 12px;
+          color: #9ca3af;
         }
+
         .clo-card-like-btn {
           position: absolute;
           right: 14px;
@@ -465,6 +483,29 @@
           cursor: pointer;
           color: #9ca3af;
         }
+
+        /* 모달 상단 큰 이미지 영역 (추가) */
+        /* 상세 모달 상단 큰 이미지: 전체가 보이도록 contain */
+.clo-detail-img-wrap {
+  width: 100%;
+  max-height: 360px;           /* 모달에서는 더 크게 */
+  overflow: hidden;
+  border-radius: 14px;
+  background: #e5e7eb;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.clo-detail-img {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;         /* ✨ 위/아래/좌우 아무 데도 안 잘림 */
+  display: block;
+}
+
         .clo-detail-body {
           padding: 8px 18px 16px;
           overflow-y: auto;
@@ -497,6 +538,60 @@
           .clo-closet-grid { grid-template-columns: 1fr; }
           .clo-style-summary { margin-top: 16px; }
         }
+
+        /* === AI 스타일 연동 하이라이트 (추가) === */
+        .clo-closet-card.is-main-style {
+          border: 2px solid #f97316;
+          box-shadow: 0 14px 32px rgba(249,115,22,0.25);
+        }
+        .clo-closet-card.is-sub-style {
+          border: 2px dashed #facc15;
+        }
+        .clo-style-reco-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          padding: 3px 8px;
+          border-radius: 999px;
+          font-size: 10px;
+          background: #fee2e2;
+          color: #b91c1c;
+          margin-bottom: 6px;
+        }
+        .clo-style-reco-badge span {
+          font-size: 11px;
+        }
+        .clo-style-ai-line {
+          display: block;
+          margin-top: 4px;
+          font-size: 12px;
+          color: #4b5563;
+        }
+        /* === 상세 모달 이미지 전체 보이도록 (카드 스타일 동일) === */
+.clo-detail-img-box {
+    width: 100%;
+    background: #f3f4f6;
+    border-radius: 12px;
+    padding: 16px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+}
+
+.clo-detail-img-box img {
+    width: 65%;
+    max-width: 360px;
+    height: auto;
+    object-fit: contain;
+    display: block;
+}
+        #detailImgWrap { display:none !important; }
+#detailImage {
+    object-fit: contain !important;
+    width: 100%;
+    height: auto;
+}
     </style>
 </head>
 <body>
@@ -608,6 +703,14 @@
             <button class="clo-detail-close" id="detailCloseBtn">×</button>
         </div>
         <div class="clo-detail-body">
+            <!-- 🔥 코디 큰 이미지 영역 (추가) -->
+            <div class="clo-detail-img-box">
+                <img id="detailImage" src="" alt="코디 이미지" />
+            </div>
+            <div class="clo-detail-img-wrap" id="detailImgWrap" style="display:none;">
+                <img src="" alt="코디 이미지" class="clo-detail-img" id="detailImg">
+            </div>
+
             <div class="clo-detail-meta" id="detailMeta"></div>
 
             <div class="clo-detail-section-title">선택한 색감 & 상황</div>
@@ -624,7 +727,6 @@
         </div>
     </div>
 </div>
-
 <script>
     /* ===== 공통: 사이드바 & 로그인 상태 ===== */
     const bodyEl = document.body;
@@ -790,7 +892,6 @@
       const mode = sortSelect.value;
       arr.sort((a, b) => {
         const nameA = (a.title || '').localeCompare(b.title || '', 'ko');
-        const nameB = (b.title || '').localeCompare(a.title || '', 'ko');
         const tA = a.createdAt || 0;
         const tB = b.createdAt || 0;
 
@@ -821,6 +922,8 @@
       gridEl.innerHTML = '';
       if (!viewList.length) {
         emptyMsgEl.style.display = 'block';
+        // AI 스타일 반영도 같이 초기화
+        applyStyleProfileToCloset();
         return;
       }
       emptyMsgEl.style.display = 'none';
@@ -833,15 +936,19 @@
         const imgWrap = document.createElement('div');
         imgWrap.className = 'clo-card-img-wrap';
 
-        const img = document.createElement('img');
-        img.className = 'clo-card-img';
+        // 🔥 이미지 깨짐 방지: imageUrl 없으면 <img> 자체를 만들지 않고 플레이스홀더 표시
         if (item.imageUrl) {
+          const img = document.createElement('img');
+          img.className = 'clo-card-img';
           img.src = item.imageUrl;
           img.alt = item.title || '코디 이미지';
+          imgWrap.appendChild(img);
         } else {
-          img.style.opacity = '0';
+          const ph = document.createElement('div');
+          ph.className = 'clo-card-img-placeholder';
+          ph.textContent = '이미지 없음';
+          imgWrap.appendChild(ph);
         }
-        imgWrap.appendChild(img);
 
         const likeBtn = document.createElement('button');
         likeBtn.className = 'clo-card-like-btn';
@@ -897,8 +1004,10 @@
 
         gridEl.appendChild(card);
       });
-    }
 
+      // === 여기서 AI 스타일 하이라이트 적용 (추가) ===
+      applyStyleProfileToCloset();
+    }
     function removeFavorite(id) {
       const list = loadFavorites();
       const idx = list.findIndex(it => it.id === id);
@@ -918,10 +1027,27 @@
     const detailDescEl  = document.getElementById('detailDesc');
     const detailStyleListEl = document.getElementById('detailStyleList');
     const detailRecommendListEl = document.getElementById('detailRecommendList');
+    // 🔥 새로 추가: 모달 이미지 요소
+    const detailImgWrapEl = document.getElementById('detailImgWrap');
+    const detailImgEl     = document.getElementById('detailImg');
 
     function openDetailModal(item) {
       detailTitleEl.textContent = item.title || '코디 상세 정보';
+      // 상세 이미지 표시 (전체 보이는 스타일)
+const detailImageEl = document.getElementById('detailImage');
+detailImageEl.src = item.imageUrl || "";
+detailImageEl.alt = item.title || "코디 이미지";
       detailMetaEl.textContent  = formatDate(item.createdAt) || '날짜 정보 없음';
+
+      // 상단 큰 이미지 세팅
+      if (item.imageUrl) {
+        detailImgEl.src = item.imageUrl;
+        detailImgEl.alt = item.title || '코디 이미지';
+        detailImgWrapEl.style.display = 'block';
+      } else {
+        detailImgEl.src = '';
+        detailImgWrapEl.style.display = 'none';
+      }
 
       detailTagsEl.innerHTML = '';
       const colors = item.colors || item.colorTags || [];
@@ -990,6 +1116,125 @@
     modalEl.addEventListener('click', e => {
       if (e.target === modalEl) closeDetailModal();
     });
+
+    /* === AI 스타일 연동 함수 (추가) === */
+    const STYLE_STORAGE_KEY = 'closetoryStyleProfile';
+
+    function loadStyleProfile() {
+      try {
+        const raw = localStorage.getItem(STYLE_STORAGE_KEY);
+        return raw ? JSON.parse(raw) : null;
+      } catch (e) {
+        console.warn('스타일 프로필 파싱 실패', e);
+        return null;
+      }
+    }
+
+    // 색감/태그 기반으로 이 코디가 어떤 스타일 키들과 어울리는지 추정
+    function guessCardStyleKeys(item) {
+      const colors = item.colors || item.colorTags || [];
+      const tags   = item.types || item.situations || item.categories || item.tags || [];
+      const keys = new Set();
+
+      // 색 기준
+      if (colors.some(c => ['블랙','화이트','그레이'].includes(c))) {
+        keys.add('minimal');
+      }
+      if (colors.some(c => ['블루','네이비','그린'].includes(c))) {
+        keys.add('casual');
+      }
+      if (colors.some(c => ['핑크','베이지','아이보리','화이트'].includes(c))) {
+        keys.add('lovely');
+      }
+      if (colors.some(c => ['브라운','카키'].includes(c))) {
+        keys.add('vintage');
+      }
+      // 태그 기준
+      if (tags.some(t => ['운동','스포츠','러닝','헬스','트레이닝'].includes(t))) {
+        keys.add('sporty');
+      }
+      if (tags.some(t => ['데이트'].includes(t))) {
+        keys.add('lovely');
+      }
+      if (tags.some(t => ['발표','프레젠테이션','세미포멀'].includes(t))) {
+        keys.add('minimal');
+      }
+      if (!keys.size) {
+        keys.add('casual'); // 기본값
+      }
+      return Array.from(keys);
+    }
+
+    function applyStyleProfileToCloset() {
+      const profile = loadStyleProfile();
+      const cards   = document.querySelectorAll('.clo-closet-card');
+      const summaryBox = document.getElementById('styleSummaryBox');
+
+      // 상단 박스에 AI 결과 한 줄 표시
+      const aiLineId = 'clo-style-ai-line';
+      let aiLine = document.getElementById(aiLineId);
+      if (!aiLine && summaryBox) {
+        aiLine = document.createElement('span');
+        aiLine.id = aiLineId;
+        aiLine.className = 'clo-style-ai-line';
+        summaryBox.appendChild(aiLine);
+      }
+      if (aiLine) {
+        if (!profile) {
+          aiLine.textContent = 'AI 스타일 테스트 결과가 아직 없습니다. 메인 페이지에서 테스트를 진행하면, 여기에도 결과가 표시됩니다.';
+        } else {
+          const mainLabel = profile.mainLabel || profile.mainKey || '';
+          const subLabel  = profile.subLabel  || profile.subKey  || '';
+          aiLine.textContent = subLabel
+            ? `AI 분석 기준 메인 스타일: ${mainLabel} · 서브 스타일: ${subLabel}`
+            : `AI 분석 기준 메인 스타일: ${mainLabel}`;
+        }
+      }
+
+      if (!cards.length || !profile) return;
+
+      const { mainKey, subKey } = profile;
+
+      // id → favorite 매핑
+      const favs = loadFavorites();
+      const map = {};
+      favs.forEach(it => { map[it.id] = it; });
+
+      cards.forEach(card => {
+        card.classList.remove('is-main-style','is-sub-style');
+        const oldBadge = card.querySelector('.clo-style-reco-badge');
+        if (oldBadge) oldBadge.remove();
+
+        const id = card.dataset.id;
+        const item = map[id];
+        if (!item) return;
+
+        const styleKeys = guessCardStyleKeys(item);
+        let badgeType = null;
+
+        if (styleKeys.includes(mainKey)) {
+          card.classList.add('is-main-style');
+          badgeType = 'main';
+        } else if (styleKeys.includes(subKey)) {
+          card.classList.add('is-sub-style');
+          badgeType = 'sub';
+        }
+
+        if (badgeType) {
+          const badge = document.createElement('div');
+          badge.className = 'clo-style-reco-badge';
+          const label = badgeType === 'main' ? 'AI 메인 스타일 추천' : 'AI 서브 스타일 추천';
+          badge.innerHTML = `<span>★</span>${label}`;
+
+          const body = card.querySelector('.clo-card-body');
+          if (body) {
+            body.insertBefore(badge, body.firstElementChild);
+          } else {
+            card.insertBefore(badge, card.firstElementChild);
+          }
+        }
+      });
+    }
 
     /* ===== 초기 렌더 ===== */
     renderCloset();

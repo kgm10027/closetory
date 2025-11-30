@@ -1,10 +1,1049 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Closetory - 주간 코디 캘린더</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: "Noto Sans KR", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f5f7fb;
+            color: #111827;
+        }
+
+        /* ===== 상단 고정 헤더 ===== */
+        .clo-topbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 72px;
+            background: #ffffff;
+            box-shadow: 0 6px 20px rgba(15,23,42,0.06);
+            z-index: 50;
+        }
+        .clo-top-inner {
+            max-width: 1180px;
+            margin: 0 auto;
+            height: 100%;
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .clo-top-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .clo-hamburger {
+            width: 36px;
+            height: 36px;
+            border-radius: 999px;
+            border: none;
+            background: #111827;
+            color: #f9fafb;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .clo-logo-main a {
+            text-decoration: none;
+            color: inherit;
+        }
+        .clo-logo-main {
+            font-size: 22px;
+            font-weight: 900;
+            letter-spacing: -0.4px;
+            cursor: pointer;
+        }
+        .clo-logo-sub {
+            font-size: 11px;
+            color: #9ca3af;
+            margin-top: 2px;
+        }
+        .clo-top-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .clo-search-form {
+            display: flex;
+            align-items: center;
+            background: #f3f4f6;
+            border-radius: 999px;
+            padding: 6px 12px;
+            min-width: 260px;
+        }
+        .clo-search-icon {
+            font-size: 14px;
+            color: #6b7280;
+            margin-right: 6px;
+        }
+        .clo-search-input {
+            border: none;
+            background: transparent;
+            outline: none;
+            font-size: 13px;
+            width: 100%;
+        }
+        .clo-top-btn {
+            height: 36px;
+            border-radius: 999px;
+            border: 1px solid #e5e7eb;
+            background: #ffffff;
+            padding: 0 14px;
+            font-size: 12px;
+            cursor: pointer;
+            color: #374151;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+        }
+        .clo-top-btn.primary {
+            background: #111827;
+            color: #f9fafb;
+            border-color: #111827;
+            font-weight: 600;
+        }
+        .clo-top-btn:hover {
+            background: #f3f4f6;
+        }
+        .clo-top-btn.primary:hover {
+            background: #020617;
+        }
+        .clo-user-status {
+            font-size: 12px;
+            color: #6b7280;
+            margin-right: 4px;
+        }
+
+        /* ===== 사이드바 ===== */
+        .clo-sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 230px;
+            background: #111827;
+            color: #e5e7eb;
+            padding: 24px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            transform: translateX(-100%);
+            transition: transform .25s ease-out;
+            z-index: 60;
+        }
+        body.clo-sidebar-open .clo-sidebar {
+            transform: translateX(0);
+        }
+        .clo-sidebar-header {
+            font-size: 18px;
+            font-weight: 800;
+        }
+        .clo-sidebar-sub {
+            font-size: 12px;
+            color: #9ca3af;
+            margin-top: 2px;
+        }
+        .clo-menu-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            font-size: 14px;
+        }
+        .clo-menu-list li {
+            padding: 8px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background .2s, color .2s;
+        }
+        .clo-menu-list li:hover {
+            background: #1f2937;
+            color: #f9fafb;
+        }
+        .clo-menu-list li.clo-active {
+            background: #fbbf24;
+            color: #111827;
+            font-weight: 700;
+        }
+        .clo-sidebar-footer {
+            margin-top: auto;
+            font-size: 11px;
+            color: #6b7280;
+        }
+        .clo-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(15,23,42,0.35);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .2s ease-out;
+            z-index: 55;
+        }
+        body.clo-sidebar-open .clo-backdrop {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* ===== 메인 컨텐츠 ===== */
+        .clo-main-outer {
+            padding-top: 96px;
+        }
+        .clo-main-wrap {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 0 24px 40px;
+        }
+
+        /* 타이틀 */
+        .calendar-header h1 {
+            margin: 0;
+            font-size: 32px;
+            font-weight: 900;
+        }
+        .calendar-header p {
+            margin: 6px 0 0;
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        /* 카테고리 탭 */
+        .category-tabs {
+            margin-top: 16px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .category-tab {
+            border-radius: 999px;
+            border: 1px solid #e5e7eb;
+            background: #f3f4f6;
+            padding: 6px 14px;
+            font-size: 13px;
+            cursor: pointer;
+            color: #4b5563;
+        }
+        .category-tab.active {
+            background: #fff;
+            color: #111827;
+            border-color: #111827;
+            font-weight: 600;
+            box-shadow: 0 4px 10px rgba(15,23,42,0.06);
+        }
+
+        /* ===== 자동 배치 버튼 ===== */
+        .auto-fill-btn {
+            width: 100%;
+            max-width: 1180px;
+            margin: 0 auto 20px;
+            display: block;
+            padding: 12px 18px;
+            font-size: 14px;
+            font-weight: 700;
+            border-radius: 999px;
+            background: #111827;
+            color: #f9fafb;
+            border: none;
+            cursor: pointer;
+            text-align: center;
+        }
+        .auto-fill-btn:hover {
+            background: #020617;
+        }
+
+        /* ===== 주간 슬라이더 ===== */
+        .calendar-slider {
+            position: relative;
+            margin-top: 12px;
+        }
+        .week-viewport {
+            overflow: hidden;
+        }
+        .week-track {
+            display: flex;
+            gap: 18px;
+            transition: transform .35s ease;
+        }
+
+        /* 요일 카드 */
+        .day-card {
+            flex: 0 0 calc((100% - 2 * 18px) / 3);
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 10px 24px rgba(15,23,42,0.06);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        /* 오늘 강조 */
+        .day-card.today {
+            border: 2px solid #facc15;
+            box-shadow: 0 0 0 3px rgba(250,204,21,0.3);
+        }
+        .day-today-badge {
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            background: #facc15;
+            color: #111;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 999px;
+        }
+
+        .day-title {
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        /* 전신 이미지 대응 확대 박스 */
+        .day-img {
+            width: 100%;
+            height: 240px;
+            background: #eef0f4;
+            border-radius: 14px;
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .day-desc {
+            font-size: 13px;
+            color: #6b7280;
+        }
+
+        .heart-btn {
+            font-size: 16px;
+            cursor: pointer;
+            color: #9ca3af;
+            align-self: flex-end;
+        }
+        .heart-btn.active {
+            color: #ef4444;
+        }
+
+        /* 슬라이드 버튼 */
+        .week-slide-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 32px;
+            height: 32px;
+            border-radius: 999px;
+            border: none;
+            background: rgba(15,23,42,0.7);
+            color: #fff;
+            cursor: pointer;
+            font-size: 18px;
+        }
+        .week-slide-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 36px;
+    height: 36px;
+    border-radius: 999px;
+    border: none;
+    background: rgba(15,23,42,0.75);  /* 살짝 투명 */
+    color: #f9fafb;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    z-index: 10;
+    backdrop-filter: blur(4px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.week-slide-btn.prev {
+    left: -16px;        /* ★ 위치 보정 */
+}
+
+.week-slide-btn.next {
+    right: -16px;       /* 동일 처리 */
+}
+
+.week-slide-btn:hover {
+    background: rgba(15,23,42,0.90);
+}
+        .week-slide-btn:disabled {
+            opacity: 0.3;
+            cursor: default;
+        }
+
+        /* ===== 상세 모달 ===== */
+        .cal-modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(15,23,42,0.4);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+        }
+        .cal-modal-backdrop.show {
+            display: flex;
+        }
+
+        .cal-modal {
+            background: #fff;
+            width: 520px;
+            max-width: 92vw;
+            max-height: 90vh;
+            border-radius: 20px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.22);
+        }
+
+        .cal-modal-header {
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .cal-modal-header h2 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 800;
+        }
+        .cal-modal-close {
+            background: none;
+            border: none;
+            font-size: 22px;
+            cursor: pointer;
+            color: #9ca3af;
+        }
+
+        .cal-modal-image {
+            width: 100%;
+            height: 340px;
+            background:#eef0f4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .cal-modal-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .cal-modal-body {
+            padding: 16px 20px 22px;
+            font-size: 14px;
+            color: #4b5563;
+            overflow-y: auto;
+        }
+        .cal-modal-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+        .cal-tag {
+            background:#e8efff;
+            padding:4px 10px;
+            font-size:11px;
+            border-radius:999px;
+            color:#374151;
+        }
+        .cal-modal-like-btn {
+            width:100%;
+            margin-top:18px;
+            padding:10px;
+            border:none;
+            border-radius:999px;
+            background:#111827;
+            color:white;
+            cursor:pointer;
+            font-weight:600;
+        }
+        .cal-modal-like-btn.fav {
+            background:#b91c1c;
+        }
+
+        /* 분석 박스 */
+        .week-analysis {
+            margin-top: 36px;
+            padding: 20px 22px;
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 8px 20px rgba(15,23,42,0.05);
+        }
+        .week-analysis h3 {
+            margin: 0 0 8px;
+            font-size: 18px;
+            font-weight: 800;
+        }
+        .week-analysis p {
+            font-size: 13px;
+            color: #6b7280;
+            margin: 0;
+        }
+
+        /* 반응형 */
+        @media (max-width: 960px) {
+            .day-card { flex: 0 0 80%; }
+            .week-slide-btn.prev { left: 4px; }
+            .week-slide-btn.next { right: 4px; }
+        }
+    </style>
 </head>
 <body>
 
-</body>
-</html>
+<!-- 사이드바 -->
+<nav class="clo-sidebar">
+    <div>
+        <div class="clo-sidebar-header">메뉴</div>
+        <div class="clo-sidebar-sub">Closetory 옷장 메뉴</div>
+    </div>
+    <ul class="clo-menu-list">
+        <li onclick="location.href='closet.html'">나만의 옷장</li>
+        <li onclick="location.href='color.html'">코디 색감 추천</li>
+        <li onclick="location.href='situation.html'">상황별 코디 추천</li>
+        <li class="clo-active" onclick="location.href='calendar.html'">주간 코디 캘린더</li>
+        <li onclick="location.href='ranking.html'">인기 코디 랭킹</li>
+    </ul>
+    <div class="clo-sidebar-footer">
+        Closetory · 옷장에서 꺼내는 작은 행복
+    </div>
+</nav>
+<div class="clo-backdrop"></div>
+
+<!-- 상단바 -->
+<header class="clo-topbar">
+    <div class="clo-top-inner">
+        <div class="clo-top-left">
+            <button class="clo-hamburger" id="cloMenuBtn">☰</button>
+            <div>
+                <div class="clo-logo-main">
+                    <a href="index.html">Closetory</a>
+                </div>
+                <div class="clo-logo-sub">옷장에서 꺼내는 작은 행복</div>
+            </div>
+        </div>
+
+        <div class="clo-top-right">
+            <form class="clo-search-form" onsubmit="return false;">
+                <span class="clo-search-icon">🔍</span>
+                <input class="clo-search-input" type="text" placeholder="코디, 아이템 검색">
+            </form>
+
+            <span class="clo-user-status" id="userStatus"></span>
+            <button class="clo-top-btn" id="loginBtn">로그인</button>
+            <button class="clo-top-btn" id="signupBtn">회원가입</button>
+            <button class="clo-top-btn primary" id="mypageBtn" style="display:none;">마이페이지</button>
+            <button class="clo-top-btn" id="logoutBtn" style="display:none;">로그아웃</button>
+        </div>
+    </div>
+</header>
+
+<!-- 메인 -->
+<div class="clo-main-outer">
+    <main class="clo-main-wrap">
+
+        <!-- 제목 -->
+        <section class="calendar-header">
+            <h1>주간 코디 캘린더</h1>
+            <p>카테고리를 선택해서 오늘을 기준으로 1주일 코디를 확인해보세요.</p>
+
+            <!-- 카테고리 탭 -->
+            <div class="category-tabs" id="categoryTabs">
+                <button class="category-tab active" data-category="daily">데일리</button>
+                <button class="category-tab" data-category="date">데이트</button>
+                <button class="category-tab" data-category="campus">캠퍼스</button>
+                <button class="category-tab" data-category="travel">여행</button>
+            </div>
+        </section>
+
+        <!-- 주간 슬라이더 -->
+        <section class="calendar-slider">
+            <button class="week-slide-btn prev" id="weekPrevBtn">‹</button>
+
+            <div class="week-viewport">
+                <div class="week-track" id="weekTrack">
+
+                    <!-- 월요일 -->
+                    <article class="day-card" data-day-index="0">
+                        <div class="day-title">월요일</div>
+                        <div class="day-img"></div>
+                        <div class="day-desc">월요일 코디입니다.</div>
+                    </article>
+
+                    <!-- 화요일 -->
+                    <article class="day-card" data-day-index="1">
+                        <div class="day-title">화요일</div>
+                        <div class="day-img"></div>
+                        <div class="day-desc">화요일 코디입니다.</div>
+                    </article>
+
+                    <!-- 수요일 -->
+                    <article class="day-card" data-day-index="2">
+                        <div class="day-title">수요일</div>
+                        <div class="day-img"></div>
+                        <div class="day-desc">수요일 코디입니다.</div>
+                    </article>
+
+                    <!-- 목요일 -->
+                    <article class="day-card" data-day-index="3">
+                        <div class="day-title">목요일</div>
+                        <div class="day-img"></div>
+                        <div class="day-desc">목요일 코디입니다.</div>
+                    </article>
+
+                    <!-- 금요일 -->
+                    <article class="day-card" data-day-index="4">
+                        <div class="day-title">금요일</div>
+                        <div class="day-img"></div>
+                        <div class="day-desc">금요일 코디입니다.</div>
+                    </article>
+
+                    <!-- 토요일 -->
+                    <article class="day-card" data-day-index="5">
+                        <div class="day-title">토요일</div>
+                        <div class="day-img"></div>
+                        <div class="day-desc">토요일 코디입니다.</div>
+                    </article>
+
+                    <!-- 일요일 -->
+                    <article class="day-card" data-day-index="6">
+                        <div class="day-title">일요일</div>
+                        <div class="day-img"></div>
+                        <div class="day-desc">일요일 코디입니다.</div>
+                    </article>
+
+                </div>
+            </div>
+
+            <button class="week-slide-btn next" id="weekNextBtn">›</button>
+        </section>
+
+        <!-- 이번 주 스타일 분석 -->
+        <section class="week-style-analysis" style="
+    margin-top: 34px;
+    background:#ffffff;
+    box-shadow:0 10px 24px rgba(15,23,42,0.06);
+    border-radius:16px;
+    padding:22px 24px;
+">
+            <h2 style="margin:0; font-size:20px; font-weight:800;">이번 주 스타일 분석</h2>
+            <p id="weekStyleText" style="margin-top:8px; font-size:14px; color:#6b7280;">
+                이번 주 코디 분석 중...
+            </p>
+        </section>
+    </main>
+</div>
+
+<!-- 상세 모달 -->
+<div class="cal-modal-backdrop" id="calModalBackdrop">
+    <div class="cal-modal" id="calModal">
+        <div class="cal-modal-header">
+            <h2 id="calModalTitle">코디 제목</h2>
+            <button class="cal-modal-close" id="calModalClose">×</button>
+        </div>
+
+        <div class="cal-modal-image">
+            <img id="calModalImg" src="" alt="">
+        </div>
+
+        <div class="cal-modal-body">
+            <div class="cal-modal-tags" id="calModalTags"></div>
+            <p id="calModalDesc"></p>
+
+            <button id="calModalLikeBtn" class="cal-modal-like-btn">♡ 나만의 옷장에 담기</button>
+        </div>
+    </div>
+</div>
+<script>
+    /* ===== 사이드바 토글 + 검은 배경 클릭 시 닫힘 ===== */
+    const bodyEl  = document.body;
+    const menuBtn = document.getElementById('cloMenuBtn');
+    const backdrop = document.querySelector('.clo-backdrop');
+
+    function toggleSidebar() {
+        bodyEl.classList.toggle('clo-sidebar-open');
+    }
+    if (menuBtn)  menuBtn.addEventListener('click', toggleSidebar);
+    if (backdrop) backdrop.addEventListener('click', () => {
+        bodyEl.classList.remove('clo-sidebar-open');
+    });
+
+    /* ===== 로그인 상태 처리 ===== */
+    const loginBtn   = document.getElementById('loginBtn');
+    const signupBtn  = document.getElementById('signupBtn');
+    const logoutBtn  = document.getElementById('logoutBtn');
+    const mypageBtn  = document.getElementById('mypageBtn');
+    const userStatus = document.getElementById('userStatus');
+
+    function checkAuthState() {
+        const raw = localStorage.getItem('closetoryUser');
+        if (raw) {
+            const user = JSON.parse(raw);
+            userStatus.textContent = (user.name || '사용자') + ' 님 로그인 중';
+            loginBtn.style.display   = 'none';
+            signupBtn.style.display  = 'none';
+            mypageBtn.style.display  = 'inline-flex';
+            logoutBtn.style.display  = 'inline-flex';
+        } else {
+            userStatus.textContent = '';
+            loginBtn.style.display   = 'inline-flex';
+            signupBtn.style.display  = 'inline-flex';
+            mypageBtn.style.display  = 'none';
+            logoutBtn.style.display  = 'none';
+        }
+    }
+    checkAuthState();
+
+    if (loginBtn)  loginBtn.addEventListener('click', () => location.href = 'login.html');
+    if (signupBtn) signupBtn.addEventListener('click', () => location.href = 'signup.html');
+    if (mypageBtn) mypageBtn.addEventListener('click', () => location.href = 'mypage.html');
+    if (logoutBtn) logoutBtn.addEventListener('click', () => {
+        localStorage.removeItem('closetoryUser');
+        checkAuthState();
+        alert('로그아웃 되었습니다.');
+        location.href = 'index.html';
+    });
+
+    /* ==========================================================
+       1) 찜 데이터 (closet.html / ranking.html 완전 동일 구조)
+    ========================================================== */
+    const FAVORITES_KEY = 'closetoryFavorites';
+
+    function loadFavorites() {
+        try {
+            return JSON.parse(localStorage.getItem(FAVORITES_KEY) || '[]');
+        } catch (_) {
+            return [];
+        }
+    }
+
+    function saveFavorites(list) {
+        localStorage.setItem(FAVORITES_KEY, JSON.stringify(list));
+    }
+
+    function isFavorite(id) {
+        return loadFavorites().some(it => String(it.id) === String(id));
+    }
+
+    /* ==========================================================
+       2) 상세모달 연동 (closet.html 동일 모달 구조)
+    ========================================================== */
+    const calModalBackdrop = document.getElementById('calModalBackdrop');
+    const calModal         = document.getElementById('calModal');
+    const calModalClose    = document.getElementById('calModalClose');
+    const calModalImg      = document.getElementById('calModalImg');
+    const calModalTitle    = document.getElementById('calModalTitle');
+    const calModalTags     = document.getElementById('calModalTags');
+    const calModalDesc     = document.getElementById('calModalDesc');
+    const calModalLikeBtn  = document.getElementById('calModalLikeBtn');
+
+    let currentModalItem = null;
+
+    function openCalModal(item) {
+        currentModalItem = item;
+
+        calModalTitle.textContent = item.title || "코디 정보";
+        calModalImg.src = item.imageUrl || "";
+        calModalImg.alt = item.title || "";
+
+        calModalTags.innerHTML = "";
+        (item.tags || []).forEach(t => {
+            const span = document.createElement('span');
+            span.className = "rank-tag";
+            span.textContent = t;
+            calModalTags.appendChild(span);
+        });
+
+        calModalDesc.textContent = item.desc || "코디 설명이 아직 없습니다.";
+
+        // 찜 버튼 상태
+        if (isFavorite(item.id)) {
+            calModalLikeBtn.textContent = "❤ 찜 해제";
+        } else {
+            calModalLikeBtn.textContent = "♡ 나만의 옷장에 담기";
+        }
+
+        calModalBackdrop.classList.add("show");
+    }
+
+    calModalClose.addEventListener('click', () => {
+        calModalBackdrop.classList.remove('show');
+    });
+    calModalBackdrop.addEventListener('click', e => {
+        if (e.target === calModalBackdrop) {
+            calModalBackdrop.classList.remove('show');
+        }
+    });
+
+    /* ===== 상세 모달 찜기능 ===== */
+    calModalLikeBtn.addEventListener('click', () => {
+        if (!currentModalItem) return;
+
+        const favs = loadFavorites();
+        const exist = favs.find(f => f.id === currentModalItem.id);
+
+        if (exist) {
+            // 해제
+            const newList = favs.filter(f => f.id !== currentModalItem.id);
+            saveFavorites(newList);
+            calModalLikeBtn.textContent = "♡ 나만의 옷장에 담기";
+            alert("찜 해제했습니다.");
+        } else {
+            favs.push({
+                ...currentModalItem,
+                isFavorite: true,
+                createdAt: Date.now()
+            });
+            saveFavorites(favs);
+            calModalLikeBtn.textContent = "❤ 찜 해제";
+            alert("나만의 옷장에 담았습니다!");
+        }
+    });
+/* ==========================================================
+   3) 주간 이미지 설정 (카테고리 선택 시 자동 변경)
+========================================================== */
+
+const CATEGORY_IMAGE_PATHS = {
+    daily: [
+        'images/daily_mon.jpg',
+        'images/daily_tue.jpg',
+        'images/daily_wed.jpg',
+        'images/daily_thu.jpg',
+        'images/daily_fri.jpg',
+        'images/daily_sat.jpg',
+        'images/daily_sun.jpg'
+    ],
+    date: [
+        'images/date_mon.jpg',
+        'images/date_tue.jpg',
+        'images/date_wed.jpg',
+        'images/date_thu.jpg',
+        'images/date_fri.jpg',
+        'images/date_sat.jpg',
+        'images/date_sun.jpg'
+    ],
+    campus: [
+        'images/campus_mon.jpg',
+        'images/campus_tue.jpg',
+        'images/campus_wed.jpg',
+        'images/campus_thu.jpg',
+        'images/campus_fri.jpg',
+        'images/campus_sat.jpg',
+        'images/campus_sun.jpg'
+    ],
+    travel: [
+        'images/travel_mon.jpg',
+        'images/travel_tue.jpg',
+        'images/travel_wed.jpg',
+        'images/travel_thu.jpg',
+        'images/travel_fri.jpg',
+        'images/travel_sat.jpg',
+        'images/travel_sun.jpg'
+    ]
+};
+
+const weekdayLabels = ['월요일','화요일','수요일','목요일','금요일','토요일','일요일'];
+let activeCategory = 'daily';
+const categoryTabs = document.querySelectorAll('.category-tab');
+
+function applyCategory(categoryKey) {
+    activeCategory = categoryKey;
+
+    const imageList = CATEGORY_IMAGE_PATHS[categoryKey] || [];
+    const activeTabEl = document.querySelector(`.category-tab[data-category="${categoryKey}"]`);
+    const categoryName = activeTabEl ? activeTabEl.textContent.trim() : '';
+
+    // 하루 카드 전체에 이미지 반영 + 설명 반영
+    document.querySelectorAll('.day-card').forEach(card => {
+        const dayIdx = Number(card.dataset.dayIndex);
+        const imgEl = card.querySelector('.day-img');
+        const descEl = card.querySelector('.day-desc');
+        const path = imageList[dayIdx] || '';
+
+        if (path) {
+            imgEl.style.backgroundImage = `url('${path}')`;
+        } else {
+            imgEl.style.backgroundImage = 'none';
+        }
+
+        const weekdayName = weekdayLabels[dayIdx];
+        descEl.textContent = `${categoryName} · ${weekdayName} 코디`;
+    });
+}
+
+categoryTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+        const category = tab.dataset.category;
+        categoryTabs.forEach(t => t.classList.toggle('active', t === tab));
+        resetToTodayWindow();
+        applyCategory(category);
+    });
+});
+
+/* ==========================================================
+   4) 슬라이더 — 3개씩 보이게 / 오늘이 맨 앞
+========================================================== */
+
+const weekTrack = document.getElementById('weekTrack');
+const weekPrevBtn = document.getElementById('weekPrevBtn');
+const weekNextBtn = document.getElementById('weekNextBtn');
+
+let dayCards = Array.from(weekTrack.children);
+const VISIBLE_COUNT = 3;
+const GAP = 18;
+let slideIndex = 0;
+let cardStep = 0;
+let maxIndex = Math.max(0, dayCards.length - VISIBLE_COUNT);
+
+// JS getDay(): 0=일 ~ 6=토
+function getMondayBasedIndex(jsDay) {
+    return (jsDay + 6) % 7; // 월=0 ~ 일=6
+}
+
+// 오늘이 첫 카드가 되도록 주간 배열 재배치
+function sortDaysByToday() {
+    const today = new Date();
+    const jsDay = today.getDay();       // 0~6
+    const mondayBasedToday = getMondayBasedIndex(jsDay);
+
+    dayCards = Array.from(weekTrack.children);
+
+    const sorted = dayCards.slice().sort((a, b) => {
+        const aIdx = Number(a.dataset.dayIndex);
+        const bIdx = Number(b.dataset.dayIndex);
+        const aOff = (aIdx - mondayBasedToday + 7) % 7;
+        const bOff = (bIdx - mondayBasedToday + 7) % 7;
+        return aOff - bOff;
+    });
+
+    sorted.forEach(c => weekTrack.appendChild(c));
+    dayCards = sorted;
+    slideIndex = 0;
+    updateMetrics();
+}
+
+function recalcMaxIndex() {
+    maxIndex = Math.max(0, dayCards.length - VISIBLE_COUNT);
+}
+
+function updateNavButtons() {
+    recalcMaxIndex();
+    weekPrevBtn.disabled = (slideIndex <= 0);
+    weekNextBtn.disabled = (slideIndex >= maxIndex);
+}
+
+function updateMetrics() {
+    if (!dayCards.length) return;
+    const first = dayCards[0];
+    const rect = first.getBoundingClientRect();
+    cardStep = rect.width + GAP;
+
+    weekTrack.style.transition = 'none';
+    weekTrack.style.transform = `translateX(-${slideIndex * cardStep}px)`;
+
+    requestAnimationFrame(() => {
+        weekTrack.style.transition = 'transform .35s ease';
+    });
+
+    updateNavButtons();
+}
+
+function goToSlide(idx) {
+    recalcMaxIndex();
+    slideIndex = Math.min(Math.max(idx, 0), maxIndex);
+    weekTrack.style.transform = `translateX(-${slideIndex * cardStep}px)`;
+    updateNavButtons();
+}
+
+function resetToTodayWindow() {
+    goToSlide(0);
+}
+
+weekPrevBtn.addEventListener('click', () => goToSlide(slideIndex - 1));
+weekNextBtn.addEventListener('click', () => goToSlide(slideIndex + 1));
+
+/* ==========================================================
+   5) “하루 카드 클릭 → 상세 모달 띄우기”
+========================================================== */
+
+document.querySelectorAll('.day-card').forEach(card => {
+    card.addEventListener('click', () => {
+        const day = Number(card.dataset.dayIndex);
+        const image = CATEGORY_IMAGE_PATHS[activeCategory][day] || '';
+        const weekday = weekdayLabels[day];
+        const categoryTitle = document.querySelector('.category-tab.active').textContent.trim();
+
+        const item = {
+            id: `${activeCategory}-${day}`,
+            title: `${weekday} (${categoryTitle}) 코디`,
+            desc: `${categoryTitle} · ${weekday} 코디입니다.`,
+            tags: [categoryTitle, weekday],
+            imageUrl: image
+        };
+
+        openCalModal(item);
+    });
+});
+
+/* ==========================================================
+   초기 실행
+========================================================== */
+
+window.addEventListener('load', () => {
+    sortDaysByToday();
+    applyCategory(activeCategory);
+    analyzeWeekStyle();   // ★ 스타일 분석 실행!
+});
+window.addEventListener('resize', updateMetrics);
+
+    /* ==========================================================
+   6) 이번 주 스타일 분석 자동 생성
+========================================================== */
+function analyzeWeekStyle() {
+    const images = CATEGORY_IMAGE_PATHS[activeCategory];
+    const categoryName = document.querySelector('.category-tab.active').textContent.trim();
+
+    // 빈 이미지 제외
+    const usedImages = images.filter(src => src && src !== "");
+
+    // 태그 기반 간단 분석
+    let styleKeywords = [];
+
+    if (activeCategory === "daily") styleKeywords = ["캐주얼", "데일리", "기본템"];
+    if (activeCategory === "date") styleKeywords = ["포근함", "데이트룩", "세미포멀"];
+    if (activeCategory === "campus") styleKeywords = ["편안함", "캠퍼스룩", "맨투맨", "데님"];
+    if (activeCategory === "travel") styleKeywords = ["활동성", "여행룩", "가벼움"];
+
+    // 이번 주 톤 분석
+    let toneText = "";
+    if (activeCategory === "daily") toneText = "차분하고 기본에 충실한 코디가 중심이었어요.";
+    if (activeCategory === "date") toneText = "따뜻하고 감성적인 데이트 코디가 많았어요.";
+    if (activeCategory === "campus") toneText = "캐주얼하고 활동적인 스타일이 두드러졌어요.";
+    if (activeCategory === "travel") toneText = "실용적이면서 활동적인 여행 스타일이 강했어요.";
+
+    // 최종 문장 조립
+    const result =
+        `이번 주는 '${categoryName}' 스타일을 중심으로
+        ${toneText}
+        주요 키워드는 ${styleKeywords.slice(0, 3).join(", ")} 입니다.`;
+
+    document.getElementById("weekStyleText").textContent = result;
+}
+</script>
