@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Closetory - 인기 코디 랭킹</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+          margin: 0;
+          font-family: "Noto Sans KR", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+          background: #f5f7fb;
+          color: #111827;
+        }
+
+        /* ===== 상단 고정 헤더 ===== */
+        .clo-topbar {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 72px;
+          background: #ffffff;
+          box-shadow: 0 6px 20px rgba(15,23,42,0.06);
+          z-index: 50;
+        }
+        .clo-top-inner {
+          max-width: 1180px;
+          margin: 0 auto;
+          height: 100%;
+          padding: 0 24px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
+        .clo-top-left {
+          display: flex;
+          align-items: center;
+          gap: 14px;
+        }
+        .clo-hamburger {
+          width: 36px;
+          height: 36px;
+          border-radius: 999px;
+          border: none;
+          background: #111827;
+          color: #f9fafb;
+          font-size: 18px;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .clo-logo-main {
+          font-size: 22px;
+          font-weight: 900;
+          letter-spacing: -0.4px;
+        }
+        .clo-logo-sub {
+          font-size: 11px;
+          color: #9ca3af;
+          margin-top: 2px;
+        }
+        .clo-top-right {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+        .clo-search-form {
+          display: flex;
+          align-items: center;
+          background: #f3f4f6;
+          border-radius: 999px;
+          padding: 6px 12px;
+          min-width: 260px;
+        }
+        .clo-search-icon {
+          font-size: 14px;
+          color: #6b7280;
+          margin-right: 6px;
+        }
+        .clo-search-input {
+          border: none;
+          background: transparent;
+          outline: none;
+          font-size: 13px;
+          width: 100%;
+        }
+        .clo-top-btn {
+          height: 36px;
+          border-radius: 999px;
+          border: 1px solid #e5e7eb;
+          background: #ffffff;
+          padding: 0 14px;
+          font-size: 12px;
+          cursor: pointer;
+          color: #374151;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          white-space: nowrap;
+        }
+        .clo-top-btn.primary {
+          background: #111827;
+          color: #f9fafb;
+          border-color: #111827;
+          font-weight: 600;
+        }
+        .clo-top-btn:hover { background: #f3f4f6; }
+        .clo-top-btn.primary:hover { background: #020617; }
+        .clo-user-label {
+          font-size: 12px;
+          color: #4b5563;
+        }
+
+        /* ===== 사이드바 ===== */
+        .clo-sidebar {
+          position: fixed;
+          top: 0;
+          left: 0;
+          bottom: 0;
+          width: 230px;
+          background: #111827;
+          color: #e5e7eb;
+          padding: 24px 20px;
+          display: flex;
+          flex-direction: column;
+          gap: 24px;
+          transform: translateX(-100%);
+          transition: transform .25s ease-out;
+          z-index: 60;
+        }
+        body.clo-sidebar-open .clo-sidebar {
+          transform: translateX(0);
+        }
+        .clo-sidebar-header {
+          font-size: 18px;
+          font-weight: 800;
+        }
+        .clo-sidebar-sub {
+          font-size: 12px;
+          color: #9ca3af;
+          margin-top: 2px;
+        }
+        .clo-menu-list {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+          font-size: 14px;
+        }
+        .clo-menu-list li {
+          padding: 8px 10px;
+          border-radius: 8px;
+          cursor: pointer;
+          transition: background .2s, color .2s;
+        }
+        .clo-menu-list li:hover {
+          background: #1f2937;
+          color: #f9fafb;
+        }
+        .clo-menu-list li.clo-active {
+          background: #fbbf24;
+          color: #111827;
+          font-weight: 700;
+        }
+        .clo-sidebar-footer {
+          margin-top: auto;
+          font-size: 11px;
+          color: #6b7280;
+        }
+        .clo-backdrop {
+          position: fixed;
+          inset: 0;
+          background: rgba(15,23,42,0.35);
+          opacity: 0;
+          pointer-events: none;
+          transition: opacity .2s ease-out;
+          z-index: 55;
+        }
+        body.clo-sidebar-open .clo-backdrop {
+          opacity: 1;
+          pointer-events: auto;
+        }
+
+        /* ===== 메인 래퍼 ===== */
+        .clo-main-outer { padding-top: 96px; }
+        .clo-main-wrap {
+          max-width: 1180px;
+          margin: 0 auto;
+          padding: 0 24px 40px;
+        }
+
+        /* ===== 헤더 ===== */
+        .rank-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-end;
+          gap: 16px;
+          margin-bottom: 20px;
+        }
+        .rank-title-box h1 {
+          margin: 0;
+          font-size: 30px;
+          font-weight: 900;
+          letter-spacing: -0.5px;
+        }
+        .rank-title-box p {
+          margin: 4px 0 0;
+          font-size: 14px;
+          color: #6b7280;
+        }
+        .rank-tagline {
+          font-size: 12px;
+          padding: 6px 10px;
+          border-radius: 999px;
+          background: #e5f0ff;
+          color: #1d4ed8;
+        }
+
+        /* ===== 시즌 탭 ===== */
+        .rank-season-tabs {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          margin-bottom: 18px;
+        }
+        .rank-season-label {
+          font-size: 13px;
+          font-weight: 700;
+          color: #4b5563;
+        }
+        .rank-season-btns {
+          display: flex;
+          gap: 8px;
+        }
+        .rank-season-btn {
+          border-radius: 999px;
+          border: 1px solid #e5e7eb;
+          background: #ffffff;
+          padding: 6px 14px;
+          font-size: 12px;
+          cursor: pointer;
+          color: #4b5563;
+        }
+        .rank-season-btn.active {
+          background: #111827;
+          color: #f9fafb;
+          border-color: #111827;
+          font-weight: 600;
+        }
+
+        /* ===== 랭킹 카드 그리드 ===== */
+        .rank-panel {
+          background: #ffffff;
+          border-radius: 18px;
+          padding: 16px 18px 18px;
+          box-shadow: 0 12px 28px rgba(15,23,42,0.06);
+        }
+        .rank-caption {
+          font-size: 12px;
+          color: #6b7280;
+          margin-bottom: 10px;
+        }
+        .rank-grid {
+          display: grid;
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+          gap: 14px;
+        }
+        .rank-card {
+          border-radius: 14px;
+          padding: 10px 11px 12px;
+          background: #f9fafb;
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+          position: relative;
+          cursor: pointer;
+        }
+        .rank-badge {
+          position: absolute;
+          top: 8px;
+          left: 8px;
+          padding: 3px 7px;
+          border-radius: 999px;
+          font-size: 11px;
+          font-weight: 700;
+          color: #0f172a;
+          background: #fee2e2;
+          z-index: 2;
+        }
+        .rank-badge.top3 {
+          background: linear-gradient(135deg,#f97316,#facc15);
+          color: #111827;
+        }
+
+        /* 썸네일: 이미지가 잘리지 않고 전부 보이게 */
+        .rank-thumb {
+          width: 100%;
+          height: 180px;
+          border-radius: 10px;
+          background: #e5e7eb;
+          overflow: hidden;
+          margin-top: 10px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .rank-thumb img {
+          width: 100%;
+          height: 100%;
+          object-fit: contain;
+          object-position: center;
+          display: block;
+        }
+
+        .rank-title {
+          margin-top: 6px;
+          font-size: 13px;
+          font-weight: 700;
+        }
+        .rank-tags {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 4px;
+          font-size: 10px;
+        }
+        .rank-tag {
+          padding: 2px 6px;
+          border-radius: 999px;
+          background: #e5ecff;
+          color: #374151;
+        }
+        .rank-desc {
+          font-size: 11px;
+          color: #6b7280;
+          line-height: 1.45;
+        }
+        .rank-meta {
+          margin-top: 2px;
+          font-size: 10px;
+          color: #9ca3af;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+        .rank-like-btn {
+          border-radius: 999px;
+          border: none;
+          padding: 4px 8px;
+          font-size: 11px;
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          cursor: pointer;
+          background: #fee2e2;
+          color: #b91c1c;
+        }
+
+        /* 찜 완료 상태 표시 (해제 가능하므로 cursor 는 그대로 pointer) */
+        .rank-like-btn.is-favorited {
+          background: #fee2e2;
+          color: #b91c1c;
+          opacity: .85;
+        }
+        #modalFavBtn.is-favorited {
+          background: #6b7280;
+          color: #f9fafb;
+        }
+
+        /* ===== 페이지네이션 ===== */
+        .rank-pagination {
+          margin-top: 14px;
+          display: flex;
+          justify-content: center;
+          gap: 6px;
+          align-items: center;
+          font-size: 12px;
+        }
+        .page-btn {
+          border-radius: 999px;
+          border: 1px solid #e5e7eb;
+          background: #ffffff;
+          padding: 4px 9px;
+          min-width: 28px;
+          text-align: center;
+          cursor: pointer;
+          color: #4b5563;
+        }
+        .page-btn:hover {
+          background: #f3f4f6;
+        }
+        .page-btn.active {
+          background: #111827;
+          color: #f9fafb;
+          border-color: #111827;
+          font-weight: 700;
+        }
+        .page-btn.disabled {
+          opacity: .35;
+          cursor: default;
+        }
+
+        /* ===== 상세 모달 ===== */
+        .rank-modal-backdrop {
+          position: fixed;
+          inset: 0;
+          background: rgba(15,23,42,0.45);
+          display: none;
+          align-items: center;
+          justify-content: center;
+          z-index: 80;
+        }
+        .rank-modal-backdrop.show {
+          display: flex;
+        }
+        .rank-modal {
+          width: 520px;
+          max-width: 90vw;
+          max-height: 90vh;
+          background: #ffffff;
+          border-radius: 18px;
+          box-shadow: 0 18px 40px rgba(15,23,42,0.25);
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
+        }
+        .rank-modal-header {
+          padding: 14px 18px 10px;
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          gap: 10px;
+        }
+        .rank-modal-header h2 {
+          margin: 0;
+          font-size: 18px;
+          font-weight: 800;
+        }
+        .rank-modal-close {
+          border: none;
+          background: none;
+          font-size: 18px;
+          cursor: pointer;
+          color: #9ca3af;
+        }
+        .rank-modal-thumb {
+          width: 100%;
+          height: 260px;
+          background: #e5e7eb;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          overflow: hidden;
+        }
+        .rank-modal-thumb img {
+          width: 100%;
+          height: 100%;
+          object-fit: contain;
+          object-position: center;
+        }
+        .rank-modal-body {
+          padding: 10px 18px 18px;
+          font-size: 13px;
+          color: #4b5563;
+        }
+        .rank-modal-tags {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 4px;
+          margin: 4px 0 6px;
+          font-size: 11px;
+        }
+        .rank-modal-tags .rank-tag { font-size: 11px; }
+        .rank-modal-meta {
+          font-size: 12px;
+          color: #6b7280;
+          margin-bottom: 8px;
+        }
+        .rank-modal-like-btn {
+          margin-top: 8px;
+          padding: 8px 14px;
+          border-radius: 999px;
+          border: none;
+          background: #111827;
+          color: #f9fafb;
+          font-size: 13px;
+          cursor: pointer;
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+        }
+        .rank-modal-note {
+          margin-top: 6px;
+          font-size: 11px;
+          color: #9ca3af;
+        }
+
+        /* 반응형 */
+        @media (max-width: 1080px) {
+          .rank-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+          }
+        }
+        @media (max-width: 880px) {
+          .clo-top-inner { padding: 0 16px; }
+          .clo-main-wrap { padding: 0 16px 28px; }
+          .rank-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+          }
+        }
+        @media (max-width: 640px) {
+          .rank-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+    </style>
+</head>
+<body>
+
+<!-- 사이드바 -->
+<nav class="clo-sidebar">
+    <div>
+        <div class="clo-sidebar-header">메뉴</div>
+        <div class="clo-sidebar-sub">Closetory 옷장 메뉴</div>
+    </div>
+    <ul class="clo-menu-list">
+        <li onclick="location.href='closet.html'">나만의 옷장</li>
+        <li onclick="location.href='color.html'">코디 색감 추천</li>
+        <li onclick="location.href='situation.html'">상황별 코디 추천</li>
+        <li onclick="location.href='calendar.html'">주간 코디 캘린더</li>
+        <li class="clo-active" onclick="location.href='ranking.html'">인기 코디 랭킹</li>
+    </ul>
+    <div class="clo-sidebar-footer">
+        Closetory · 옷장에서 꺼내는 작은 행복
+    </div>
+</nav>
+<div class="clo-backdrop"></div>
+
+<!-- 상단바 -->
+<header class="clo-topbar">
+    <div class="clo-top-inner">
+        <div class="clo-top-left">
+            <button class="clo-hamburger" id="cloMenuBtn">☰</button>
+            <div>
+                <a href="index.html" style="text-decoration:none;color:inherit;">
+                    <div class="clo-logo-main">Closetory</div>
+                    <div class="clo-logo-sub">옷장에서 꺼내는 작은 행복</div>
+                </a>
+            </div>
+        </div>
+        <div class="clo-top-right">
+            <form class="clo-search-form" onsubmit="return false;">
+                <span class="clo-search-icon">🔍</span>
+                <input class="clo-search-input" type="text" placeholder="코디, 아이템 검색">
+            </form>
+
+            <!-- 비로그인 -->
+            <div id="cloAuthLoggedOut">
+                <button class="clo-top-btn" onclick="location.href='login.html'">로그인</button>
+                <button class="clo-top-btn" onclick="location.href='signup.html'">회원가입</button>
+            </div>
+
+            <!-- 로그인 상태 -->
+            <div id="cloAuthLoggedIn" style="display:none;align-items:center;gap:8px;">
+        <span class="clo-user-label">
+          <strong id="cloUserName"></strong> 님
+        </span>
+                <button class="clo-top-btn" onclick="location.href='mypage.html'">마이페이지</button>
+                <button class="clo-top-btn primary" id="cloLogoutBtn">로그아웃</button>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- 메인 -->
+<div class="clo-main-outer">
+    <main class="clo-main-wrap">
+
+        <!-- 헤더 -->
+        <section class="rank-header">
+            <div class="rank-title-box">
+                <h1>인기 코디 랭킹</h1>
+                <p>봄·여름·가을·겨울별로 지금 가장 많이 저장된 코디 TOP 8을 확인해 보세요.</p>
+            </div>
+            <div class="rank-tagline">실시간 인기 코디 TOP 8</div>
+        </section>
+
+        <!-- 시즌 탭 -->
+        <section class="rank-season-tabs">
+            <span class="rank-season-label">계절 선택</span>
+            <div class="rank-season-btns">
+                <button class="rank-season-btn active" data-season="spring">봄</button>
+                <button class="rank-season-btn" data-season="summer">여름</button>
+                <button class="rank-season-btn" data-season="autumn">가을</button>
+                <button class="rank-season-btn" data-season="winter">겨울</button>
+            </div>
+        </section>
+
+        <!-- 랭킹 패널 -->
+        <section class="rank-panel">
+            <div class="rank-caption" id="rankCaption">
+                봄 시즌 인기 코디 TOP 8 · 1페이지 (8개씩 표시)
+            </div>
+
+            <div class="rank-grid" id="rankGrid"></div>
+
+            <div class="rank-pagination" id="rankPagination"></div>
+        </section>
+    </main>
+</div>
+
+<!-- 상세 모달 -->
+<div class="rank-modal-backdrop" id="rankModalBackdrop">
+    <div class="rank-modal">
+        <div class="rank-modal-header">
+            <h2 id="modalTitle">코디 제목</h2>
+            <button class="rank-modal-close" id="modalCloseBtn">×</button>
+        </div>
+        <div class="rank-modal-thumb">
+            <img id="modalImage" src="" alt="">
+        </div>
+        <div class="rank-modal-body">
+            <div class="rank-modal-tags" id="modalTags"></div>
+            <div class="rank-modal-meta" id="modalMeta"></div>
+            <p id="modalDesc"></p>
+
+            <button class="rank-modal-like-btn" id="modalFavBtn">
+                ♡ 나만의 옷장에 담기
+            </button>
+            <div class="rank-modal-note">
+                ※ 찜한 코디는 '나만의 옷장' 페이지에서 모아볼 수 있어요.
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ==== 공통: 나만의 옷장 찜 데이터 ====
+    const FAVORITES_KEY = 'closetoryFavorites';
+
+    function loadFavorites() {
+      try {
+        return JSON.parse(localStorage.getItem(FAVORITES_KEY) || '[]');
+      } catch (_) {
+        return [];
+      }
+    }
+
+    function saveFavorites(list) {
+      localStorage.setItem(FAVORITES_KEY, JSON.stringify(list));
+    }
+
+    // 고유 찜 ID 생성
+    function makeFavoriteId(item, season, rank) {
+      return item.id || `${season}-${rank}-${item.title}`;
+    }
+
+    function isFavoriteById(favId) {
+      return loadFavorites().some(v => String(v.id) === String(favId));
+    }
+
+    function removeFavoriteById(favId) {
+      const list = loadFavorites();
+      const idx = list.findIndex(v => String(v.id) === String(favId));
+      if (idx === -1) return false;
+      list.splice(idx, 1);
+      saveFavorites(list);
+      return true;
+    }
+
+    // 랭킹에서 찜 추가
+    function addFavoriteFromRanking(item, season, rank) {
+      const favId = makeFavoriteId(item, season, rank);
+      const list  = loadFavorites();
+
+      if (list.some(v => String(v.id) === String(favId))) {
+        return false;
+      }
+
+      const fav = {
+        id: favId,
+        title: item.title,
+        description: item.desc,
+        colors: item.colors || [],
+        types: item.tags || [],
+        situations: item.tags || [],
+        imageUrl: item.imageUrl || '',
+        createdAt: Date.now(),
+        isFavorite: true,
+        from: `ranking-${season}`
+      };
+
+      list.push(fav);
+      saveFavorites(list);
+      return true;
+    }
+
+    /* ===== 사이드바 토글 ===== */
+    const bodyEl = document.body;
+    const menuBtn = document.getElementById('cloMenuBtn');
+    const backdrop = document.querySelector('.clo-backdrop');
+
+    function toggleSidebar() {
+      bodyEl.classList.toggle('clo-sidebar-open');
+    }
+    menuBtn.addEventListener('click', toggleSidebar);
+    backdrop.addEventListener('click', toggleSidebar);
+
+    /* ===== 로그인 상태 UI ===== */
+    function refreshAuthUI() {
+      const data = localStorage.getItem('closetoryUser');
+      const loggedInFlag = localStorage.getItem('closetoryLoggedIn') === 'true';
+      const user = data ? JSON.parse(data) : null;
+      const isLoggedIn = !!(loggedInFlag && user);
+
+      const outBox = document.getElementById('cloAuthLoggedOut');
+      const inBox  = document.getElementById('cloAuthLoggedIn');
+      const nameSpan = document.getElementById('cloUserName');
+
+      if (!outBox || !inBox) return;
+
+      if (isLoggedIn) {
+        outBox.style.display = 'none';
+        inBox.style.display  = 'flex';
+        if (nameSpan) {
+          nameSpan.textContent = user.name || user.userId || '사용자';
+        }
+      } else {
+        outBox.style.display = 'flex';
+        inBox.style.display  = 'none';
+      }
+    }
+
+    function setupLogout() {
+      const btn = document.getElementById('cloLogoutBtn');
+      if (!btn) return;
+      btn.addEventListener('click', function () {
+        localStorage.setItem('closetoryLoggedIn', 'false');
+        alert('로그아웃 되었습니다.');
+        refreshAuthUI();
+      });
+    }
+
+    /* ===== 인기 코디 데이터 (각 계절 8개) ===== */
+    const rankingData = {
+      spring: [
+        { title: "벚꽃 나들이 데이트 코디",
+          tags:["트렌치코트","플로럴 원피스","스니커즈"],
+          desc:"베이지 트렌치와 플로럴 원피스로 화사하게 연출한 봄 데이트룩.",
+          saves: 320,
+          imageUrl: "images/avatar_campus.png" },
+        { title: "캠퍼스 새내기 코디",
+          tags:["맨투맨","데님","스니커즈"],
+          desc:"파스텔 맨투맨과 연청 데님으로 편안한 새내기 감성.",
+          saves: 295,
+          imageUrl: "" },
+        { title: "봄 오피스 세미포멀",
+          tags:["자켓","슬랙스","셔츠"],
+          desc:"라이트 그레이 자켓과 슬랙스로 가볍지만 단정한 출근 코디.",
+          saves: 270,
+          imageUrl: "" },
+        { title: "후드 집업 레이어드",
+          tags:["후드집업","코트","조거"],
+          desc:"얇은 후드집업 위에 코트를 걸친 레이어드 스트릿 룩.",
+          saves: 240,
+          imageUrl: "" },
+        { title: "봄 라이더 자켓 룩",
+          tags:["라이더","티셔츠","블랙진"],
+          desc:"블랙 라이더 자켓으로 포인트를 준 데일리 모노톤 코디.",
+          saves: 210,
+          imageUrl: "" },
+        { title: "파스텔 니트 데이트",
+          tags:["니트","롱스커트","플랫슈즈"],
+          desc:"민트 니트와 크림 롱스커트 조합의 소프트한 데이트 코디.",
+          saves: 205,
+          imageUrl: "" },
+        { title: "바람막이 캠핑룩",
+          tags:["바람막이","카고팬츠","캠핑"],
+          desc:"라이트 그린 바람막이와 카고 팬츠로 활동성 좋은 캠핑 코디.",
+          saves: 190,
+          imageUrl: "" },
+        { title: "셔츠 원피스 러블리",
+          tags:["셔츠원피스","카디건","로퍼"],
+          desc:"화이트 셔츠 원피스에 파스텔 카디건을 더한 러블리 룩.",
+          saves: 180,
+          imageUrl: "" }
+      ],
+      summer: [
+        { title: "린넨 셋업 쿨비즈",
+          tags:["린넨셔츠","린넨팬츠","샌들"],
+          desc:"베이지 린넨 셋업으로 시원한 여름 오피스룩.",
+          saves: 300,
+          imageUrl: "" },
+        { title: "바캉스 하와이안 셔츠",
+          tags:["하와이안셔츠","반바지","슬리퍼"],
+          desc:"알록달록 셔츠와 화이트 반바지로 바캉스 느낌 가득.",
+          saves: 280,
+          imageUrl: "" },
+        { title: "민소매 + 와이드 팬츠",
+          tags:["민소매","와이드팬츠"],
+          desc:"블랙 민소매와 린넨 와이드 팬츠로 깔끔한 썸머 모노톤.",
+          saves: 260,
+          imageUrl: "" },
+        { title: "반팔 셔츠 캠퍼스",
+          tags:["반팔셔츠","데님쇼츠"],
+          desc:"스트라이프 반팔 셔츠와 데님 쇼츠 조합.",
+          saves: 230,
+          imageUrl: "" },
+        { title: "화이트 원피스 데이트",
+          tags:["화이트원피스","샌들"],
+          desc:"바람에 살랑거리는 화이트 원피스 데이트 코디.",
+          saves: 210,
+          imageUrl: "" },
+        { title: "카고 쇼츠 스트릿",
+          tags:["카고쇼츠","오버핏티"],
+          desc:"카고 반바지와 오버핏 티셔츠로 힙한 스트릿 룩.",
+          saves: 200,
+          imageUrl: "" },
+        { title: "슬럽 티셔츠 데일리",
+          tags:["슬럽티","데님"],
+          desc:"슬럽 티셔츠와 라이트 데님 조합의 기본 여름 코디.",
+          saves: 190,
+          imageUrl: "" },
+        { title: "파스텔 셔츠 커플룩",
+          tags:["파스텔셔츠","커플룩"],
+          desc:"파스텔 톤 셔츠로 맞춰 입는 썸머 커플 코디.",
+          saves: 180,
+          imageUrl: "" }
+      ],
+      autumn: [
+        { title: "가을 체크셔츠 레이어드",
+          tags:["체크셔츠","티셔츠","데님"],
+          desc:"체크 셔츠를 아우터처럼 걸친 기본 가을 코디.",
+          saves: 310,
+          imageUrl: "" },
+        { title: "브라운 코트 가을 데이트",
+          tags:["브라운코트","니트","슬랙스"],
+          desc:"브라운 코트와 니트 조합의 가을 데이트룩.",
+          saves: 290,
+          imageUrl: "" },
+        { title: "후드 + 가죽자켓",
+          tags:["후드","가죽자켓"],
+          desc:"후드 위 가죽 자켓 레이어드 스트릿룩.",
+          saves: 270,
+          imageUrl: "" },
+        { title: "니트 조끼 셔츠",
+          tags:["니트조끼","셔츠"],
+          desc:"가을 교복 같은 니트 조끼+셔츠 조합.",
+          saves: 250,
+          imageUrl: "" },
+        { title: "롱스커트 가을룩",
+          tags:["롱스커트","가디건"],
+          desc:"브라운 롱스커트와 가디건 조합의 감성 가을 룩.",
+          saves: 220,
+          imageUrl: "" },
+        { title: "야상 점퍼 캐주얼",
+          tags:["야상","후드","조거"],
+          desc:"야상 점퍼와 후드, 조거 팬츠를 매치한 편한 코디.",
+          saves: 210,
+          imageUrl: "" },
+        { title: "하프코트 세미포멀",
+          tags:["하프코트","셔츠","슬랙스"],
+          desc:"하프코트로 마무리하는 프레젠테이션 코디.",
+          saves: 200,
+          imageUrl: "" },
+        { title: "터틀넥 니트 모노톤",
+          tags:["터틀넥","모노톤"],
+          desc:"블랙 터틀넥과 슬랙스의 모노톤 가을 코디.",
+          saves: 185,
+          imageUrl: "" }
+      ],
+      winter: [
+        { title: "롱패딩 교복 코디",
+          tags:["롱패딩","교복","후드"],
+          desc:"블랙 롱패딩과 후드로 완성하는 겨울 교복 코디.",
+          saves: 400,
+          imageUrl: "" },
+        { title: "코트 + 머플러 데이트",
+          tags:["롱코트","머플러","니트"],
+          desc:"롱코트와 머플러로 따뜻하게 감싼 겨울 데이트룩.",
+          saves: 380,
+          imageUrl: "" },
+        { title: "패딩 + 조거 캠퍼스",
+          tags:["패딩","조거","후드"],
+          desc:"후드 위 패딩, 조거 팬츠 조합의 기본 겨울 캠퍼스룩.",
+          saves: 360,
+          imageUrl: "" },
+        { title: "니트 원피스 겨울 데이트",
+          tags:["니트원피스","부츠"],
+          desc:"니트 원피스와 롱부츠로 완성한 겨울 데이트룩.",
+          saves: 340,
+          imageUrl: "" },
+        { title: "숏패딩 스트릿",
+          tags:["숏패딩","와이드팬츠"],
+          desc:"숏패딩과 와이드 팬츠로 볼륨감 살린 스트릿 룩.",
+          saves: 320,
+          imageUrl: "" },
+        { title: "터틀넥 + 코트 오피스",
+          tags:["터틀넥","코트","슬랙스"],
+          desc:"터틀넥 위에 코트를 걸친 오피스 겨울룩.",
+          saves: 300,
+          imageUrl: "" },
+        { title: "후리스 집업 데일리",
+          tags:["후리스","조거"],
+          desc:"후리스 집업과 조거 팬츠의 편한 데일리 코디.",
+          saves: 280,
+          imageUrl: "" },
+        { title: "경량 패딩 이너 코디",
+          tags:["경량패딩","코트"],
+          desc:"경량 패딩을 이너로 넣은 보온 레이어드.",
+          saves: 270,
+          imageUrl: "" }
+      ]
+    };
+
+    const ITEMS_PER_PAGE = 8;
+    let currentSeason = 'spring';
+    let currentPage = 1;
+
+    const rankGrid       = document.getElementById('rankGrid');
+    const rankPagination = document.getElementById('rankPagination');
+    const rankCaption    = document.getElementById('rankCaption');
+    const seasonButtons  = document.querySelectorAll('.rank-season-btn');
+
+    /* ===== 모달 요소 ===== */
+    const modalBackdrop = document.getElementById('rankModalBackdrop');
+    const modalCloseBtn = document.getElementById('modalCloseBtn');
+    const modalTitleEl  = document.getElementById('modalTitle');
+    const modalImgEl    = document.getElementById('modalImage');
+    const modalTagsEl   = document.getElementById('modalTags');
+    const modalMetaEl   = document.getElementById('modalMeta');
+    const modalDescEl   = document.getElementById('modalDesc');
+    const modalFavBtn   = document.getElementById('modalFavBtn');
+
+    let modalCurrentItem = null;
+    let modalCurrentSeason = null;
+    let modalCurrentRank = null;
+
+    // 카드 찜 버튼 상태 동기화
+    function syncRankingFavButton(btn, favId) {
+      if (!btn) return;
+      if (isFavoriteById(favId)) {
+        btn.textContent = '♥ 찜 해제';
+        btn.classList.add('is-favorited');
+      } else {
+        btn.textContent = '♡ 찜하기';
+        btn.classList.remove('is-favorited');
+      }
+    }
+
+    // 모달 찜 버튼 상태 동기화
+    function updateModalFavoriteButton() {
+      if (!modalCurrentItem) return;
+      const favId = makeFavoriteId(modalCurrentItem, modalCurrentSeason, modalCurrentRank);
+      if (isFavoriteById(favId)) {
+        modalFavBtn.textContent = '♥ 나만의 옷장에서 빼기';
+        modalFavBtn.classList.add('is-favorited');
+      } else {
+        modalFavBtn.textContent = '♡ 나만의 옷장에 담기';
+        modalFavBtn.classList.remove('is-favorited');
+      }
+    }
+
+    // 모달에서 찜 상태가 바뀌었을 때 카드 버튼도 갱신
+    function updateRankingCardFavoriteUI(favId) {
+      const btns = document.querySelectorAll('.rank-like-btn');
+      btns.forEach(btn => {
+        if (btn.dataset.favId === favId) {
+          syncRankingFavButton(btn, favId);
+        }
+      });
+    }
+
+    function openModal(item, season, rank) {
+      modalCurrentItem = item;
+      modalCurrentSeason = season;
+      modalCurrentRank = rank;
+
+      modalTitleEl.textContent = item.title;
+      modalImgEl.src = item.imageUrl || '';
+      modalImgEl.alt = item.title;
+
+      modalTagsEl.innerHTML = '';
+      (item.tags || []).forEach(t => {
+        const span = document.createElement('span');
+        span.className = 'rank-tag';
+        span.textContent = t;
+        modalTagsEl.appendChild(span);
+      });
+
+      modalMetaEl.textContent = `저장 수 ${item.saves}회 · 랭킹 #${rank}`;
+      modalDescEl.textContent = item.desc || '';
+
+      updateModalFavoriteButton();
+      modalBackdrop.classList.add('show');
+    }
+
+    function closeModal() {
+      modalBackdrop.classList.remove('show');
+    }
+
+    modalCloseBtn.addEventListener('click', closeModal);
+    modalBackdrop.addEventListener('click', e => {
+      if (e.target === modalBackdrop) closeModal();
+    });
+
+    modalFavBtn.addEventListener('click', () => {
+      if (!modalCurrentItem) return;
+      const favId = makeFavoriteId(modalCurrentItem, modalCurrentSeason, modalCurrentRank);
+
+      if (isFavoriteById(favId)) {
+        const ok = removeFavoriteById(favId);
+        if (ok) {
+          alert('나만의 옷장에서 제거되었습니다.');
+          updateModalFavoriteButton();
+          updateRankingCardFavoriteUI(favId);
+        }
+      } else {
+        const ok = addFavoriteFromRanking(modalCurrentItem, modalCurrentSeason, modalCurrentRank);
+        if (ok) {
+          alert('나만의 옷장에 담았습니다!');
+          updateModalFavoriteButton();
+          updateRankingCardFavoriteUI(favId);
+        }
+      }
+    });
+
+    /* ===== 랭킹 렌더링 ===== */
+    function renderRanking() {
+      const list = rankingData[currentSeason];
+      const totalItems = list.length;
+      const totalPages = Math.max(1, Math.ceil(totalItems / ITEMS_PER_PAGE));
+
+      if (currentPage > totalPages) currentPage = totalPages;
+      if (currentPage < 1) currentPage = 1;
+
+      const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+      const endIndex   = startIndex + ITEMS_PER_PAGE;
+      const slice      = list.slice(startIndex, endIndex);
+
+      const seasonLabel = {
+        spring: '봄',
+        summer: '여름',
+        autumn: '가을',
+        winter: '겨울'
+      }[currentSeason];
+
+      rankCaption.textContent =
+        `${seasonLabel} 시즌 인기 코디 TOP ${totalItems} · ${currentPage}페이지 (${ITEMS_PER_PAGE}개씩 표시)`;
+
+      // 카드 렌더링
+      rankGrid.innerHTML = '';
+
+      slice.forEach((item, idx) => {
+        const rank = startIndex + idx + 1;
+        const card = document.createElement('article');
+        card.className = 'rank-card';
+
+        const isTop3 = rank <= 3;
+        const badge = document.createElement('div');
+        badge.className = 'rank-badge' + (isTop3 ? ' top3' : '');
+        badge.textContent = `#${rank}`;
+        card.appendChild(badge);
+
+        const thumb = document.createElement('div');
+        thumb.className = 'rank-thumb';
+        if (item.imageUrl) {
+          const img = document.createElement('img');
+          img.src = item.imageUrl;
+          img.alt = item.title;
+          thumb.appendChild(img);
+        }
+        card.appendChild(thumb);
+
+        const title = document.createElement('div');
+        title.className = 'rank-title';
+        title.textContent = item.title;
+        card.appendChild(title);
+
+        const tagRow = document.createElement('div');
+        tagRow.className = 'rank-tags';
+        (item.tags || []).forEach(t => {
+          const span = document.createElement('span');
+          span.className = 'rank-tag';
+          span.textContent = t;
+          tagRow.appendChild(span);
+        });
+        card.appendChild(tagRow);
+
+        const desc = document.createElement('p');
+        desc.className = 'rank-desc';
+        desc.textContent = item.desc || '';
+        card.appendChild(desc);
+
+        const meta = document.createElement('div');
+        meta.className = 'rank-meta';
+        const left = document.createElement('span');
+        left.textContent = `저장 수 ${item.saves}회`;
+
+        const right = document.createElement('button');
+        right.className = 'rank-like-btn';
+        right.type = 'button';
+
+        const favId = makeFavoriteId(item, currentSeason, rank);
+        right.dataset.favId = favId;
+
+        syncRankingFavButton(right, favId);
+
+        right.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (isFavoriteById(favId)) {
+            const ok = removeFavoriteById(favId);
+            if (ok) {
+              alert('나만의 옷장에서 제거되었습니다.');
+              syncRankingFavButton(right, favId);
+            }
+          } else {
+            const ok = addFavoriteFromRanking(item, currentSeason, rank);
+            if (ok) {
+              alert('나만의 옷장에 담았습니다!');
+              syncRankingFavButton(right, favId);
+            }
+          }
+        });
+
+        meta.appendChild(left);
+        meta.appendChild(right);
+        card.appendChild(meta);
+
+        card.addEventListener('click', () => openModal(item, currentSeason, rank));
+
+        rankGrid.appendChild(card);
+      });
+
+      // 페이지네이션
+      rankPagination.innerHTML = '';
+      const listEl = document.createElement('div');
+      listEl.style.display = 'flex';
+      listEl.style.gap = '4px';
+
+      const prevBtn = document.createElement('button');
+      prevBtn.textContent = '이전';
+      prevBtn.className = 'page-btn' + (currentPage === 1 ? ' disabled' : '');
+      if (currentPage > 1) {
+        prevBtn.addEventListener('click', () => {
+          currentPage--;
+          renderRanking();
+        });
+      }
+      listEl.appendChild(prevBtn);
+
+      for (let p = 1; p <= totalPages; p++) {
+        const btn = document.createElement('button');
+        btn.textContent = p;
+        btn.className = 'page-btn' + (p === currentPage ? ' active' : '');
+        if (p !== currentPage) {
+          btn.addEventListener('click', () => {
+            currentPage = p;
+            renderRanking();
+          });
+        }
+        listEl.appendChild(btn);
+      }
+
+      const nextBtn = document.createElement('button');
+      nextBtn.textContent = '다음';
+      nextBtn.className = 'page-btn' + (currentPage === totalPages ? ' disabled' : '');
+      if (currentPage < totalPages) {
+        nextBtn.addEventListener('click', () => {
+          currentPage++;
+          renderRanking();
+        });
+      }
+      listEl.appendChild(nextBtn);
+
+      rankPagination.appendChild(listEl);
+    }
+
+    // 시즌 버튼 이벤트
+    seasonButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const season = btn.dataset.season;
+        if (season === currentSeason) return;
+        currentSeason = season;
+        currentPage = 1;
+        seasonButtons.forEach(b => b.classList.toggle('active', b === btn));
+        renderRanking();
+      });
+    });
+
+    // 초기 실행
+    refreshAuthUI();
+    setupLogout();
+    renderRanking();
+</script>
+</body>
+</html>
