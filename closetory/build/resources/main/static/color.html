@@ -40,6 +40,12 @@
         .clo-top-btn { height:36px; border-radius:999px; border:1px solid #e5e7eb; background:#fff; padding:0 14px; font-size:12px; cursor:pointer; color:#374151; display:flex; align-items:center; }
         .clo-top-btn.primary { background:#111827; color:#fff; border-color:#111827; font-weight:600; }
 
+        .clo-user-status {
+    font-size: 12px;
+    color: #6b7280;
+    margin-right: 4px;
+}
+
         /* 사이드바 */
         .clo-sidebar {
             position:fixed; top:0; left:0; bottom:0; width:230px;
@@ -130,20 +136,14 @@
 
         <div class="clo-top-right">
             <form class="clo-search-form" onsubmit="return false;">
-                <span>🔍</span>
-                <input class="clo-search-input" type="text" placeholder="코디, 아이템 검색" />
+                <span class="clo-search-icon">🔍</span>
+                <input class="clo-search-input" type="text" placeholder="코디, 아이템 검색">
             </form>
-
-            <div id="cloAuthLoggedOut">
-                <button class="clo-top-btn" onclick="location.href='login.html'">로그인</button>
-                <button class="clo-top-btn" onclick="location.href='signup.html'">회원가입</button>
-            </div>
-
-            <div id="cloAuthLoggedIn" style="display:none;align-items:center;gap:8px;">
-                <span class="clo-user-label"><strong id="cloUserName"></strong> 님</span>
-                <button class="clo-top-btn" onclick="location.href='mypage.html'">마이페이지</button>
-                <button class="clo-top-btn primary" id="cloLogoutBtn">로그아웃</button>
-            </div>
+            <span class="clo-user-status" id="userStatus"></span>
+            <button class="clo-top-btn" id="loginBtn">로그인</button>
+            <button class="clo-top-btn" id="signupBtn">회원가입</button>
+            <button class="clo-top-btn primary" id="mypageBtn" style="display:none;">마이페이지</button>
+            <button class="clo-top-btn" id="logoutBtn" style="display:none;">로그아웃</button>
         </div>
     </div>
 </header>
@@ -267,35 +267,55 @@
 
 
 
-    /* -------------------- 로그인 UI (간단 재사용) -------------------- */
-    function refreshAuthUI() {
-        const data = localStorage.getItem('closetoryUser');
-        const loggedIn = localStorage.getItem('closetoryLoggedIn') === 'true';
-        const user = data ? JSON.parse(data) : null;
-        const outBox = document.getElementById('cloAuthLoggedOut');
-        const inBox  = document.getElementById('cloAuthLoggedIn');
-        const nameSpan = document.getElementById('cloUserName');
-        if(!outBox || !inBox) return;
-        if(loggedIn && user) {
-            outBox.style.display = 'none';
-            inBox.style.display = 'flex';
-            if(nameSpan) nameSpan.textContent = user.name || user.userId || '사용자';
-        } else {
-            outBox.style.display = 'flex';
-            inBox.style.display = 'none';
+    /* ===== 로그인 상태 처리 (기본형) ===== */
+const loginBtn   = document.getElementById('loginBtn');
+const signupBtn  = document.getElementById('signupBtn');
+const logoutBtn  = document.getElementById('logoutBtn');
+const mypageBtn  = document.getElementById('mypageBtn');
+const userStatus = document.getElementById('userStatus');
+
+function checkAuthState() {
+    const raw = localStorage.getItem('closetoryUser');
+    if (raw) {
+        try {
+            const user = JSON.parse(raw);
+            // 👉 여기서 텍스트를 정확히 이렇게 만든다: "강규민 님 로그인 중"
+            userStatus.textContent = (user.name || '사용자') + ' 님 로그인 중';
+            loginBtn.style.display   = 'inline-flex';
+            signupBtn.style.display  = 'inline-flex';
+            // 로그인 상태에서는 로그인/회원가입 숨기고
+            loginBtn.style.display   = 'none';
+            signupBtn.style.display  = 'none';
+            // 마이페이지/로그아웃 보이게
+            mypageBtn.style.display  = 'inline-flex';
+            logoutBtn.style.display  = 'inline-flex';
+        } catch (e) {
+            console.error(e);
+            userStatus.textContent = '';
+            loginBtn.style.display   = 'inline-flex';
+            signupBtn.style.display  = 'inline-flex';
+            mypageBtn.style.display  = 'none';
+            logoutBtn.style.display  = 'none';
         }
+    } else {
+        userStatus.textContent = '';
+        loginBtn.style.display   = 'inline-flex';
+        signupBtn.style.display  = 'inline-flex';
+        mypageBtn.style.display  = 'none';
+        logoutBtn.style.display  = 'none';
     }
-    function setupLogout() {
-        const btn = document.getElementById('cloLogoutBtn');
-        if(!btn) return;
-        btn.addEventListener('click', () => {
-            localStorage.setItem('closetoryLoggedIn','false');
-            alert('로그아웃 되었습니다.');
-            refreshAuthUI();
-        });
-    }
-    refreshAuthUI();
-    setupLogout();
+}
+
+loginBtn.addEventListener('click', () => location.href = 'login.html');
+signupBtn.addEventListener('click', () => location.href = 'signup.html');
+mypageBtn.addEventListener('click', () => location.href = 'mypage.html');
+logoutBtn.addEventListener('click', () => {
+    localStorage.removeItem('closetoryUser');
+    alert('로그아웃 되었습니다.');
+    location.href = 'index.html';
+});
+
+checkAuthState();
 
     /* -------------------- 색 맵 (영어키 + 한글키로 매핑 가능) -------------------- */
     const COLOR_MAP = {
@@ -738,11 +758,6 @@ function showMatchInfo(baseColorKey) {
 
     box.style.display = "block";
 }
-
-
-
-
-
 </script>
 </body>
 </html>

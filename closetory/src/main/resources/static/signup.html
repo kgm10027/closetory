@@ -312,6 +312,9 @@
     mypageBtn.addEventListener('click', () => location.href = 'mypage.html');
     logoutBtn.addEventListener('click', () => {
         clearCurrentUser();
+        localStorage.removeItem('closetoryUser');
+        localStorage.setItem('closetoryLoggedIn', 'false');
+
         checkAuthState();
         alert('로그아웃 되었습니다.');
         location.href = 'index.html';
@@ -349,15 +352,20 @@
             return;
         }
 
-        const userObj = { id, password: pw, name, address, region };
+                const userObj = { id, password: pw, name, address, region };
         users.push(userObj);
         saveUsers(users);
 
         // 방금 가입한 계정을 바로 로그인 상태로
         setCurrentUser(id);
 
+        // 🔄 예전 구조도 함께 세팅
+        localStorage.setItem('closetoryUser', JSON.stringify(userObj));
+        localStorage.setItem('closetoryLoggedIn', 'true');
+
         alert('회원가입이 완료되었습니다. 메인 화면으로 이동합니다.');
         location.href = 'index.html';
+
     });
 </script>
 </body>

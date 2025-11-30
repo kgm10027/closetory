@@ -277,6 +277,9 @@
     mypageBtn.addEventListener('click', () => location.href = 'mypage.html');
     logoutBtn.addEventListener('click', () => {
         clearCurrentUser();
+        localStorage.removeItem('closetoryUser');
+        localStorage.setItem('closetoryLoggedIn', 'false');
+
         checkAuthState();
         alert('로그아웃 되었습니다.');
         location.href = 'index.html';
@@ -306,6 +309,18 @@
         }
 
         setCurrentUser(user.id);
+                setCurrentUser(user.id);
+
+        // 🔄 예전 페이지들과 호환용: closetoryUser / closetoryLoggedIn도 같이 세팅
+        localStorage.setItem('closetoryUser', JSON.stringify({
+            id: user.id,
+            name: user.name,
+            address: user.address,
+            region: user.region,
+            password: user.password
+        }));
+        localStorage.setItem('closetoryLoggedIn', 'true');
+
         alert('로그인 성공!');
         location.href = 'index.html';
     });
