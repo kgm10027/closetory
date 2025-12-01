@@ -1,10 +1,1352 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Closetory - 상황별 코디 추천</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: "Noto Sans KR", system-ui, sans-serif;
+            background: #f5f7fb;
+            color: #111827;
+        }
+
+        /* ===== 상단 헤더 ===== */
+        .clo-topbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 72px;
+            background: #ffffff;
+            box-shadow: 0 6px 20px rgba(15,23,42,0.06);
+            z-index: 50;
+        }
+        .clo-top-inner {
+            max-width: 1180px;
+            margin: 0 auto;
+            height: 100%;
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .clo-top-left { display: flex; align-items: center; gap: 14px; }
+        .clo-hamburger {
+            width: 36px;
+            height: 36px;
+            border-radius: 999px;
+            border: none;
+            background: #111827;
+            color: #fff;
+            cursor: pointer;
+        }
+        .clo-logo-main { font-size: 22px; font-weight: 900; }
+        .clo-logo-sub { font-size: 11px; color: #9ca3af; }
+
+        .clo-search-form {
+            display: flex;
+            align-items: center;
+            background: #f3f4f6;
+            border-radius: 999px;
+            padding: 6px 12px;
+            min-width: 260px;
+        }
+        .clo-search-input {
+            border: none;
+            background: transparent;
+            outline: none;
+            font-size: 13px;
+            width: 100%;
+        }
+
+        /* 로그인 UI */
+        .clo-top-right { display: flex; align-items: center; gap: 10px; }
+        .clo-user-label { font-size: 12px; }
+        .clo-top-btn {
+            height: 36px;
+            border-radius: 999px;
+            border: 1px solid #e5e7eb;
+            background: #ffffff;
+            padding: 0 14px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .clo-top-btn.primary {
+            background: #111827;
+            color: #fff;
+            border-color: #111827;
+        }
+
+        /* ===== 사이드바 ===== */
+        .clo-sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 230px;
+            background: #111827;
+            color: #e5e7eb;
+            padding: 24px 20px;
+            transform: translateX(-100%);
+            transition: .25s;
+            z-index: 60;
+        }
+        body.clo-sidebar-open .clo-sidebar { transform: translateX(0); }
+
+        .clo-menu-list { list-style: none; padding: 0; margin: 20px 0; }
+        .clo-menu-list li {
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 8px;
+        }
+        .clo-menu-list li:hover { background: #1f2937; }
+        .clo-menu-list li.clo-active {
+            background: #fbbf24;
+            color: #111827;
+            font-weight: 700;
+        }
+
+        /* ===== 메인 ===== */
+        .clo-main-outer { padding-top: 96px; }
+        .clo-main-wrap {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 0 24px 40px;
+        }
+
+        .page-header h1 { margin: 0; font-size: 30px; font-weight: 900; }
+        .page-header p { margin: 8px 0 0; color: #6b7280; }
+
+        /* 필터 */
+        .situation-filter { margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap; }
+        .filter-btn {
+            font-size: 13px;
+            padding: 6px 14px;
+            border-radius: 999px;
+            border: 1px solid #e5e7eb;
+            background: #fff;
+            cursor: pointer;
+        }
+        .filter-btn.active {
+            background: #111827;
+            color: #fff;
+        }
+
+        /* 카드 */
+        .situation-grid {
+            margin-top: 24px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+        }
+        .situation-card {
+            background: #fff;
+            padding: 16px;
+            border-radius: 18px;
+            box-shadow: 0 10px 24px rgba(15,23,42,0.06);
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+        }
+
+        .situation-thumb {
+            width: 100%;
+            height: 150px;
+            border-radius: 14px;
+            overflow: hidden;
+            background: linear-gradient(#e5e7eb, #f3f4f6);
+        }
+        .situation-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .situation-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+        .tag {
+            background: #eef2ff;
+            padding: 3px 7px;
+            border-radius: 999px;
+            font-size: 11px;
+            color: #3730a3;
+        }
+        .situation-title { font-weight: 700; margin-top: 6px; }
+
+        .like-footer {
+            margin-top: auto;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: #6b7280;
+            cursor: pointer;
+        }
+
+        /* ✅ 찜 활성 스타일 */
+        .situation-card.liked .heart { color: #f97316; }
+        .situation-card.liked .label { color: #f97316; font-weight: 700; }
+
+        /* ★ 모달 */
+        .modal-bg {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.65);
+            backdrop-filter: blur(8px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .modal-box {
+            background: #fff;
+            display: flex;
+            gap: 32px;
+            padding: 28px 32px;
+            width: 95%;
+            max-width: 1100px;
+            border-radius: 18px;
+            animation: fadeIn .25s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(.95); }
+            to   { opacity: 1; transform: scale(1); }
+        }
+
+        .modal-img {
+            width: 65%;
+            max-height: 80vh;
+            border-radius: 16px;
+            object-fit: cover;
+        }
+        .modal-desc {
+            width: 35%;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+        .modal-close {
+            position: absolute;
+            top: 24px;
+            right: 36px;
+            font-size: 32px;
+            color: #fff;
+            cursor: pointer;
+        }
+        /* ✅ 모달 내부 찜하기 버튼 */
+.modal-like-btn {
+    margin-top: 18px;
+    background: #111827;
+    color: #fff;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    width: 100%;
+}
+
+.modal-guide {
+    margin-top: 8px;
+    font-size: 12px;
+    color: #666;
+    text-align: center;
+}
+
+    </style>
 </head>
+
 <body>
+<nav class="clo-sidebar">
+    <ul class="clo-menu-list">
+        <li onclick="location.href='closet.html'">나만의 옷장</li>
+        <li onclick="location.href='color.html'">코디 색감 추천</li>
+        <li class="clo-active">상황별 코디 추천</li>
+        <li onclick="location.href='calendar.html'">주간 코디 캘린더</li>
+        <li onclick="location.href='ranking.html'">인기 코디 랭킹</li>
+    </ul>
+</nav>
+
+<header class="clo-topbar">
+    <div class="clo-top-inner">
+
+        <!-- 왼쪽 -->
+        <div class="clo-top-left">
+            <button class="clo-hamburger" onclick="toggleSidebar()">☰</button>
+            <a href="index.html" style="text-decoration:none;color:inherit;">
+                <div class="clo-logo-main">Closetory</div>
+                <div class="clo-logo-sub">옷장에서 꺼내는 작은 행복</div>
+            </a>
+        </div>
+
+        <!-- ✅ 오른쪽 (검색 + 로그인) -->
+        <div class="clo-top-right">
+
+            <!-- ✅ 기존 검색창 여기로 이동됨 -->
+            <form class="clo-search-form">
+                <span>🔍</span>
+                <input class="clo-search-input" placeholder="코디, 아이템 검색">
+            </form>
+
+            <div id="cloAuthLoggedOut">
+                <button class="clo-top-btn" onclick="location.href='login.html'">로그인</button>
+                <button class="clo-top-btn" onclick="location.href='signup.html'">회원가입</button>
+            </div>
+
+            <div id="cloAuthLoggedIn" style="display:none;align-items:center;gap:8px;">
+            <span class="clo-user-label">
+                <strong id="cloUserName"></strong> 님
+            </span>
+                <button class="clo-top-btn" onclick="location.href='mypage.html'">마이페이지</button>
+                <button class="clo-top-btn primary" id="cloLogoutBtn">로그아웃</button>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="clo-main-outer">
+    <main class="clo-main-wrap">
+
+        <section class="page-header">
+            <h1>상황별 코디 추천</h1>
+            <p>결혼식, 면접, 데이트 등 다양한 상황에 맞는 코디 추천을 받아보세요.</p>
+        </section>
+
+        <div class="situation-filter" id="filterArea">
+            <button class="filter-btn active" data-type="all">전체</button>
+            <button class="filter-btn" data-type="wedding">결혼식</button>
+            <button class="filter-btn" data-type="interview">면접</button>
+            <button class="filter-btn" data-type="date">데이트</button>
+            <button class="filter-btn" data-type="office">출근</button>
+            <button class="filter-btn" data-type="travel">여행</button>
+            <button class="filter-btn" data-type="camping">캠핑</button>
+            <button class="filter-btn" data-type="gym">헬스장</button>
+        </div>
+
+        <section class="situation-grid" id="situationGrid">
+            <!-- 1 -->
+            <article class="situation-card" data-type="wedding"
+                     data-img="image/navy-overcoat-navy-suit-1.jpg"
+                     data-desc="네이비 롱코트와 슬랙스로 단정함을 강조한 결혼식 하객 코디.">
+                <div class="situation-thumb">
+                    <img src="image/navy-overcoat-navy-suit-1.jpg">
+                </div>
+                <div class="situation-tags"><span class="tag">하객룩</span><span class="tag">포멀</span></div>
+                <div class="situation-title">톤다운 네이비 하객 코디</div>
+                <p>네이비 롱코트와 슬랙스로 단정함을 강조한 하객 스타일.</p>
+                <div class="like-footer closet-like-btn">
+                    <span class="heart">♡</span>
+                    <span class="label">찜하기</span>
+                </div>
+            </article>
+
+            <!-- ✅ 결혼식 하객룩 추가 1 -->
+            <article class="situation-card" data-type="wedding"
+                     data-img="image/cbdc1dacd34da66302b46baeb3ce0418.jpg"
+                     data-desc="베이지 컬러 수트와 화이트 팬츠로 세련되면서도 부드러운 분위기의 결혼식 하객 코디.">
+                <div class="situation-thumb">
+                    <img src="image/cbdc1dacd34da66302b46baeb3ce0418.jpg">
+                </div>
+                <div class="situation-tags">
+                    <span class="tag">하객룩</span>
+                    <span class="tag">세련됨</span>
+                </div>
+                <div class="situation-title">베이지 클래식 하객룩</div>
+                <p>베이지 수트와 화이트 팬츠로 고급스럽고 산뜻한 하객 스타일.</p>
+                <div class="like-footer closet-like-btn">
+                    <span class="heart">♡</span>
+                    <span class="label">찜하기</span>
+                </div>
+            </article>
+
+            <!-- ✅ 결혼식 하객룩 추가 2 -->
+            <article class="situation-card" data-type="wedding"
+                     data-img="image/Shot1_Glenn_BlackSuit_033_1440x2000_crop_center.webp"
+                     data-desc="블랙 수트와 화이트 셔츠로 가장 정석적인 포멀 결혼식 하객 코디.">
+                <div class="situation-thumb">
+                    <img src="image/Shot1_Glenn_BlackSuit_033_1440x2000_crop_center.webp">
+                </div>
+                <div class="situation-tags">
+                    <span class="tag">하객룩</span>
+                    <span class="tag">포멀</span>
+                </div>
+                <div class="situation-title">블랙 포멀 하객 정장</div>
+                <p>격식 있는 자리에 가장 무난한 블랙 클래식 하객 수트.</p>
+                <div class="like-footer closet-like-btn">
+                    <span class="heart">♡</span>
+                    <span class="label">찜하기</span>
+                </div>
+            </article>
+
+            <!-- ✅ 결혼식 하객룩 컬러 추가 1 : 올리브 그린 -->
+            <article class="situation-card" data-type="wedding"
+                     data-img="image/olivegreen.jpg"
+                     data-desc="올리브 그린 수트와 브라운 슈즈로 트렌디한 컬러 포인트를 준 하객 코디.">
+                <div class="situation-thumb">
+                    <img src="image/olivegreen.jpg">
+                </div>
+                <div class="situation-tags"><span class="tag">하객룩</span><span class="tag">트렌디</span></div>
+                <div class="situation-title">올리브 그린 하객 수트</div>
+                <p>올리브 컬러 수트로 개성을 살린 트렌디한 하객 스타일.</p>
+                <div class="like-footer closet-like-btn">
+                    <span class="heart">♡</span>
+                    <span class="label">찜하기</span>
+                </div>
+            </article>
+
+            <!-- ✅ 결혼식 하객룩 컬러 추가 2 : 버건디 -->
+            <article class="situation-card" data-type="wedding"
+                     data-img="image/vegandy.jpg"
+                     data-desc="버건디 자켓과 블랙 슬랙스로 고급스럽고 깊이 있는 하객 코디.">
+                <div class="situation-thumb">
+                    <img src="image/vegandy.jpg">
+                </div>
+                <div class="situation-tags"><span class="tag">하객룩</span><span class="tag">고급미</span></div>
+                <div class="situation-title">버건디 포인트 하객룩</div>
+                <p>버건디 자켓으로 색감 포인트를 준 고급스러운 하객 코디.</p>
+                <div class="like-footer closet-like-btn">
+                    <span class="heart">♡</span>
+                    <span class="label">찜하기</span>
+                </div>
+            </article>
+
+            <!-- ✅ 결혼식 하객룩 컬러 추가 3 : 더스티 블루 -->
+            <article class="situation-card" data-type="wedding"
+                     data-img="image/dustyblue.jpg"
+                     data-desc="더스티 블루 수트와 그레이 슈즈로 부드러운 색감의 하객 코디.">
+                <div class="situation-thumb">
+                    <img src="image/dustyblue.jpg">
+                </div>
+                <div class="situation-tags"><span class="tag">하객룩</span><span class="tag">유니크</span></div>
+                <div class="situation-title">더스티 블루 하객 수트</div>
+                <p>파스텔 느낌의 블루 수트로 색다른 분위기의 하객 스타일.</p>
+                <div class="like-footer closet-like-btn">
+                    <span class="heart">♡</span>
+                    <span class="label">찜하기</span>
+                </div>
+            </article>
+
+            <!-- 2 -->
+            <article class="situation-card" data-type="interview"
+                     data-img="image/75643c35376b8dea633814c27678d7b9.jpg"
+                     data-desc="블랙 자켓과 화이트 셔츠 조합의 신뢰감 있는 면접 정장 코디.">
+                <div class="situation-thumb">
+                    <img src="image/75643c35376b8dea633814c27678d7b9.jpg">
+                </div>
+                <div class="situation-tags"><span class="tag">비즈니스</span><span class="tag">정장</span></div>
+                <div class="situation-title">깔끔한 면접 정장 코디</div>
+                <p>블랙 자켓과 화이트 셔츠로 신뢰감을 주는 면접룩.</p>
+                <div class="like-footer closet-like-btn">
+                    <span class="heart">♡</span>
+                    <span class="label">찜하기</span>
+                </div>
+            </article>
+
+            <!-- ✅ 면접룩 2 -->
+            <article class="situation-card" data-type="interview"
+                     data-img="image/interview-navy-suit.jpg"
+                     data-desc="단정한 네이비 수트에 브라운 슈즈로 안정감과 실무적인 이미지를 동시에 전달하는 면접 코디.">
+                <div class="situation-thumb">
+                    <img src="image/interview1.jpg">
+                </div>
+                <div class="situation-tags">
+                    <span class="tag">면접</span><span class="tag">신뢰감</span>
+                </div>
+                <div class="situation-title">신뢰감 중심 네이비 면접 수트</div>
+                <p>첫인상에서 안정감과 프로페셔널함을 동시에 주는 면접 코디.</p>
+                <div class="like-footer closet-like-btn">
+                    <span class="heart">♡</span>
+                    <span class="label">찜하기</span>
+                </div>
+            </article>
+
+            <!-- ✅ 면접룩 3 -->
+            <article class="situation-card" data-type="interview"
+                     data-img="image/interview-gray-suit.jpg"
+                     data-desc="차분한 그레이 컬러와 단정한 타이 매치로 신중하고 성실한 이미지를 강조한 면접 정장.">
+                <div class="situation-thumb">
+                    <img src="image/interview2.jpg">
+                </div>
+                <div class="situation-tags">
+                    <span class="tag">면접</span><span class="tag">단정함</span>
+                </div>
+                <div class="situation-title">성실한 인상의 그레이 면접 정장</div>
+                <p>과하지 않으면서도 신중한 이미지를 주는 정석 면접룩.</p>
+                <div class="like-footer closet-like-btn">
+                    <span class="heart">♡</span>
+                    <span class="label">찜하기</span>
+                </div>
+            </article>
+
+            <!-- ✅ 면접룩 추가 1 : 블랙 정장 -->
+            <article class="situation-card" data-type="interview"
+                     data-img="image/interview-black.webp"
+                     data-desc="블랙 정장으로 가장 포멀하고 신뢰감 있는 면접 코디. 공무원·금융권·대기업 면접에 최적화된 스타일.">
+                <div class="situation-thumb">
+                    <img src="image/interview-black.webp">
+                </div>
+                <div class="situation-tags"><span class="tag">면접</span><span class="tag">포멀</span></div>
+                <div class="situation-title">클래식 블랙 면접 정장</div>
+                <p>가장 포멀한 블랙 정장으로 신뢰감을 극대화한 면접룩.</p>
+                <div class="like-footer closet-like-btn">
+                    <span class="heart">♡</span>
+                    <span class="label">찜하기</span>
+                </div>
+            </article>
+
+            <!-- ✅ 면접룩 추가 2 : 브라운 정장 -->
+            <article class="situation-card" data-type="interview"
+                     data-img="image/interview-brown.jpg"
+                     data-desc="브라운 정장으로 부드럽고 세련된 인상을 주는 면접 코디. 디자인·서비스·마케팅 직무에 잘 어울리는 스타일.">
+                <div class="situation-thumb">
+                    <img src="image/interview-brown.jpg">
+                </div>
+                <div class="situation-tags"><span class="tag">면접</span><span class="tag">세련됨</span></div>
+                <div class="situation-title">브라운 톤 면접 정장</div>
+                <p>브라운 컬러로 차분하면서도 감각적인 면접 스타일.</p>
+                <div class="like-footer closet-like-btn">
+                    <span class="heart">♡</span>
+                    <span class="label">찜하기</span>
+                </div>
+            </article>
+
+            <!-- ✅ 면접룩 추가 3 : 베이지 정장 -->
+            <article class="situation-card" data-type="interview"
+                     data-img="image/interview-beige.webp"
+                     data-desc="베이지 정장으로 밝고 호감형 이미지를 주는 면접 코디. 서비스·영업·이미지 중시 직무에 추천.">
+                <div class="situation-thumb">
+                    <img src="image/interview-beige.webp">
+                </div>
+                <div class="situation-tags"><span class="tag">면접</span><span class="tag">호감형</span></div>
+                <div class="situation-title">베이지 톤 면접 정장</div>
+                <p>밝고 깔끔한 인상을 주는 베이지 면접룩.</p>
+                <div class="like-footer closet-like-btn">
+                    <span class="heart">♡</span>
+                    <span class="label">찜하기</span>
+                </div>
+            </article>
+
+
+
+
+            <!-- 3 -->
+            <article class="situation-card" data-type="date"
+                     data-img="image/Topcoat-Chunky-Turtleneck-2-1.jpg"
+                     data-desc="코트와 니트 조합으로 따뜻한 겨울 데이트 코디.">
+                <div class="situation-thumb">
+                    <img src="image/Topcoat-Chunky-Turtleneck-2-1.jpg">
+                </div>
+                <div class="situation-tags"><span class="tag">캐주얼</span><span class="tag">따뜻한 무드</span></div>
+                <div class="situation-title">겨울 감성 데이트룩</div>
+                <p>코트와 니트 조합으로 부드러운 느낌의 데이트 코디.</p>
+                <div class="like-footer closet-like-btn">
+                    <span class="heart">♡</span>
+                    <span class="label">찜하기</span>
+                </div>
+            </article>
+            <!-- ✅ 데이트룩 2 -->
+            <article class="situation-card" data-type="date"
+                     data-img="image/date-knit-black-pants.jpg"
+                     data-desc="니트 집업과 화이트 티셔츠, 블랙 슬랙스로 깔끔하면서도 호감형 이미지를 주는 데이트 코디.">
+                <div class="situation-thumb">
+                    <img src="image/date1.webp">
+                </div>
+                <div class="situation-tags">
+                    <span class="tag">데이트</span>
+                    <span class="tag">호감형</span>
+                </div>
+                <div class="situation-title">깔끔한 첫인상 데이트룩</div>
+                <p>과하지 않으면서도 호감도 높은 깔끔 캐주얼 데이트 스타일.</p>
+                <div class="like-footer closet-like-btn">
+                    <span class="heart">♡</span>
+                    <span class="label">찜하기</span>
+                </div>
+            </article>
+            <!-- ✅ 데이트룩 3 -->
+            <article class="situation-card" data-type="date"
+                     data-img="image/date-denim-jacket-grey-pants.jpg"
+                     data-desc="데님 자켓과 그레이 슬랙스 조합으로 자연스럽고 편안한 분위기의 데이트 코디.">
+                <div class="situation-thumb">
+                    <img src="image/date2.jpg">
+                </div>
+                <div class="situation-tags">
+                    <span class="tag">데이트</span>
+                    <span class="tag">캐주얼</span>
+                </div>
+                <div class="situation-title">자연스러운 분위기 데이트룩</div>
+                <p>꾸안꾸 느낌으로 부담 없이 연출하는 데일리 데이트 코디.</p>
+                <div class="like-footer closet-like-btn">
+                    <span class="heart">♡</span>
+                    <span class="label">찜하기</span>
+                </div>
+            </article>
+
+            <!-- ✅ 데이트룩 추가 1 : 아이보리 니트 -->
+            <article class="situation-card" data-type="date"
+                     data-img="image/date-ivory.jpeg"
+                     data-desc="아이보리 니트와 슬랙스로 부드럽고 깔끔한 첫인상을 주는 데이트 코디.">
+                <div class="situation-thumb">
+                    <img src="image/date-ivory.jpeg">
+                </div>
+                <div class="situation-tags"><span class="tag">데이트</span><span class="tag">부드러움</span></div>
+                <div class="situation-title">아이보리 니트 데이트룩</div>
+                <p>밝고 따뜻한 분위기를 연출하는 아이보리 니트 데이트 코디.</p>
+                <div class="like-footer closet-like-btn">
+                    <span class="heart">♡</span>
+                    <span class="label">찜하기</span>
+                </div>
+            </article>
+
+            <!-- ✅ 데이트룩 추가 2 : 데님 + 가디건 -->
+            <article class="situation-card" data-type="date"
+                     data-img="image/date-denim-cardigan.jpg"
+                     data-desc="데님 팬츠와 가디건으로 편안하면서도 호감형 이미지를 주는 캐주얼 데이트룩.">
+                <div class="situation-thumb">
+                    <img src="image/date-denim-cardigan.jpg">
+                </div>
+                <div class="situation-tags"><span class="tag">데이트</span><span class="tag">캐주얼</span></div>
+                <div class="situation-title">데님 캐주얼 데이트룩</div>
+                <p>꾸안꾸 느낌으로 자연스러운 매력을 살린 데이트 스타일.</p>
+                <div class="like-footer closet-like-btn">
+                    <span class="heart">♡</span>
+                    <span class="label">찜하기</span>
+                </div>
+            </article>
+
+            <!-- ✅ 데이트룩 추가 3 : 셔츠 + 슬랙스 -->
+            <article class="situation-card" data-type="date"
+                     data-img="image/date-shirt-slacks.jpg"
+                     data-desc="셔츠와 슬랙스 조합으로 깔끔하면서도 설레는 분위기를 주는 데이트 코디.">
+                <div class="situation-thumb">
+                    <img src="image/date-shirt-slacks.jpg">
+                </div>
+                <div class="situation-tags"><span class="tag">데이트</span><span class="tag">깔끔함</span></div>
+                <div class="situation-title">셔츠 슬랙스 데이트룩</div>
+                <p>단정하면서도 호감도가 높은 클래식 데이트 코디.</p>
+                <div class="like-footer closet-like-btn">
+                    <span class="heart">♡</span>
+                    <span class="label">찜하기</span>
+                </div>
+            </article>
+
+
+            <!-- 4 -->
+            <article class="situation-card" data-type="office"
+                     data-img="image/92021b89622458f57d567c5e03cc6a1a.webp"
+                     data-desc="차분한 니트와 슬랙스로 단정함을 강조한 깔끔한 출근 코디.">
+                <div class="situation-thumb">
+                    <img src="image/92021b89622458f57d567c5e03cc6a1a.webp">
+                </div>
+                <div class="situation-tags"><span class="tag">오피스룩</span><span class="tag">깔끔함</span></div>
+                <div class="situation-title">깔끔한 출근룩</div>
+                <p>차분한 니트와 슬랙스를 활용한 깔끔한 오피스룩.</p>
+                <div class="like-footer closet-like-btn">
+                    <span class="heart">♡</span>
+                    <span class="label">찜하기</span>
+                </div>
+            </article>
+
+            <!-- ✅ 출근룩 2 -->
+            <article class="situation-card" data-type="office"
+                     data-img="image/office-knit-backpack.jpg"
+                     data-desc="그레이 니트와 셔츠 레이어드로 단정하면서도 편안한 출근 코디. 백팩으로 활동성까지 고려한 스타일.">
+                <div class="situation-thumb">
+                    <img src="image/go1.jpg">
+                </div>
+                <div class="situation-tags">
+                    <span class="tag">출근</span>
+                    <span class="tag">세미캐주얼</span>
+                </div>
+                <div class="situation-title">편안한 니트 출근룩</div>
+                <p>셔츠와 니트 조합으로 부담 없고 깔끔한 데일리 출근 코디.</p>
+                <div class="like-footer closet-like-btn">
+                    <span class="heart">♡</span>
+                    <span class="label">찜하기</span>
+                </div>
+            </article>
+
+            <!-- ✅ 출근룩 3 -->
+            <article class="situation-card" data-type="office"
+                     data-img="image/office-shirt-slacks.jpg"
+                     data-desc="라이트 블루 셔츠와 네이비 슬랙스로 단정하고 신뢰감 있는 세미 정장 출근 코디.">
+                <div class="situation-thumb">
+                    <img src="image/go2.jpg">
+                </div>
+                <div class="situation-tags">
+                    <span class="tag">출근</span>
+                    <span class="tag">오피스룩</span>
+                </div>
+                <div class="situation-title">깔끔한 셔츠 슬랙스 출근룩</div>
+                <p>격식은 줄이고 깔끔함을 살린 실무형 출근 코디.</p>
+                <div class="like-footer closet-like-btn">
+                    <span class="heart">♡</span>
+                    <span class="label">찜하기</span>
+                </div>
+            </article>
+
+            <!-- ✅ 출근룩 1 : 와인 셔츠 -->
+            <article class="situation-card" data-type="office"
+                     data-img="image/office-wine-shirt.webp"
+                     data-desc="와인 셔츠와 블랙 슬랙스로 포인트를 준 세련된 출근 코디.">
+                <div class="situation-thumb">
+                    <img src="image/office-wine-shirt.webp">
+                </div>
+                <div class="situation-tags"><span class="tag">출근</span><span class="tag">포인트룩</span></div>
+                <div class="situation-title">와인 셔츠 출근룩</div>
+                <p>와인 셔츠와 블랙 슬랙스로 포인트를 살린 세련된 출근 코디.</p>
+                <div class="like-footer closet-like-btn">
+                    <span class="heart">♡</span>
+                    <span class="label">찜하기</span>
+                </div>
+            </article>
+
+
+            <!-- ✅ 출근룩 2 : 오프화이트 + 차콜 -->
+            <article class="situation-card" data-type="office"
+                     data-img="image/office-offwhite-charcoal.jpg"
+                     data-desc="오프화이트 셔츠와 차콜 슬랙스로 완성한 깔끔한 오피스 출근 코디.">
+                <div class="situation-thumb">
+                    <img src="image/office-offwhite-charcoal.jpg">
+                </div>
+                <div class="situation-tags"><span class="tag">출근</span><span class="tag">미니멀</span></div>
+                <div class="situation-title">오프화이트 차콜 출근룩</div>
+                <p>오프화이트 셔츠와 차콜 슬랙스로 완성한 깔끔한 오피스룩.</p>
+                <div class="like-footer closet-like-btn">
+                    <span class="heart">♡</span>
+                    <span class="label">찜하기</span>
+                </div>
+            </article>
+
+
+            <!-- ✅ 출근룩 3 : 더스티 블루 -->
+            <article class="situation-card" data-type="office"
+                     data-img="image/office-dusty-blue.jpg"
+                     data-desc="더스티 블루 셔츠와 슬랙스로 차분하면서 색다른 출근 코디.">
+                <div class="situation-thumb">
+                    <img src="image/office-dusty-blue.jpg">
+                </div>
+                <div class="situation-tags"><span class="tag">출근</span><span class="tag">트렌디</span></div>
+                <div class="situation-title">더스티 블루 출근룩</div>
+                <p>더스티 블루 셔츠로 차분하면서도 색다른 분위기의 출근 코디.</p>
+                <div class="like-footer closet-like-btn">
+                    <span class="heart">♡</span>
+                    <span class="label">찜하기</span>
+                </div>
+            </article>
+
+
+            <!-- 5 -->
+            <article class="situation-card" data-type="travel"
+                     data-img="image/Crest_hoodie_and_joggers.jpg"
+                     data-desc="후디와 조거 팬츠로 장시간 이동에도 편안한 여행 코디.">
+                <div class="situation-thumb">
+                    <img src="image/Crest_hoodie_and_joggers.jpg">
+                </div>
+                <div class="situation-tags"><span class="tag">여행</span><span class="tag">캐주얼</span></div>
+                <div class="situation-title">캐주얼 여행 스타일</div>
+                <p>후디 + 조거 조합으로 편안하면서도 스타일리시한 여행룩.</p>
+                <div class="like-footer closet-like-btn">
+                    <span class="heart">♡</span>
+                    <span class="label">찜하기</span>
+                </div>
+            </article>
+
+            <!-- ✅ 여행룩 2 -->
+            <article class="situation-card" data-type="travel"
+                     data-img="image/unbound-merino-mens-compact-travel-hoodie-lifestyle.webp"
+                     data-desc="후디와 백팩 조합으로 장시간 이동에도 편안한 실용 중심 여행 코디.">
+                <div class="situation-thumb">
+                    <img src="image/unbound-merino-mens-compact-travel-hoodie-lifestyle.webp">
+                </div>
+                <div class="situation-tags">
+                    <span class="tag">여행</span>
+                    <span class="tag">편안함</span>
+                </div>
+                <div class="situation-title">편안한 후디 여행룩</div>
+                <p>이동이 많은 일정에도 활동성을 살린 데일리 여행 스타일.</p>
+                <div class="like-footer closet-like-btn">
+                    <span class="heart">♡</span>
+                    <span class="label">찜하기</span>
+                </div>
+            </article>
+
+            <!-- ✅ 여행룩 3 -->
+            <article class="situation-card" data-type="travel"
+                     data-img="image/Look-1-Keepin-It-Cas-2.jpg"
+                     data-desc="가죽 자켓과 스니커즈 조합으로 도시·자연 어디든 잘 어울리는 여행 코디.">
+                <div class="situation-thumb">
+                    <img src="image/Look-1-Keepin-It-Cas-2.jpg">
+                </div>
+                <div class="situation-tags">
+                    <span class="tag">여행</span>
+                    <span class="tag">캐주얼</span>
+                </div>
+                <div class="situation-title">스타일 살린 여행 데일리룩</div>
+                <p>편안하면서도 사진이 잘 나오는 감성 여행 코디.</p>
+                <div class="like-footer closet-like-btn">
+                    <span class="heart">♡</span>
+                    <span class="label">찜하기</span>
+                </div>
+            </article>
+
+            <!-- ✅ 여행룩 1 : 샌드 베이지 셋업 -->
+            <article class="situation-card" data-type="travel"
+                     data-img="image/travel-sand-beige.jpg"
+                     data-desc="샌드 베이지 톤 셋업으로 편안하면서도 감각적인 여행 코디.">
+                <div class="situation-thumb">
+                    <img src="image/travel-sand-beige.jpg">
+                </div>
+                <div class="situation-tags"><span class="tag">여행</span><span class="tag">내추럴</span></div>
+                <div class="situation-title">샌드 베이지 여행룩</div>
+                <p>샌드 베이지 셋업으로 편안하면서도 감성적인 여행 스타일.</p>
+                <div class="like-footer closet-like-btn">
+                    <span class="heart">♡</span>
+                    <span class="label">찜하기</span>
+                </div>
+            </article>
+
+
+            <!-- ✅ 여행룩 2 : 올리브 후디 + 데님 -->
+            <article class="situation-card" data-type="travel"
+                     data-img="image/travel-olive-hoodie.jpg"
+                     data-desc="올리브 컬러 후디와 데님 팬츠로 활동적인 여행 코디.">
+                <div class="situation-thumb">
+                    <img src="image/travel-olive-hoodie.jpg">
+                </div>
+                <div class="situation-tags"><span class="tag">여행</span><span class="tag">캐주얼</span></div>
+                <div class="situation-title">올리브 캐주얼 여행룩</div>
+                <p>올리브 후디와 데님 조합으로 편안한 여행 코디.</p>
+                <div class="like-footer closet-like-btn">
+                    <span class="heart">♡</span>
+                    <span class="label">찜하기</span>
+                </div>
+            </article>
+
+
+            <!-- ✅ 여행룩 3 : 올블랙 스트링 셋업 -->
+            <article class="situation-card" data-type="travel"
+                     data-img="image/travel-allblack-set.jpg"
+                     data-desc="올블랙 스트링 셋업으로 시크함과 활동성을 모두 잡은 여행룩.">
+                <div class="situation-thumb">
+                    <img src="image/travel-allblack-set.jpg">
+                </div>
+                <div class="situation-tags"><span class="tag">여행</span><span class="tag">시크</span></div>
+                <div class="situation-title">올블랙 스트링 여행룩</div>
+                <p>올블랙 셋업으로 깔끔하면서도 시크한 여행 코디.</p>
+                <div class="like-footer closet-like-btn">
+                    <span class="heart">♡</span>
+                    <span class="label">찜하기</span>
+                </div>
+            </article>
+
+
+            <!-- 6 -->
+            <article class="situation-card" data-type="camping"
+                     data-img="image/Skygoat-02953.webp"
+                     data-desc="보온성이 좋은 후리스와 활동적인 팬츠의 실전 캠핑 코디.">
+                <div class="situation-thumb">
+                    <img src="image/Skygoat-02953.webp">
+                </div>
+                <div class="situation-tags"><span class="tag">아웃도어</span><span class="tag">보온성</span></div>
+                <div class="situation-title">감성 캠핑룩</div>
+                <p>후리스와 조거팬츠로 보온성과 활동성을 모두 잡은 캠핑 코디.</p>
+                <div class="like-footer closet-like-btn">
+                    <span class="heart">♡</span>
+                    <span class="label">찜하기</span>
+                </div>
+            </article>
+
+            <!-- ✅ 캠핑룩 2 -->
+            <article class="situation-card" data-type="camping"
+                     data-img="image/fd2007d2d2730528f2832f0edeca26cd.jpg"
+                     data-desc="조끼와 체크 셔츠, 워크 팬츠 조합으로 불멍과 휴식을 모두 즐길 수 있는 실전 캠핑 코디.">
+                <div class="situation-thumb">
+                    <img src="image/fd2007d2d2730528f2832f0edeca26cd.jpg">
+                </div>
+                <div class="situation-tags">
+                    <span class="tag">캠핑</span>
+                    <span class="tag">실전형</span>
+                </div>
+                <div class="situation-title">불멍 감성 캠핑룩</div>
+                <p>보온성과 활동성을 모두 챙긴 캠핑 전용 감성 코디.</p>
+                <div class="like-footer closet-like-btn">
+                    <span class="heart">♡</span>
+                    <span class="label">찜하기</span>
+                </div>
+            </article>
+
+            <!-- ✅ 캠핑룩 3 -->
+            <article class="situation-card" data-type="camping"
+                     data-img="image/FleeceMens-AW25-PLP-Tier1.jpg"
+                     data-desc="후리스 자켓과 백팩으로 트레킹과 캠핑을 모두 커버하는 아웃도어 캠핑 코디.">
+                <div class="situation-thumb">
+                    <img src="image/FleeceMens-AW25-PLP-Tier1.jpg">
+                </div>
+                <div class="situation-tags">
+                    <span class="tag">캠핑</span>
+                    <span class="tag">아웃도어</span>
+                </div>
+                <div class="situation-title">활동성 좋은 후리스 캠핑룩</div>
+                <p>가볍고 따뜻해서 캠핑·트레킹 모두 활용 가능한 실용 코디.</p>
+                <div class="like-footer closet-like-btn">
+                    <span class="heart">♡</span>
+                    <span class="label">찜하기</span>
+                </div>
+            </article>
+
+            <!-- ✅ 캠핑룩 2 : 감성 베이지 캠핑 -->
+            <article class="situation-card" data-type="camping"
+                     data-img="image/camping-beige.jpg"
+                     data-desc="베이지 톤 셋업과 브라운 이너, 편안한 스니커즈로 완성한 감성 캠핑룩.">
+                <div class="situation-thumb">
+                    <img src="image/camping-beige.jpg">
+                </div>
+                <div class="situation-tags">
+                    <span class="tag">감성캠핑</span>
+                    <span class="tag">베이지톤</span>
+                </div>
+                <div class="situation-title">감성 베이지 캠핑룩</div>
+                <p>베이지 셋업과 브라운 이너 조합으로 따뜻한 감성 캠핑 코디.</p>
+
+                <div class="like-footer closet-like-btn">
+                    <span class="heart">♡</span>
+                    <span class="label">찜하기</span>
+                </div>
+            </article>
+
+
+            <!-- ✅ 캠핑룩 3 : 블랙 아웃도어 캠핑 -->
+            <article class="situation-card" data-type="camping"
+                     data-img="image/camping-black.jpg"
+                     data-desc="올블랙 플리스와 조거팬츠를 활용한 터프한 블랙 아웃도어 캠핑룩.">
+                <div class="situation-thumb">
+                    <img src="image/camping-black.jpg">
+                </div>
+                <div class="situation-tags">
+                    <span class="tag">블랙룩</span>
+                    <span class="tag">아웃도어</span>
+                </div>
+                <div class="situation-title">블랙 아웃도어 캠핑룩</div>
+                <p>올블랙 플리스와 조거팬츠로 터프한 무드의 캠핑 코디.</p>
+
+                <div class="like-footer closet-like-btn">
+                    <span class="heart">♡</span>
+                    <span class="label">찜하기</span>
+                </div>
+            </article>
+
+
+            <!-- ✅ 캠핑룩 4 : NEW B 밀리터리 서바이벌 캠핑 -->
+            <article class="situation-card" data-type="camping"
+                     data-img="image/camping-military.jpg"
+                     data-desc="카키 전술 재킷과 카고팬츠, 워커로 완성한 밀리터리 캠핑룩.">
+                <div class="situation-thumb">
+                    <img src="image/camping-military.jpg">
+                </div>
+                <div class="situation-tags">
+                    <span class="tag">밀리터리</span>
+                    <span class="tag">서바이벌</span>
+                </div>
+                <div class="situation-title">밀리터리 서바이벌 캠핑룩</div>
+                <p>전술 재킷과 카고팬츠로 완성한 서바이벌 감성 캠핑 코디.</p>
+
+                <div class="like-footer closet-like-btn">
+                    <span class="heart">♡</span>
+                    <span class="label">찜하기</span>
+                </div>
+            </article>
+
+
+            <!-- 7 -->
+            <article class="situation-card" data-type="gym"
+                     data-img="image/WK10_2025-PLP-CATEGORY-MEN-Shorts.jpg"
+                     data-desc="흡한속건 기능성이 뛰어난 헬스 전용 트레이닝 코디.">
+                <div class="situation-thumb">
+                    <img src="image/WK10_2025-PLP-CATEGORY-MEN-Shorts.jpg">
+                </div>
+                <div class="situation-tags"><span class="tag">운동복</span><span class="tag">기능성</span></div>
+                <div class="situation-title">활동적인 헬스룩</div>
+                <p>흡한속건 기능 티셔츠와 트레이닝 팬츠로 완성한 실전 헬스장 코디.</p>
+                <div class="like-footer closet-like-btn">
+                    <span class="heart">♡</span>
+                    <span class="label">찜하기</span>
+                </div>
+            </article>
+
+            <!-- ✅ 헬스룩 2 -->
+            <article class="situation-card" data-type="gym"
+                     data-img="image/1743435343-mhl-wrkout-under-armour-671-67eab6331dab6.jpg"
+                     data-desc="민소매 컴프레션 탑으로 상체 라인을 살리고, 하체는 블랙 트레이닝 팬츠로 안정적인 운동 코디.">
+                <div class="situation-thumb">
+                    <img src="image/1743435343-mhl-wrkout-under-armour-671-67eab6331dab6.jpg">
+                </div>
+                <div class="situation-tags">
+                    <span class="tag">헬스</span><span class="tag">컴프레션</span>
+                </div>
+                <div class="situation-title">상체 강조 헬스 코디</div>
+                <p>근육 라인을 선명하게 살려주는 퍼포먼스 중심 운동복.</p>
+                <div class="like-footer closet-like-btn">
+                    <span class="heart">♡</span>
+                    <span class="label">찜하기</span>
+                </div>
+            </article>
+
+            <!-- ✅ 헬스룩 3 -->
+            <article class="situation-card" data-type="gym"
+                     data-img="image/health.webp"
+                     data-desc="긴팔 컴프레션 상의와 쇼츠 조합으로 유산소와 스트레칭에 모두 적합한 헬스 스타일.">
+                <div class="situation-thumb">
+                    <img src="image/health.webp">
+                </div>
+                <div class="situation-tags">
+                    <span class="tag">운동복</span><span class="tag">유산소</span>
+                </div>
+                <div class="situation-title">유연한 스트레칭 헬스룩</div>
+                <p>활동 범위가 넓어 러닝과 스트레칭 모두 편안한 코디.</p>
+                <div class="like-footer closet-like-btn">
+                    <span class="heart">♡</span>
+                    <span class="label">찜하기</span>
+                </div>
+            </article>
+            <!-- ✅ 헬스룩 4 -->
+            <article class="situation-card" data-type="gym"
+                     data-img="image/gym-hoodie.jpg"
+                     data-desc="블랙 후디와 카모 패턴 레깅스를 매치한 스트리트 무드의 실전 헬스장 코디.">
+                <div class="situation-thumb">
+                    <img src="image/gym-hoodie.jpg">
+                </div>
+
+                <div class="situation-tags">
+                    <span class="tag">테크웨어</span>
+                    <span class="tag">카모</span>
+                    <span class="tag">스트리트</span>
+                </div>
+
+                <div class="situation-title">블랙 후디 & 카모 헬스룩</div>
+
+                <p>
+                    블랙 후디 상의와 카모 패턴 하의로 강인한 분위기를 연출한
+                    스트리트 무드의 실전 헬스장 코디.
+                </p>
+
+                <div class="like-footer closet-like-btn">
+                    <span class="heart">♡</span>
+                    <span class="label">찜하기</span>
+                </div>
+            </article>
+            <!-- ✅ 헬스룩 5 -->
+            <article class="situation-card" data-type="gym"
+                     data-img="image/gym-red.jpg"
+                     data-desc="딥레드 컬러 티셔츠와 블랙 팬츠로 완성한 컬러 포인트 헬스룩.">
+                <div class="situation-thumb">
+                    <img src="image/gym-red.jpg">
+                </div>
+                <div class="situation-tags">
+                    <span class="tag">딥레드</span>
+                    <span class="tag">컬러포인트</span>
+                </div>
+                <div class="situation-title">컬러 포인트 헬스룩</div>
+                <p>강렬한 딥레드 포인트로 존재감을 살린 트레이닝 코디.</p>
+
+                <div class="like-footer closet-like-btn">
+                    <span class="heart">♡</span>
+                    <span class="label">찜하기</span>
+                </div>
+            </article>
+            <!-- ✅ 헬스룩 6 -->
+            <article class="situation-card" data-type="gym"
+                     data-img="image/gym-street.webp"
+                     data-desc="오프화이트 오버핏 티셔츠와 조거팬츠로 완성한 스트리트 헬스룩.">
+                <div class="situation-thumb">
+                    <img src="image/gym-street.webp">
+                </div>
+                <div class="situation-tags">
+                    <span class="tag">스트리트</span>
+                    <span class="tag">오프화이트</span>
+                </div>
+                <div class="situation-title">스트리트 감성 헬스룩</div>
+                <p>오버핏 실루엣으로 스타일과 편안함을 모두 잡은 헬스 코디.</p>
+
+                <div class="like-footer closet-like-btn">
+                    <span class="heart">♡</span>
+                    <span class="label">찜하기</span>
+                </div>
+            </article>
+
+
+
+        </section>
+    </main>
+</div>
+
+<div class="modal-bg" id="modal">
+    <div class="modal-close" onclick="closeModal()">×</div>
+    <div class="modal-box">
+        <img id="modalImg" class="modal-img">
+        <div class="modal-desc">
+            <h2>코디 설명</h2>
+            <p id="modalText"></p>
+
+            <!-- ✅ 여기부터 추가됨 -->
+            <button class="modal-like-btn" id="modalLikeBtn">
+                ♡ 나만의 옷장에 담기
+            </button>
+
+            <p class="modal-guide">
+                ※ 찜한 코디는 ‘나만의 옷장’ 페이지에서 모아볼 수 있어요.
+            </p>
+            <!-- ✅ 여기까지 추가 -->
+        </div>
+    </div>
+</div>
+
+
+<script>
+    function toggleSidebar() {
+        document.body.classList.toggle("clo-sidebar-open");
+    }
+
+    const filterBtns = document.querySelectorAll(".filter-btn");
+    const cards = document.querySelectorAll(".situation-card");
+
+    filterBtns.forEach(btn => btn.addEventListener("click", () => {
+        const type = btn.dataset.type;
+        filterBtns.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+
+        cards.forEach(card => card.style.display =
+            (type === "all" || type === card.dataset.type) ? "" : "none");
+    }));
+
+    const modal = document.getElementById("modal");
+    const modalImg = document.getElementById("modalImg");
+    const modalText = document.getElementById("modalText");
+
+    cards.forEach(card => {
+        card.addEventListener("click", () => {
+            modalImg.src = card.dataset.img;
+            modalText.textContent = card.dataset.desc;
+            modal.style.display = "flex";
+        });
+    });
+
+    function closeModal() {
+        modal.style.display = "none";
+    }
+
+    modal.addEventListener("click", (e) => {
+        if (e.target === modal) closeModal();
+    });
+
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") closeModal();
+    });
+
+    function refreshAuthUI() {
+        const data = localStorage.getItem("closetoryUser");
+        const loggedInFlag = localStorage.getItem("closetoryLoggedIn") === "true";
+        const user = data ? JSON.parse(data) : null;
+        const isLoggedIn = loggedInFlag && user;
+
+        const outBox = document.getElementById("cloAuthLoggedOut");
+        const inBox = document.getElementById("cloAuthLoggedIn");
+        const nameSpan = document.getElementById("cloUserName");
+
+        if (isLoggedIn) {
+            outBox.style.display = "none";
+            inBox.style.display = "flex";
+            nameSpan.textContent = user.name || user.userId;
+        } else {
+            outBox.style.display = "flex";
+            inBox.style.display = "none";
+        }
+    }
+    refreshAuthUI();
+
+    document.getElementById("cloLogoutBtn")?.addEventListener("click", () => {
+        localStorage.setItem("closetoryLoggedIn", "false");
+        refreshAuthUI();
+    });
+
+    /* ✅ ✅ ✅ 찜하기 기능 */
+    document.querySelectorAll('.closet-like-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+
+            const card = btn.closest('.situation-card');
+            card.classList.toggle('liked');
+
+            const heart = btn.querySelector('.heart');
+            const label = btn.querySelector('.label');
+            const isLiked = card.classList.contains('liked');
+
+            heart.textContent = isLiked ? '❤️' : '♡';
+            label.textContent = isLiked ? '찜됨' : '찜하기';
+        });
+    });
+</script>
+<script>
+    /* ===============================
+       ✅ 모달 찜 → closet.html 저장
+    ================================ */
+
+    const modalLikeBtn = document.getElementById("modalLikeBtn");
+
+    // 현재 모달에 열린 카드 정보
+    let currentModalItem = null;
+
+    // ✅ 카드 클릭 시 currentModalItem 세팅 (기존 card 클릭 리스너와 "같이" 작동)
+    cards.forEach(card => {
+        card.addEventListener("click", () => {
+            currentModalItem = {
+                id: card.dataset.img, // 이미지로 고유 ID 대체
+                title: card.querySelector(".situation-title")?.textContent || "코디",
+                desc: card.dataset.desc,
+                imageUrl: card.dataset.img,
+                tags: [...card.querySelectorAll(".tag")].map(t => t.textContent)
+            };
+
+            // ✅ 모달 열릴 때 버튼 상태 동기화
+            const favs = loadFavorites();
+            const exist = favs.find(f => f.id === currentModalItem.id);
+            modalLikeBtn.textContent = exist ? "❤ 찜 해제" : "♡ 나만의 옷장에 담기";
+        });
+    });
+
+    // ✅ 찜 버튼 클릭 → 저장 / 해제
+    modalLikeBtn.addEventListener("click", () => {
+        if (!currentModalItem) return;
+
+        let favs = loadFavorites();
+        const exist = favs.find(f => f.id === currentModalItem.id);
+
+        if (exist) {
+            // ✅ 찜 해제
+            favs = favs.filter(f => f.id !== currentModalItem.id);
+            saveFavorites(favs);
+            modalLikeBtn.textContent = "♡ 나만의 옷장에 담기";
+            alert("찜 해제했습니다.");
+        } else {
+            // ✅ 찜 저장 (closet.html용)
+            favs.push({
+                ...currentModalItem,
+                isFavorite: true,
+                createdAt: Date.now()
+            });
+            saveFavorites(favs);
+            modalLikeBtn.textContent = "❤ 찜 해제";
+            alert("나만의 옷장에 담았습니다!");
+        }
+    });
+
+    /* ===============================
+       ✅ 찜 데이터 저장 / 불러오기 공용 함수
+    ================================ */
+
+    function loadFavorites() {
+    return JSON.parse(localStorage.getItem("closetoryFavorites")) || [];
+}
+
+function saveFavorites(list) {
+    localStorage.setItem("closetoryFavorites", JSON.stringify(list));
+}
+
+</script>
+
+<script>
+    /* ============================================
+       💛 상황별 코디 카드에 "찜 상태" 표시 동기화
+       - closetoryFavorites 기준으로 하트/텍스트 업데이트
+       - 카드 하단 '찜하기' 버튼도 localStorage와 연동
+    ============================================ */
+    (function () {
+
+        // 즐겨찾기 기준으로 모든 카드 UI를 맞춰주는 함수
+        function syncSituationCardsFromFavorites() {
+            const favs = loadFavorites();
+            const favIds = new Set(favs.map(f => f.id));
+
+            document.querySelectorAll(".situation-card").forEach(card => {
+                const cardId = card.dataset.img;
+                const btn   = card.querySelector(".closet-like-btn");
+                const heart = btn ? btn.querySelector(".heart") : null;
+                const label = btn ? btn.querySelector(".label") : null;
+
+                if (!btn || !heart || !label) return;
+
+                const isFav = favIds.has(cardId);
+
+                if (isFav) {
+                    card.classList.add("liked");
+                    heart.textContent = "❤️";
+                    label.textContent = "찜 해제";   // ← 여기 문구 마음에 안 들면 '찜됨'으로 바꿔도 됨
+                } else {
+                    card.classList.remove("liked");
+                    heart.textContent = "♡";
+                    label.textContent = "찜하기";
+                }
+            });
+        }
+
+        // 페이지 로드 시 한 번 카드 상태 맞추기
+        syncSituationCardsFromFavorites();
+
+        // 카드 하단 '♡ 찜하기' 버튼 → localStorage에도 반영
+        document.querySelectorAll(".closet-like-btn").forEach(btn => {
+            btn.addEventListener("click", e => {
+                // ↑ 기존 리스너도 그대로 있고, 이 리스너가 "추가"로 더 실행되는 구조
+
+                const card = btn.closest(".situation-card");
+                if (!card) return;
+
+                const cardId    = card.dataset.img;
+                const title     = card.querySelector(".situation-title")?.textContent || "코디";
+                const desc      = card.dataset.desc;
+                const imageUrl  = card.dataset.img;
+                const tags      = [...card.querySelectorAll(".tag")].map(t => t.textContent);
+
+                let favs = loadFavorites();
+                const idx = favs.findIndex(f => f.id === cardId);
+
+                if (idx >= 0) {
+                    // 이미 찜되어 있으면 제거
+                    favs.splice(idx, 1);
+                } else {
+                    // 새로 찜하기
+                    favs.push({
+                        id: cardId,
+                        title,
+                        desc,
+                        imageUrl,
+                        tags,
+                        isFavorite: true,
+                        createdAt: Date.now()
+                    });
+                }
+
+                saveFavorites(favs);
+                // localStorage 기준으로 다시 한 번 UI 정리
+                syncSituationCardsFromFavorites();
+            });
+        });
+
+        // 모달 속 찜 버튼을 눌렀을 때도 카드 하단 UI 동기화
+        const modalBtn = document.getElementById("modalLikeBtn");
+        if (modalBtn) {
+            modalBtn.addEventListener("click", () => {
+                // 기존 모달 리스너가 localStorage를 갱신한 뒤에 실행되도록 살짝 늦게 호출
+                setTimeout(syncSituationCardsFromFavorites, 0);
+            });
+        }
+
+    })();
+</script>
 
 </body>
 </html>
