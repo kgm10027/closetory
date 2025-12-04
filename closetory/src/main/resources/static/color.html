@@ -79,8 +79,20 @@
         .btn-recommend { padding:10px 16px; background:#111827; color:#fff; border:none; border-radius:8px; cursor:pointer; }
 
         .result-wrap { margin-top:16px; display:grid; gap:14px; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); }
-        .color-card { background:#fff; padding:12px; border-radius:12px; box-shadow:0 6px 16px rgba(0,0,0,0.06); text-align:center; cursor:pointer; transition:transform .12s; }
-        .color-card:hover { transform:translateY(-6px); }
+        .color-card {
+    background:#fff; padding:12px; border-radius:12px;
+    box-shadow:0 6px 16px rgba(0,0,0,0.06);
+    text-align:center; cursor:pointer;
+    /* 살짝 부드럽게만 바뀌게, 위치 이동은 안 함 */
+    transition: box-shadow .12s;
+}
+
+/* 🔥 흔들리는 원인인 translateY 제거 */
+.color-card:hover {
+    /* 위치는 고정, 그림자만 조금 진하게 */
+    box-shadow:0 10px 24px rgba(0,0,0,0.10);
+}
+
         .color-preview { width:84px; height:84px; margin:0 auto; border-radius:12px; border:2px solid #e5e7eb; }
         .color-name { margin-top:10px; font-weight:700; color:#111827; }
 
@@ -89,7 +101,8 @@
         svg#previewSvg { width:200px; height:auto; display:block; }
         #svgTop, #svgBottom { transition: fill .18s ease; }
 
-        .selected { outline:3px solid rgba(59,130,246,0.12); box-shadow:0 10px 28px rgba(59,130,246,0.06); }
+        .selected { outline: none; box-shadow: inset 0 0 0 3px rgba(59,130,246,0.35); /* 내부 테두리 */}
+
 
         @media (max-width:720px) {
             .clo-main-wrap { padding:0 16px 28px; }
@@ -170,46 +183,88 @@
             <!-- 설명 텍스트 표시 영역: 추천 색 조합 설명을 보여줌 -->
 
 
-            <!-- character (사람 실루엣) -->
             <div class="character-area">
-                <svg id="previewSvg" viewBox="0 0 200 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="캐릭터 미리보기">
-                    <!-- 머리 (고정) -->
-                    <circle cx="100" cy="48" r="28" fill="#F7D8B7" />
+                <!-- 코디 색감 캐릭터 -->
+                <svg id="previewSvg" viewBox="0 0 220 460"
+                     xmlns="http://www.w3.org/2000/svg"
+                     role="img" aria-label="코디 미리보기 캐릭터">
 
-                    <!-- 긴팔 상의: 가운데 몸통(rect) + 좌우 소매(rect) -->
-                    <g id="svgTopGroup" transform="">
-                        <!-- 몸통(긴팔 상의의 메인 부분) -->
-                        <rect id="svgTopMain" x="52" y="86" width="96" height="78" rx="18"
-                              fill="#D1D5DB" stroke="rgba(0,0,0,0.04)" stroke-width="0.6" />
+                    <!-- 머리 (이미지 없이 기본 얼굴) -->
+                    <!-- 얼굴 -->
+                    <circle cx="110" cy="70" r="42" fill="#F7D8B7" />
 
-                        <!-- 왼쪽 소매 -->
-                        <rect id="svgTopLeftSleeve" x="28" y="92" width="36" height="36" rx="12"
-                              fill="rgba(0,0,0,0.03)" />
+                    <!-- 모자 / 머리 윗부분 -->
+                    <path d="M68 70
+         C68 38 90 22 110 22
+         C130 22 152 38 152 70
+         Z"
+                          fill="#111827" />
 
-                        <!-- 오른쪽 소매 -->
-                        <rect id="svgTopRightSleeve" x="136" y="92" width="36" height="36" rx="12"
-                              fill="rgba(0,0,0,0.03)" />
-                    </g>
+                    <!-- 목 -->
+                    <rect x="97" y="96" width="26" height="20" rx="6" fill="#F1C49A"/>
 
-                    <!-- 허리 음영 -->
-                    <rect x="76" y="160" width="48" height="6" rx="3" fill="rgba(0,0,0,0.03)" />
+                    <!-- ================= 상의 (고정 색 영역) ================= -->
 
-                    <!-- 하의 (긴 바지: 왼쪽 다리, 오른쪽 다리) -->
+                    <!-- 몸통 -->
+                    <rect id="svgTopMain"
+                          x="64" y="116" width="92" height="140" rx="22"
+                          fill="#111827" stroke="rgba(0,0,0,0.06)" stroke-width="1.2"/>
+
+                    <!-- 왼팔 -->
+                    <rect id="svgTopLeftSleeve"
+                          x="32" y="130" width="34" height="120" rx="17"
+                          fill="#111827" stroke="rgba(0,0,0,0.06)" stroke-width="1"/>
+
+                    <!-- 오른팔 -->
+                    <rect id="svgTopRightSleeve"
+                          x="154" y="130" width="34" height="120" rx="17"
+                          fill="#111827" stroke="rgba(0,0,0,0.06)" stroke-width="1"/>
+
+                    <!-- 손 -->
+                    <circle cx="49"  cy="254" r="9" fill="#F7D8B7"/>
+                    <circle cx="171" cy="254" r="9" fill="#F7D8B7"/>
+
+                    <!-- 허리 그림자 -->
+                    <rect x="82" y="252" width="56" height="10" rx="5"
+                          fill="rgba(0,0,0,0.06)"/>
+
+                    <!-- ================= 하의 (색 변경 영역) ================= -->
+
                     <g id="svgBottomGroup">
+
                         <!-- 왼쪽 다리 -->
                         <path id="svgBottomLeft"
-                              d="M74 166 L96 166 L96 322 C96 332 90 336 84 336 L74 336 C68 336 62 332 62 322 Z"
-                              fill="#E5E7EB" stroke="rgba(0,0,0,0.04)" stroke-width="0.5" />
+                              d="M82 262
+                 L104 262
+                 C110 262 114 266 114 274
+                 L114 392
+                 C114 408 106 418 94 418
+                 L84 418
+                 C72 418 64 408 64 392
+                 L64 274
+                 C64 266 70 262 82 262 Z"
+                              fill="#A0AEC0" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
 
                         <!-- 오른쪽 다리 -->
                         <path id="svgBottomRight"
-                              d="M104 166 L126 166 L126 322 C126 332 120 336 114 336 L104 336 C98 336 92 332 92 322 Z"
-                              fill="#E5E7EB" stroke="rgba(0,0,0,0.04)" stroke-width="0.5" />
+                              d="M116 262
+                 L138 262
+                 C150 262 156 266 156 274
+                 L156 392
+                 C156 408 148 418 136 418
+                 L126 418
+                 C114 418 106 408 106 392
+                 L106 274
+                 C106 266 110 262 116 262 Z"
+                              fill="#A0AEC0" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
                     </g>
 
-                    <!-- 신발 -->
-                    <rect x="78" y="336" rx="6" width="18" height="8" fill="#2b2b2b"/>
-                    <rect x="108" y="336" rx="6" width="18" height="8" fill="#2b2b2b"/>
+                    <!-- 양말/신발 -->
+                    <rect x="82"  y="418" width="26" height="10" rx="3" fill="#E5E7EB"/>
+                    <rect x="120" y="418" width="26" height="10" rx="3" fill="#E5E7EB"/>
+                    <rect x="78"  y="428" width="32" height="12" rx="6" fill="#111827"/>
+                    <rect x="116" y="428" width="32" height="12" rx="6" fill="#111827"/>
+
                 </svg>
             </div>
 
@@ -648,6 +703,7 @@ try {
                 }
             }, 30);
         }
+
 
     } else {
         // fallback
