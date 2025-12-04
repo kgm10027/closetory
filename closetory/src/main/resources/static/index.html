@@ -631,6 +631,100 @@ div:contains("설명 보기"),
 div:contains("설명보기") {
     display: none !important;
 }
+
+        /* ===== 검색 오버레이 전체 ===== */
+.clo-search-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.clo-search-panel {
+  width: min(760px, 92vw);
+  max-height: min(600px, 80vh);
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 20px 22px 18px;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.35);
+  display: flex;
+  flex-direction: column;
+}
+
+.clo-search-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+#cloSearchField {
+  flex: 1;
+  border-radius: 999px;
+  border: 1px solid #e5e7eb;
+  padding: 10px 16px;
+  font-size: 14px;
+  outline: none;
+}
+
+#cloSearchField:focus {
+  border-color: #111827;
+  box-shadow: 0 0 0 1px #1118271a;
+}
+
+.clo-search-close {
+  border: none;
+  background: #f3f4f6;
+  border-radius: 999px;
+  width: 32px;
+  height: 32px;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.clo-search-result {
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.clo-search-empty {
+  font-size: 13px;
+  color: #9ca3af;
+}
+
+.clo-search-item {
+  display: block;
+  padding: 10px 12px;
+  border-radius: 14px;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.clo-search-item:hover {
+  background: #f3f4ff;
+}
+
+.clo-search-item-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.clo-search-item-meta {
+  font-size: 11px;
+  color: #6b7280;
+  margin-bottom: 4px;
+}
+
+.clo-search-item-desc {
+  font-size: 12px;
+  color: #4b5563;
+}
     </style>
 </head>
 <body>
@@ -668,8 +762,8 @@ div:contains("설명보기") {
         </div>
         <div class="clo-top-right">
             <form class="clo-search-form" onsubmit="return false;">
-                <span class="clo-search-icon">🔍</span>
-                <input class="clo-search-input" type="text" placeholder="코디, 아이템 검색">
+                <span button id="cloSearchOpenBtn"  class="clo-search-icon">🔍</span>
+                <input id="headerSearchInput" class="clo-search-input" type="text" placeholder="코디, 아이템 검색">
             </form>
             <span class="clo-user-status" id="userStatus"></span>
             <button class="clo-top-btn" id="loginBtn">로그인</button>
@@ -1576,5 +1670,42 @@ scheduleNextTipUpdate();
         });
     });
 </script>
+<!-- ===== 전역 검색 오버레이 ===== -->
+<div id="cloSearchOverlay" class="clo-search-overlay">
+    <div class="clo-search-panel">
+        <div class="clo-search-top">
+            <input
+                    id="cloSearchField"
+                    type="text"
+                    placeholder="코디, 아이템, 상황으로 검색해보세요"
+                    autocomplete="off"
+            />
+            <button id="cloSearchClose" class="clo-search-close">&times;</button>
+        </div>
+        <div id="cloSearchResult" class="clo-search-result">
+            <p class="clo-search-empty">검색어를 입력하면 결과가 여기에 나타납니다.</p>
+        </div>
+    </div>
+</div>
+<!-- ===== 전역 검색 오버레이 ===== -->
+<div id="cloSearchOverlay" class="clo-search-overlay">
+    <div class="clo-search-panel">
+        <div class="clo-search-top">
+            <input
+                    id="cloSearchField"
+                    type="text"
+                    placeholder="코디, 아이템, 상황으로 검색해보세요"
+                    autocomplete="off"
+            />
+            <button id="cloSearchClose" class="clo-search-close">&times;</button>
+        </div>
+        <div id="cloSearchResult" class="clo-search-result">
+            <p class="clo-search-empty">검색어를 입력하면 결과가 여기에 나타납니다.</p>
+        </div>
+    </div>
+</div>
+
+<!-- JS는 항상 body 맨 아래 -->
+<script src="/js/search-overlay.js"></script>
 </body>
 </html>
