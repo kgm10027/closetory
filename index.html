@@ -1,0 +1,1711 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Closetory - 옷장에서 꺼내는 작은 행복</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: "Noto Sans KR", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f5f7fb;
+            color: #111827;
+        }
+
+        /* ===== 상단 고정 헤더 ===== */
+        .clo-topbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 72px;
+            background: #ffffff;
+            box-shadow: 0 6px 20px rgba(15,23,42,0.06);
+            z-index: 50;
+        }
+        .clo-top-inner {
+            max-width: 1180px;
+            margin: 0 auto;
+            height: 100%;
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .clo-top-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .clo-hamburger {
+            width: 36px;
+            height: 36px;
+            border-radius: 999px;
+            border: none;
+            background: #111827;
+            color: #f9fafb;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .clo-logo-main a {
+            text-decoration: none;
+            color: inherit;
+        }
+        .clo-logo-main {
+            font-size: 22px;
+            font-weight: 900;
+            letter-spacing: -0.4px;
+            cursor: pointer;
+        }
+        .clo-logo-sub {
+            font-size: 11px;
+            color: #9ca3af;
+            margin-top: 2px;
+        }
+        .clo-top-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .clo-search-form {
+            display: flex;
+            align-items: center;
+            background: #f3f4f6;
+            border-radius: 999px;
+            padding: 6px 12px;
+            min-width: 260px;
+        }
+        .clo-search-icon {
+            font-size: 14px;
+            color: #6b7280;
+            margin-right: 6px;
+        }
+        .clo-search-input {
+            border: none;
+            background: transparent;
+            outline: none;
+            font-size: 13px;
+            width: 100%;
+        }
+        .clo-top-btn {
+            height: 36px;
+            border-radius: 999px;
+            border: 1px solid #e5e7eb;
+            background: #ffffff;
+            padding: 0 14px;
+            font-size: 12px;
+            cursor: pointer;
+            color: #374151;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+        }
+        .clo-top-btn.primary {
+            background: #111827;
+            color: #f9fafb;
+            border-color: #111827;
+            font-weight: 600;
+        }
+        .clo-top-btn:hover {
+            background: #f3f4f6;
+        }
+        .clo-top-btn.primary:hover {
+            background: #020617;
+        }
+        .clo-user-status {
+            font-size: 12px;
+            color: #6b7280;
+            margin-right: 4px;
+        }
+
+        /* ===== 사이드바 ===== */
+        .clo-sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 230px;
+            background: #111827;
+            color: #e5e7eb;
+            padding: 24px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            transform: translateX(-100%);
+            transition: transform .25s ease-out;
+            z-index: 60;
+        }
+        body.clo-sidebar-open .clo-sidebar {
+            transform: translateX(0);
+        }
+        .clo-sidebar-header {
+            font-size: 18px;
+            font-weight: 800;
+        }
+        .clo-sidebar-sub {
+            font-size: 12px;
+            color: #9ca3af;
+            margin-top: 2px;
+        }
+        .clo-menu-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            font-size: 14px;
+        }
+        .clo-menu-list li {
+            padding: 8px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background .2s, color .2s;
+        }
+        .clo-menu-list li:hover {
+            background: #1f2937;
+            color: #f9fafb;
+        }
+        .clo-menu-list li.clo-active {
+            background: #fbbf24;
+            color: #111827;
+            font-weight: 700;
+        }
+        .clo-sidebar-footer {
+            margin-top: auto;
+            font-size: 11px;
+            color: #6b7280;
+        }
+        .clo-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(15,23,42,0.35);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .2s ease-out;
+            z-index: 55;
+        }
+        body.clo-sidebar-open .clo-backdrop {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* ===== 메인 컨텐츠 래퍼 ===== */
+        .clo-main-outer {
+            padding-top: 96px;
+        }
+        .clo-main-wrap {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 0 24px 40px;
+        }
+
+        /* 상단 타이틀 */
+        .clo-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .clo-title-box h1 {
+            margin: 0;
+            font-size: 32px;
+            font-weight: 900;
+            letter-spacing: -0.5px;
+        }
+        .clo-title-box p {
+            margin: 4px 0 0;
+            font-size: 14px;
+            color: #6b7280;
+        }
+        .clo-subtag {
+            font-size: 12px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: #e5f0ff;
+            color: #1d4ed8;
+        }
+
+        /* 날씨 바 */
+        .clo-weather-bar {
+            display: flex;
+            gap: 18px;
+            align-items: center;
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 18px 22px;
+            box-shadow: 0 12px 25px rgba(15,23,42,0.06);
+            margin-bottom: 18px;
+        }
+        .clo-weather-main {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+        .clo-temp-circle {
+            width: 82px;
+            height: 82px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #2563eb, #38bdf8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #f9fafb;
+            font-size: 24px;
+            font-weight: 800;
+        }
+        .clo-weather-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .clo-weather-info strong {
+            font-size: 16px;
+        }
+        .clo-weather-sub {
+            font-size: 12px;
+            color: #6b7280;
+        }
+        .clo-time-strip {
+            flex: 1;
+            background: #f3f4f6;
+            border-radius: 12px;
+            padding: 10px 14px 12px;
+            font-size: 12px;
+            color: #4b5563;
+        }
+        .clo-time-strip-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .clo-time-strip-line {
+            height: 6px;
+            border-radius: 999px;
+            background: linear-gradient(90deg,#22c55e,#f97316,#fb923c);
+            margin-bottom: 10px;
+        }
+        .clo-time-strip-grid {
+            display: grid;
+            grid-template-columns: repeat(24, minmax(0,1fr));
+            gap: 0;
+            text-align: center;
+        }
+        .clo-hour-cell {
+            font-size: 10px;
+            color: #6b7280;
+            margin-bottom: 2px;
+        }
+        .clo-hour-icon {
+            font-size: 13px;
+            margin-bottom: 1px;
+        }
+        .clo-hour-temp {
+            font-size: 11px;
+        }
+        .clo-hour-feel {
+            font-size: 9px;
+            color: #9ca3af;
+        }
+
+        /* ===== 오늘의 코디 슬라이드 ===== */
+        .clo-outfits-section {
+            position: relative;
+            margin-bottom: 14px;
+        }
+        .clo-outfits-viewport {
+            overflow: hidden;
+        }
+        .clo-outfits-track {
+            display: flex;
+            gap: 18px;
+            will-change: transform;
+        }
+        .clo-outfit-card {
+            flex: 0 0 calc((100% - 2 * 18px) / 3);
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 16px 16px 18px;
+            box-shadow: 0 10px 22px rgba(15,23,42,0.05);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .clo-outfit-avatar {
+            width: 72px;
+            height: 72px;
+            margin: 0 auto;
+            border-radius: 50%;
+            border: 2px dashed #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            color: #9ca3af;
+        }
+        .clo-badge-row {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            font-size: 11px;
+        }
+        .clo-badge {
+            padding: 4px 8px;
+            border-radius: 999px;
+            background: #eef2ff;
+            color: #4f46e5;
+        }
+        .clo-outfit-title {
+            text-align: center;
+            font-size: 14px;
+            font-weight: 700;
+        }
+        .clo-outfit-desc {
+            text-align: center;
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        /* === 카드 하단 찜 버튼 === */
+        .clo-card-footer {
+            margin-top: 4px;
+            display: flex;
+            justify-content: center;
+        }
+        .clo-like-btn {
+            border-radius: 999px;
+            border: 1px solid #e5e7eb;
+            padding: 4px 10px;
+            font-size: 11px;
+            cursor: pointer;
+            background: #ffffff;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            color: #6b7280;
+        }
+        .clo-like-btn .clo-like-icon {
+            font-size: 13px;
+        }
+        .clo-like-btn.is-active {
+            border-color: #f97316;
+            background: #fff7ed;
+            color: #ea580c;
+        }
+
+        .clo-outfit-button {
+            margin-top: 4px;
+            align-self: center;
+            border: none;
+            padding: 7px 14px;
+            font-size: 12px;
+            border-radius: 999px;
+            background: #111827;
+            color: #f9fafb;
+            cursor: pointer;
+        }
+        .clo-outfit-button:hover {
+            background: #020617;
+        }
+
+        .clo-slide-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 32px;
+            height: 32px;
+            border-radius: 999px;
+            border: none;
+            background: rgba(15,23,42,0.7);
+            color: #f9fafb;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            z-index: 10;
+        }
+        .clo-slide-btn:hover {
+            background: rgba(15,23,42,0.9);
+        }
+        .clo-slide-btn.prev { left: -16px; }
+        .clo-slide-btn.next { right: -16px; }
+
+        /* 아래 3단 영역 */
+        .clo-bottom-row {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 18px;
+            margin-top: 8px;
+        }
+        .clo-panel {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 14px 16px 16px;
+            box-shadow: 0 8px 20px rgba(15,23,42,0.04);
+            font-size: 13px;
+        }
+        .clo-panel h3 {
+            margin: 0 0 8px;
+            font-size: 14px;
+            font-weight: 800;
+        }
+        .clo-panel small {
+            display: block;
+            margin-bottom: 6px;
+            color: #9ca3af;
+        }
+        .clo-panel ul {
+            margin: 0;
+            padding-left: 18px;
+        }
+        .clo-tip {
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        .clo-ai-banner {
+            border-radius: 16px;
+            background: linear-gradient(135deg, #111827, #1f2937);
+            color: #e5e7eb;
+            padding: 16px 18px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .clo-ai-banner strong {
+            font-size: 14px;
+        }
+        .clo-ai-banner p {
+            margin: 2px 0 10px;
+            font-size: 12px;
+            color: #d1d5db;
+        }
+        .clo-ai-button {
+            align-self: flex-start;
+            border-radius: 999px;
+            border: none;
+            padding: 8px 14px;
+            font-size: 12px;
+            cursor: pointer;
+            background: #fbbf24;
+            color: #111827;
+            font-weight: 600;
+        }
+        .clo-ai-button:hover {
+            background: #facc15;
+        }
+
+        /* 반응형 */
+        @media (max-width: 960px) {
+            .clo-top-inner { padding: 0 16px; }
+            .clo-main-wrap { padding: 0 16px 28px; }
+            .clo-bottom-row { grid-template-columns: 1fr; }
+            .clo-outfit-card { flex: 0 0 80%; }
+            .clo-slide-btn.prev { left: 4px; }
+            .clo-slide-btn.next { right: 4px; }
+        }
+        /* ===== AI 스타일 유형 테스트 모달 ===== */
+        .ai-modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(15,23,42,0.45);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 80;
+        }
+        .ai-modal-backdrop.show { display: flex; }
+
+        .ai-modal {
+            width: 520px;
+            max-width: 90vw;
+            max-height: 85vh;
+            background: #ffffff;
+            border-radius: 18px;
+            box-shadow: 0 18px 42px rgba(15,23,42,0.35);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .ai-modal-header {
+            padding: 14px 18px 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 8px;
+        }
+        .ai-modal-header h3 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 800;
+        }
+        .ai-modal-close {
+            border: none;
+            background: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #9ca3af;
+        }
+
+        .ai-modal-body {
+            padding: 4px 18px 14px;
+            overflow-y: auto;
+            font-size: 13px;
+        }
+        .ai-q-box {
+            margin-top: 10px;
+            padding: 8px 10px;
+            border-radius: 12px;
+            background: #f9fafb;
+        }
+        .ai-q-title {
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .ai-q-options label {
+            display: block;
+            margin: 2px 0;
+            cursor: pointer;
+        }
+
+        .ai-modal-footer {
+            padding: 10px 18px 14px;
+            display: flex;
+            flex-direction: column;      /* 세로 정렬로 변경 */
+            align-items: flex-end;       /* 버튼을 오른쪽 아래로 붙이고 싶으면 */
+            border-top: 1px solid #e5e7eb;
+            gap: 8px;
+        }
+
+        .ai-result-text {
+            align-self: stretch;         /* 텍스트는 전체 폭 사용 */
+        }
+
+        .ai-start-btn {
+            align-self: flex-end;        /* 버튼은 오른쪽 아래 정렬 */
+        }
+
+        .ai-result-text {
+            font-size: 12px;
+            color: #6b7280;
+        }
+        .ai-start-btn {
+            border-radius: 999px;
+            border: none;
+            background: #111827;
+            color: #f9fafb;
+            padding: 8px 16px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .ai-start-btn:hover { background: #020617; }
+
+        /* 큰 아바타 이미지 영역 */
+        .clo-outfit-img-large {
+            width: 100%;
+            height: 180px; /* 필요하면 200~260까지 늘려도 됨 */
+            border-radius: 16px;
+            overflow: hidden;
+            background: #f3f4f6;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .clo-outfit-img-large img {
+            height: 100%;
+            width: auto;
+            object-fit: cover;
+        }
+        /* 텍스트가 '설명 보기'인 버튼 숨기기 */
+        button:contains("설명 보기"),
+        button:contains("설명보기"),
+        div:contains("설명 보기"),
+        div:contains("설명보기") {
+            display: none !important;
+        }
+
+        /* ===== 검색 오버레이 전체 ===== */
+        .clo-search-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.55);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .clo-search-panel {
+            width: min(760px, 92vw);
+            max-height: min(600px, 80vh);
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 20px 22px 18px;
+            box-shadow: 0 24px 60px rgba(15, 23, 42, 0.35);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .clo-search-top {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        #cloSearchField {
+            flex: 1;
+            border-radius: 999px;
+            border: 1px solid #e5e7eb;
+            padding: 10px 16px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        #cloSearchField:focus {
+            border-color: #111827;
+            box-shadow: 0 0 0 1px #1118271a;
+        }
+
+        .clo-search-close {
+            border: none;
+            background: #f3f4f6;
+            border-radius: 999px;
+            width: 32px;
+            height: 32px;
+            font-size: 20px;
+            line-height: 1;
+            cursor: pointer;
+        }
+
+        .clo-search-result {
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .clo-search-empty {
+            font-size: 13px;
+            color: #9ca3af;
+        }
+
+        .clo-search-item {
+            display: block;
+            padding: 10px 12px;
+            border-radius: 14px;
+            text-decoration: none;
+            color: inherit;
+            cursor: pointer;
+        }
+
+        .clo-search-item:hover {
+            background: #f3f4ff;
+        }
+
+        .clo-search-item-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .clo-search-item-meta {
+            font-size: 11px;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+
+        .clo-search-item-desc {
+            font-size: 12px;
+            color: #4b5563;
+        }
+    </style>
+</head>
+<body>
+
+<!-- 사이드바 -->
+<nav class="clo-sidebar">
+    <div>
+        <div class="clo-sidebar-header">메뉴</div>
+        <div class="clo-sidebar-sub">Closetory 옷장 메뉴</div>
+    </div>
+    <ul class="clo-menu-list">
+        <li onclick="location.href='closet.html'">나만의 옷장</li>
+        <li onclick="location.href='color.html'">코디 색감 추천</li>
+        <li onclick="location.href='situation.html'">상황별 코디 추천</li>
+        <li onclick="location.href='calendar.html'">주간 코디 캘린더</li>
+        <li onclick="location.href='ranking.html'">인기 코디 랭킹</li>
+    </ul>
+    <div class="clo-sidebar-footer">
+        Closetory · 옷장에서 꺼내는 작은 행복
+    </div>
+</nav>
+<div class="clo-backdrop"></div>
+
+<!-- 상단바 -->
+<header class="clo-topbar">
+    <div class="clo-top-inner">
+        <div class="clo-top-left">
+            <button class="clo-hamburger" id="cloMenuBtn">☰</button>
+            <div>
+                <div class="clo-logo-main">
+                    <a href="index.html">Closetory</a>
+                </div>
+                <div class="clo-logo-sub">옷장에서 꺼내는 작은 행복</div>
+            </div>
+        </div>
+        <div class="clo-top-right">
+            <form class="clo-search-form" onsubmit="return false;">
+                <span button id="cloSearchOpenBtn"  class="clo-search-icon">🔍</span>
+                <input id="headerSearchInput" class="clo-search-input" type="text" placeholder="코디, 아이템 검색">
+            </form>
+            <span class="clo-user-status" id="userStatus"></span>
+            <button class="clo-top-btn" id="loginBtn">로그인</button>
+            <button class="clo-top-btn" id="signupBtn">회원가입</button>
+            <button class="clo-top-btn primary" id="mypageBtn" style="display:none;">마이페이지</button>
+            <button class="clo-top-btn" id="logoutBtn" style="display:none;">로그아웃</button>
+        </div>
+    </div>
+</header>
+
+<!-- 메인 -->
+<div class="clo-main-outer">
+    <main class="clo-main-wrap">
+        <!-- 제목 -->
+        <section class="clo-header">
+            <div class="clo-title-box">
+                <h1>오늘의 코디, Closetory</h1>
+                <p>날씨·시간·상황에 맞춰 옷장에서 가장 잘 어울리는 코디를 찾아드립니다.</p>
+            </div>
+            <div class="clo-subtag">옷장 기반 날씨 코디 추천</div>
+        </section>
+
+        <!-- 날씨 -->
+        <section class="clo-weather-bar">
+            <div class="clo-weather-main">
+                <div class="clo-temp-circle" id="currentTemp">--°C</div>
+                <div class="clo-weather-info">
+                    <strong id="currentLocation">지역 · 현재 체감 기온</strong>
+                    <span class="clo-weather-sub" id="currentSummary">날씨 정보를 불러오는 중입니다…</span>
+                </div>
+            </div>
+            <div class="clo-time-strip">
+                <div class="clo-time-strip-title">시간별 날씨 &amp; 온도 (실시간 예보)</div>
+                <div class="clo-time-strip-line"></div>
+                <div class="clo-time-strip-grid" id="hourlyGrid">
+                    <!-- JS에서 실제 예보 24시간 채움 -->
+                </div>
+            </div>
+        </section>
+
+        <!-- 오늘의 코디 슬라이드 (레이아웃 그대로) -->
+        <section class="clo-outfits-section">
+            <button class="clo-slide-btn prev" id="cloPrevBtn">‹</button>
+            <div class="clo-outfits-viewport">
+                <div class="clo-outfits-track" id="cloOutfitTrack">
+                    <!-- 각 카드에 데이터 속성 추가 (id / colors / image) -->
+                    <article class="clo-outfit-card"
+                             data-outfit-id="trip_weekend"
+                             data-colors="블루"
+                             data-image="images/trip.jpg">
+                        <div class="clo-outfit-avatar">여행</div>
+                        <div class="clo-badge-row">
+                            <span class="clo-badge">여행룩</span>
+                            <span class="clo-badge">레이어드</span>
+                        </div>
+                        <div class="clo-outfit-title">주말 여행 코디</div>
+                        <p class="clo-outfit-desc">후드 + 경량 패딩 + 청바지로 이동하기 편한 여행 룩.</p>
+                        <button class="clo-outfit-button" type="button">설명 보기</button>
+                        <div class="clo-card-footer">
+                            <button class="clo-like-btn" type="button">
+                                <span class="clo-like-icon">♡</span>
+                                <span class="clo-like-label">찜하기</span>
+                            </button>
+                        </div>
+                    </article>
+
+                    <article class="clo-outfit-card"
+                             data-outfit-id="campus_daily"
+                             data-colors="블루"
+                             data-image="images/campus.jpg">
+                        <div class="clo-outfit-img-large">
+                            <img src="images/avatar_campus.png" alt="캠퍼스 캐주얼" />
+                        </div>
+                        <div class="clo-badge-row">
+                            <span class="clo-badge">데일리룩</span>
+                            <span class="clo-badge">후드 + 패딩</span>
+                        </div>
+                        <div class="clo-outfit-title">캠퍼스 캐주얼 코디</div>
+                        <p class="clo-outfit-desc">후드티와 패딩, 조거 팬츠 조합으로 편하면서도 따뜻한 룩.</p>
+                        <button class="clo-outfit-button" type="button">설명 보기</button>
+                        <div class="clo-card-footer">
+                            <button class="clo-like-btn" type="button">
+                                <span class="clo-like-icon">♡</span>
+                                <span class="clo-like-label">찜하기</span>
+                            </button>
+                        </div>
+                    </article>
+
+                    <article class="clo-outfit-card"
+                             data-outfit-id="presentation_formal"
+                             data-colors="그레이,화이트"
+                             data-image="images/presentation.jpg">
+                        <div class="clo-outfit-img-large">
+                            <img src="images/avatar_presentation.png" alt="발표날 코디" />
+                        </div>
+                        <div class="clo-badge-row">
+                            <span class="clo-badge">세미포멀</span>
+                            <span class="clo-badge">셔츠</span>
+                        </div>
+                        <div class="clo-outfit-title">발표날 코디</div>
+                        <p class="clo-outfit-desc">화이트 셔츠와 슬랙스, 재킷으로 단정하게 준비하는 발표 룩.</p>
+                        <button class="clo-outfit-button" type="button">설명 보기</button>
+                        <div class="clo-card-footer">
+                            <button class="clo-like-btn" type="button">
+                                <span class="clo-like-icon">♡</span>
+                                <span class="clo-like-label">찜하기</span>
+                            </button>
+                        </div>
+                    </article>
+
+                    <article class="clo-outfit-card"
+                             data-outfit-id="date_warm"
+                             data-colors="브라운"
+                             data-image="images/date.jpg">
+                        <div class="clo-outfit-avatar">데이트</div>
+                        <div class="clo-badge-row">
+                            <span class="clo-badge">따뜻한 톤</span>
+                            <span class="clo-badge">코트</span>
+                        </div>
+                        <div class="clo-outfit-title">감성 데이트 코디</div>
+                        <p class="clo-outfit-desc">롱코트와 니트, 슬랙스로 깔끔하게 연출하는 데이트용 코디.</p>
+                        <button class="clo-outfit-button" type="button">설명 보기</button>
+                        <div class="clo-card-footer">
+                            <button class="clo-like-btn" type="button">
+                                <span class="clo-like-icon">♡</span>
+                                <span class="clo-like-label">찜하기</span>
+                            </button>
+                        </div>
+                    </article>
+
+                    <article class="clo-outfit-card"
+                             data-outfit-id="home_comfy"
+                             data-colors="블랙,그레이"
+                             data-image="images/home.jpg">
+                        <div class="clo-outfit-avatar">집</div>
+                        <div class="clo-badge-row">
+                            <span class="clo-badge">홈웨어</span>
+                            <span class="clo-badge">트레이닝</span>
+                        </div>
+                        <div class="clo-outfit-title">집콕 편안 코디</div>
+                        <p class="clo-outfit-desc">루즈핏 맨투맨과 조거 팬츠로 편안하게 보내는 집콕 룩.</p>
+                        <button class="clo-outfit-button" type="button">설명 보기</button>
+                        <div class="clo-card-footer">
+                            <button class="clo-like-btn" type="button">
+                                <span class="clo-like-icon">♡</span>
+                                <span class="clo-like-label">찜하기</span>
+                            </button>
+                        </div>
+                    </article>
+
+                    <article class="clo-outfit-card"
+                             data-outfit-id="rain_day"
+                             data-colors="카키"
+                             data-image="images/rain.jpg">
+                        <div class="clo-outfit-avatar">비 오는 날</div>
+                        <div class="clo-badge-row">
+                            <span class="clo-badge">방수</span>
+                            <span class="clo-badge">코트/자켓</span>
+                        </div>
+                        <div class="clo-outfit-title">레인 데이 코디</div>
+                        <p class="clo-outfit-desc">방수 재킷과 롤업 팬츠, 스니커즈로 깔끔하게 비를 대비.</p>
+                        <button class="clo-outfit-button" type="button">설명 보기</button>
+                        <div class="clo-card-footer">
+                            <button class="clo-like-btn" type="button">
+                                <span class="clo-like-icon">♡</span>
+                                <span class="clo-like-label">찜하기</span>
+                            </button>
+                        </div>
+                    </article>
+
+                    <article class="clo-outfit-card"
+                             data-outfit-id="presentation_semi"
+                             data-colors="그레이"
+                             data-image="images/semi_presentation.jpg">
+                        <div class="clo-outfit-avatar">프레젠테이션</div>
+                        <div class="clo-badge-row">
+                            <span class="clo-badge">세미포멀</span>
+                            <span class="clo-badge">셔츠</span>
+                        </div>
+                        <div class="clo-outfit-title">세미포멀 프레젠 코디</div>
+                        <p class="clo-outfit-desc">네이비 자켓과 슬랙스로 차분하게 발표를 준비하는 룩.</p>
+                        <button class="clo-outfit-button" type="button">설명 보기</button>
+                        <div class="clo-card-footer">
+                            <button class="clo-like-btn" type="button">
+                                <span class="clo-like-icon">♡</span>
+                                <span class="clo-like-label">찜하기</span>
+                            </button>
+                        </div>
+                    </article>
+
+                    <article class="clo-outfit-card"
+                             data-outfit-id="sport_running"
+                             data-colors="블루,그린"
+                             data-image="images/sport.jpg">
+                        <div class="clo-outfit-avatar">운동</div>
+                        <div class="clo-badge-row">
+                            <span class="clo-badge">스포츠</span>
+                            <span class="clo-badge">레이어드</span>
+                        </div>
+                        <div class="clo-outfit-title">러닝/헬스 코디</div>
+                        <p class="clo-outfit-desc">기능성 티와 조거 팬츠, 바람막이로 운동하기 좋은 코디.</p>
+                        <button class="clo-outfit-button" type="button">설명 보기</button>
+                        <div class="clo-card-footer">
+                            <button class="clo-like-btn" type="button">
+                                <span class="clo-like-icon">♡</span>
+                                <span class="clo-like-label">찜하기</span>
+                            </button>
+                        </div>
+                    </article>
+                </div>
+            </div>
+            <button class="clo-slide-btn next" id="cloNextBtn">›</button>
+        </section>
+
+        <!-- 아래 3단 -->
+        <section class="clo-bottom-row">
+            <div class="clo-panel">
+                <h3>최신 트렌드</h3>
+                <small>이번 시즌 많이 찾는 코디</small>
+                <ul>
+                    <li><strong>2025 핵심 키워드 — 소프트 파워 & 와이드 팬츠 열풍</strong><br></li>
+
+                    <li><strong>포인트 컬러 — 아페롤 오렌지 · 라임 · 선셋 톤 </strong><br></li>
+
+                    <li><strong>시스루 레이어드 & 업사이클 디테일 확대</strong><br></li>
+                </ul>
+            </div>
+            <div class="clo-panel">
+                <h3>하루 하나 코디 Tip</h3>
+                <p class="clo-tip">
+                    바람이 강한 날에는 목 주변을 따뜻하게 하는 것이 중요해요.
+                    목폴라나 머플러를 추가하면 같은 코디도 훨씬 보온성이 좋아집니다.
+                </p>
+            </div>
+            <div class="clo-ai-banner">
+                <div>
+                    <strong>AI 스타일 유형 테스트</strong>
+                    <p>몇 가지 질문에 답하면, 나에게 어울리는 스타일과 추천 코디를 한 번에 알려드립니다.</p>
+                </div>
+                <button class="clo-ai-button" type="button">테스트 시작하기</button>
+            </div>
+        </section>
+        <!-- AI 스타일 유형 테스트 모달 -->
+        <div class="ai-modal-backdrop" id="aiStyleModal">
+            <div class="ai-modal">
+                <div class="ai-modal-header">
+                    <h3>AI 스타일 유형 테스트</h3>
+                    <button class="ai-modal-close" id="aiModalClose">×</button>
+                </div>
+                <div class="ai-modal-body">
+                    <p style="margin:0 0 6px; color:#6b7280;">
+                        아래 질문에 가장 가까운 선택지를 골라 주세요.
+                        결과는 나만의 옷장 분석에도 활용됩니다.
+                    </p>
+
+                    <!-- Q1 -->
+                    <div class="ai-q-box">
+                        <div class="ai-q-title">1. 학교/캠퍼스에 갈 때 가장 자주 입는 코디는?</div>
+                        <div class="ai-q-options ai-q-group" data-q="1">
+                            <label><input type="radio" name="ai-q1" value="minimal" /> 깔끔한 셔츠 + 슬랙스처럼 심플한 코디</label>
+                            <label><input type="radio" name="ai-q1" value="casual" /> 후드/맨투맨 + 청바지 같은 캐주얼 코디</label>
+                            <label><input type="radio" name="ai-q1" value="lovely" /> 니트/가디건 + 스커트 등 포인트가 있는 코디</label>
+                            <label><input type="radio" name="ai-q1" value="vintage" /> 셔츠, 조끼 등 레이어드한 감성 코디</label>
+                            <label><input type="radio" name="ai-q1" value="sporty" /> 트레이닝/조거 팬츠 위주의 편한 코디</label>
+                        </div>
+                    </div>
+
+                    <!-- Q2 -->
+                    <div class="ai-q-box">
+                        <div class="ai-q-title">2. 옷장에 가장 많은 색감은?</div>
+                        <div class="ai-q-options ai-q-group" data-q="2">
+                            <label><input type="radio" name="ai-q2" value="minimal" /> 블랙·화이트·그레이 같은 무채색</label>
+                            <label><input type="radio" name="ai-q2" value="casual" /> 네이비·블루·그린 등 기본 컬러</label>
+                            <label><input type="radio" name="ai-q2" value="lovely" /> 핑크·베이지·파스텔 톤</label>
+                            <label><input type="radio" name="ai-q2" value="vintage" /> 브라운·카키·딥그린 등 톤다운 컬러</label>
+                            <label><input type="radio" name="ai-q2" value="sporty" /> 형광/원색 포인트 컬러</label>
+                        </div>
+                    </div>
+
+                    <!-- Q3 -->
+                    <div class="ai-q-box">
+                        <div class="ai-q-title">3. 상의 실루엣/핏은 어떤 걸 선호해?</div>
+                        <div class="ai-q-options ai-q-group" data-q="3">
+                            <label><input type="radio" name="ai-q3" value="minimal" /> 너무 크지 않은 정핏 / 슬림핏</label>
+                            <label><input type="radio" name="ai-q3" value="casual" /> 살짝 루즈한 오버핏</label>
+                            <label><input type="radio" name="ai-q3" value="lovely" /> 퍼프, 프릴 등 디테일 있는 디자인</label>
+                            <label><input type="radio" name="ai-q3" value="vintage" /> 셔츠, 카디건 등 레이어드하기 좋은 핏</label>
+                            <label><input type="radio" name="ai-q3" value="sporty" /> 후드/트레이닝처럼 아주 편한 오버핏</label>
+                        </div>
+                    </div>
+
+                    <!-- Q4 -->
+                    <div class="ai-q-box">
+                        <div class="ai-q-title">4. 신발을 한 켤레만 고른다면?</div>
+                        <div class="ai-q-options ai-q-group" data-q="4">
+                            <label><input type="radio" name="ai-q4" value="minimal" /> 깔끔한 블랙/화이트 스니커즈</label>
+                            <label><input type="radio" name="ai-q4" value="casual" /> 캔버스 스니커즈나 데일리 운동화</label>
+                            <label><input type="radio" name="ai-q4" value="lovely" /> 로퍼·플랫슈즈 같은 단정한 신발</label>
+                            <label><input type="radio" name="ai-q4" value="vintage" /> 워커·부츠·더비슈즈</label>
+                            <label><input type="radio" name="ai-q4" value="sporty" /> 러닝화·트레이닝화</label>
+                        </div>
+                    </div>
+
+                    <!-- Q5 -->
+                    <div class="ai-q-box">
+                        <div class="ai-q-title">5. 옷을 살 때 가장 중요하게 보는 기준은?</div>
+                        <div class="ai-q-options ai-q-group" data-q="5">
+                            <label><input type="radio" name="ai-q5" value="minimal" /> 깔끔하고 오래 입을 수 있는지</label>
+                            <label><input type="radio" name="ai-q5" value="casual" /> 편하고 아무 데나 잘 어울리는지</label>
+                            <label><input type="radio" name="ai-q5" value="lovely" /> 나만의 개성/포인트가 있는지</label>
+                            <label><input type="radio" name="ai-q5" value="vintage" /> 색감·핏이 감성 있고 유니크한지</label>
+                            <label><input type="radio" name="ai-q5" value="sporty" /> 활동성, 기능성, 편안함</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ai-modal-footer">
+                    <div class="ai-result-text" id="aiResultText">
+                        테스트를 진행하면 나에게 맞는 스타일 유형을 알려드려요.
+                    </div>
+                    <button class="ai-start-btn" id="aiSubmitBtn">결과 보기</button>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    /* ===== 사이드바 토글 ===== */
+    const bodyEl  = document.body;
+    const menuBtn = document.getElementById('cloMenuBtn');
+    const backdrop = document.querySelector('.clo-backdrop');
+
+    function toggleSidebar() {
+        bodyEl.classList.toggle('clo-sidebar-open');
+    }
+    menuBtn.addEventListener('click', toggleSidebar);
+    backdrop.addEventListener('click', toggleSidebar);
+
+    /* ===== 로그인 / 회원가입 / 마이페이지 / 로그아웃 ===== */
+    const loginBtn   = document.getElementById('loginBtn');
+    const signupBtn  = document.getElementById('signupBtn');
+    const logoutBtn  = document.getElementById('logoutBtn');
+    const mypageBtn  = document.getElementById('mypageBtn');
+    const userStatus = document.getElementById('userStatus');
+
+    function checkAuthState() {
+        const raw = localStorage.getItem('closetoryUser');
+        if (raw) {
+            const user = JSON.parse(raw);
+            userStatus.textContent = (user.name || '사용자') + ' 님 로그인 중';
+            loginBtn.style.display   = 'none';
+            signupBtn.style.display  = 'none';
+            mypageBtn.style.display  = 'inline-flex';
+            logoutBtn.style.display  = 'inline-flex';
+        } else {
+            userStatus.textContent = '';
+            loginBtn.style.display   = 'inline-flex';
+            signupBtn.style.display  = 'inline-flex';
+            mypageBtn.style.display  = 'none';
+            logoutBtn.style.display  = 'none';
+        }
+    }
+
+    loginBtn.addEventListener('click', () => {
+        window.location.href = 'login.html';
+    });
+
+    signupBtn.addEventListener('click', () => {
+        window.location.href = 'signup.html';
+    });
+
+    mypageBtn.addEventListener('click', () => {
+        window.location.href = 'mypage.html';
+    });
+
+    logoutBtn.addEventListener('click', () => {
+        localStorage.removeItem('closetoryUser');
+        checkAuthState();
+        alert('로그아웃 되었습니다.');
+        location.href = 'index.html';
+    });
+
+    checkAuthState();
+
+    /* ===== 지역 → 격자 좌표 (nx, ny) 매핑 ===== */
+    function getRegionGrid() {
+        const raw = localStorage.getItem('closetoryUser');
+        let regionText = '경기 고양시';
+        if (raw) {
+            try {
+                const user = JSON.parse(raw);
+                if (user.region) regionText = user.region;
+            } catch (_) {}
+        }
+
+        const REGION_GRID = {
+            '경기 고양시': { nx: 55, ny: 129 },
+            '서울 강남구': { nx: 61, ny: 126 },
+            '서울 마포구': { nx: 58, ny: 126 },
+            '서울특별시': { nx: 60, ny: 127 },
+            '서울':       { nx: 60, ny: 127 },
+            '부산 해운대구': { nx: 98, ny: 76 },
+            '부산광역시': { nx: 98, ny: 76 },
+            '부산':       { nx: 98, ny: 76 },
+            '대구 중구': { nx: 89, ny: 90 },
+            '대구광역시': { nx: 89, ny: 90 },
+            '대구':       { nx: 89, ny: 90 },
+            '광주광역시': { nx: 58, ny: 74 },
+            '광주':       { nx: 58, ny: 74 },
+            '인천광역시': { nx: 55, ny: 124 },
+            '인천':       { nx: 55, ny: 124 },
+            '대전광역시': { nx: 67, ny: 100 },
+            '대전':       { nx: 67, ny: 100 },
+            '울산광역시': { nx: 102, ny: 84 },
+            '울산':       { nx: 102, ny: 84 },
+            '제주특별자치도': { nx: 52, ny: 38 },
+            '제주도':     { nx: 52, ny: 38 },
+            '제주':       { nx: 52, ny: 38 },
+            '전남':       { nx: 51, ny: 67 },
+            '경남':       { nx: 91, ny: 77 }
+        };
+
+        const key = REGION_GRID[regionText] ? regionText : '경기 고양시';
+        return {
+            regionLabel: regionText,
+            nx: REGION_GRID[key].nx,
+            ny: REGION_GRID[key].ny
+        };
+    }
+
+    /* ===== 기준 시각 계산 ===== */
+    function getBaseDateTime(now) {
+        const baseTimes = [2, 5, 8, 11, 14, 17, 20, 23];
+        const copy = new Date(now.getTime());
+        let hour = copy.getHours();
+        let baseHour = baseTimes[0];
+
+        for (let i = 0; i < baseTimes.length; i++) {
+            if (hour >= baseTimes[i]) baseHour = baseTimes[i];
+        }
+        if (hour < 2) {
+            copy.setDate(copy.getDate() - 1);
+            baseHour = 23;
+        }
+
+        const y = copy.getFullYear();
+        const m = String(copy.getMonth() + 1).padStart(2, '0');
+        const d = String(copy.getDate()).padStart(2, '0');
+        const baseDate = `${y}${m}${d}`;
+        const baseTime = String(baseHour).padStart(2, '0') + '00';
+        return { baseDate, baseTime };
+    }
+
+    function getWeatherIcon(sky, pty) {
+        if (pty && pty !== '0') {
+            if (pty === '1' || pty === '5') return '🌧';
+            if (pty === '2' || pty === '6') return '🌨';
+            if (pty === '3' || pty === '7') return '❄️';
+        }
+        if (sky === '1') return '☀️';
+        if (sky === '3') return '🌤';
+        if (sky === '4') return '☁️';
+        return '🌤';
+    }
+
+    function buildSummary(temp, sky, pty) {
+        let parts = [];
+        if (pty && pty !== '0') {
+            if (pty === '1' || pty === '5') parts.push('비');
+            else if (pty === '2' || pty === '6') parts.push('비/눈');
+            else if (pty === '3' || pty === '7') parts.push('눈');
+        } else {
+            if (sky === '1') parts.push('맑음');
+            else if (sky === '3') parts.push('구름 많음');
+            else if (sky === '4') parts.push('흐림');
+        }
+        const t = Number(temp);
+        if (!Number.isNaN(t)) {
+            if (t <= 0) parts.push('매우 추움 · 패딩 추천');
+            else if (t <= 5) parts.push('쌀쌀함 · 코트/니트 추천');
+            else if (t <= 15) parts.push('선선함 · 자켓/가디건 추천');
+            else parts.push('따뜻함 · 가벼운 아우터');
+        }
+        return parts.join(' · ');
+    }
+
+    const SERVICE_KEY =
+        '48a16c551e1a11eec2d625eb700bc9c57ee89be025327224ce31e16d75d2b869';
+
+    async function fetchWeather() {
+        const now = new Date();
+        const { baseDate, baseTime } = getBaseDateTime(now);
+        const { regionLabel, nx, ny } = getRegionGrid();
+
+        const url =
+            'https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst'
+            + `?serviceKey=${SERVICE_KEY}`
+            + '&pageNo=1&numOfRows=1000&dataType=JSON'
+            + `&base_date=${baseDate}&base_time=${baseTime}`
+            + `&nx=${nx}&ny=${ny}`;
+
+        const tempEl = document.getElementById('currentTemp');
+        const locEl  = document.getElementById('currentLocation');
+        const sumEl  = document.getElementById('currentSummary');
+        const gridEl = document.getElementById('hourlyGrid');
+
+        try {
+            const res = await fetch(url);
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            const data = await res.json();
+            const items = data?.response?.body?.items?.item || [];
+            if (!items.length) throw new Error('예보 데이터 없음');
+
+            const byKey = {};
+            for (const it of items) {
+                const key = it.fcstDate + it.fcstTime;
+                if (!byKey[key]) byKey[key] = {};
+                byKey[key][it.category] = it.fcstValue;
+            }
+
+            const slots = [];
+            const start = new Date();
+            for (let i = 0; i < 24; i++) {
+                const t = new Date(start.getTime() + i * 60 * 60 * 1000);
+                const y = t.getFullYear();
+                const m = String(t.getMonth() + 1).padStart(2, '0');
+                const d2 = String(t.getDate()).padStart(2, '0');
+                const hh = String(t.getHours()).padStart(2, '0');
+                const key = `${y}${m}${d2}${hh}00`;
+                const rec = byKey[key] || {};
+                slots.push({
+                    dateKey: key,
+                    hourStr: `${hh}시`,
+                    TMP: rec.TMP,
+                    SKY: rec.SKY,
+                    PTY: rec.PTY
+                });
+            }
+
+            const cur = slots[0];
+            const curTemp = cur.TMP ?? '--';
+            const curIcon = getWeatherIcon(cur.SKY, cur.PTY);
+            tempEl.textContent = `${curTemp}°C`;
+            locEl.textContent  = `${regionLabel} · 현재 체감 기온`;
+            sumEl.textContent  = `${curIcon}  ${buildSummary(curTemp, cur.SKY, cur.PTY)}`;
+
+            gridEl.innerHTML = '';
+            for (const s of slots) {
+                const cell = document.createElement('div');
+
+                const hour = document.createElement('div');
+                hour.className = 'clo-hour-cell';
+                hour.textContent = s.hourStr;
+
+                const icon = document.createElement('div');
+                icon.className = 'clo-hour-icon';
+                icon.textContent = getWeatherIcon(s.SKY, s.PTY);
+
+                const temp = document.createElement('div');
+                temp.className = 'clo-hour-temp';
+                temp.textContent = (s.TMP !== undefined ? s.TMP : '--') + '°C';
+
+                const feel = document.createElement('div');
+                feel.className = 'clo-hour-feel';
+                feel.textContent = '';
+
+                cell.appendChild(hour);
+                cell.appendChild(icon);
+                cell.appendChild(temp);
+                cell.appendChild(feel);
+                gridEl.appendChild(cell);
+            }
+        } catch (err) {
+            console.error('날씨 API 오류', err);
+            const { regionLabel } = getRegionGrid();
+            tempEl.textContent = '--°C';
+            locEl.textContent = `${regionLabel} · 현재 체감 기온`;
+            sumEl.textContent = '날씨 정보를 불러오지 못했습니다. 기본 코디를 참고해 주세요.';
+        }
+    }
+
+    /* ===== 오늘의 코디 무한 슬라이드 ===== */
+    const track = document.getElementById('cloOutfitTrack');
+    const prevBtn = document.getElementById('cloPrevBtn');
+    const nextBtn = document.getElementById('cloNextBtn');
+
+    const VISIBLE_COUNT = 3;
+    const GAP = 18;
+
+    let slides = Array.from(track.children);
+
+    const headClones = slides.slice(0, VISIBLE_COUNT).map(c => c.cloneNode(true));
+    const tailClones = slides.slice(-VISIBLE_COUNT).map(c => c.cloneNode(true));
+
+    headClones.forEach(c => track.appendChild(c));
+    tailClones.reverse().forEach(c => track.insertBefore(c, track.firstChild));
+
+    slides = Array.from(track.children);
+
+    let currentIndex = VISIBLE_COUNT;
+    let cardStep = 0;
+    let isAnimating = false;
+
+    function updateMetrics() {
+        if (slides.length === 0) return;
+        cardStep = slides[0].offsetWidth + GAP;
+        track.style.transition = 'none';
+        track.style.transform = `translateX(-${currentIndex * cardStep}px)`;
+        requestAnimationFrame(() => {
+            track.style.transition = 'transform .35s ease';
+        });
+    }
+
+    function goTo(index) {
+        if (isAnimating || cardStep === 0) return;
+        isAnimating = true;
+        currentIndex = index;
+        track.style.transform = `translateX(-${currentIndex * cardStep}px)`;
+    }
+
+    track.addEventListener('transitionend', () => {
+        const total = slides.length;
+        const lastRealIndex = total - VISIBLE_COUNT - 1;
+
+        if (currentIndex > lastRealIndex) {
+            currentIndex = VISIBLE_COUNT;
+            track.style.transition = 'none';
+            track.style.transform = `translateX(-${currentIndex * cardStep}px)`;
+            requestAnimationFrame(() => {
+                track.style.transition = 'transform .35s ease';
+            });
+        } else if (currentIndex < VISIBLE_COUNT) {
+            currentIndex = lastRealIndex;
+            track.style.transition = 'none';
+            track.style.transform = `translateX(-${currentIndex * cardStep}px)`;
+            requestAnimationFrame(() => {
+                track.style.transition = 'transform .35s ease';
+            });
+        }
+        isAnimating = false;
+    });
+
+    prevBtn.addEventListener('click', () => goTo(currentIndex - 1));
+    nextBtn.addEventListener('click', () => goTo(currentIndex + 1));
+
+    /* ===== 찜(즐겨찾기) 기능 – 나만의 옷장 연동 ===== */
+    const FAVORITES_KEY = 'closetoryFavorites';
+    let favorites = [];
+
+    function loadFavorites() {
+        try {
+            const raw = localStorage.getItem(FAVORITES_KEY);
+            return raw ? JSON.parse(raw) : [];
+        } catch {
+            return [];
+        }
+    }
+    function saveFavorites() {
+        localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
+    }
+    function isFavorite(id) {
+        return favorites.some(f => f.id === id);
+    }
+    function syncFavoriteUI(id) {
+        const active = isFavorite(id);
+        document.querySelectorAll(`.clo-outfit-card[data-outfit-id="${id}"] .clo-like-btn`)
+            .forEach(btn => {
+                btn.classList.toggle('is-active', active);
+                const icon = btn.querySelector('.clo-like-icon');
+                const label = btn.querySelector('.clo-like-label');
+                if (icon) icon.textContent = active ? '♥' : '♡';
+                if (label) label.textContent = active ? '찜됨' : '찜하기';
+            });
+    }
+
+    function toggleFavoriteForCard(card) {
+        const id = card.dataset.outfitId;
+        if (!id) return;
+
+        const idx = favorites.findIndex(f => f.id === id);
+        if (idx >= 0) {
+            favorites.splice(idx, 1);
+        } else {
+            const titleEl = card.querySelector('.clo-outfit-title');
+            const descEl  = card.querySelector('.clo-outfit-desc');
+            const colors  = (card.dataset.colors || '').split(',').map(v => v.trim()).filter(Boolean);
+            const img     = card.dataset.image || '';
+
+            favorites.push({
+                id,
+                title: titleEl ? titleEl.textContent.trim() : '',
+                desc: descEl ? descEl.textContent.trim() : '',
+                colors,
+                image: img,
+                createdAt: Date.now()
+            });
+        }
+        saveFavorites();
+        syncFavoriteUI(id);
+    }
+
+    function initFavoriteButtons() {
+        favorites = loadFavorites();
+        document.querySelectorAll('.clo-outfit-card').forEach(card => {
+            const btn = card.querySelector('.clo-like-btn');
+            const id  = card.dataset.outfitId;
+            if (!btn || !id) return;
+            btn.addEventListener('click', () => toggleFavoriteForCard(card));
+            syncFavoriteUI(id);
+        });
+    }
+
+    /* ===== 초기화 ===== */
+    window.addEventListener('load', () => {
+        updateMetrics();
+        fetchWeather();
+        initFavoriteButtons();
+    });
+    window.addEventListener('resize', updateMetrics);
+
+    /* ===== AI 스타일 테스트 모달 열기/닫기 ===== */
+    const aiButton      = document.querySelector('.clo-ai-button'); // 기존 노란 버튼
+    const aiModal       = document.getElementById('aiStyleModal');
+    const aiModalClose  = document.getElementById('aiModalClose');
+    const aiSubmitBtn   = document.getElementById('aiSubmitBtn');
+    const aiResultText  = document.getElementById('aiResultText');
+
+    function openAiModal() {
+        aiModal.classList.add('show');
+    }
+    function closeAiModal() {
+        aiModal.classList.remove('show');
+    }
+
+    if (aiButton)  aiButton.addEventListener('click', openAiModal);
+    if (aiModalClose) aiModalClose.addEventListener('click', closeAiModal);
+    if (aiModal) {
+        aiModal.addEventListener('click', (e) => {
+            if (e.target === aiModal) closeAiModal();
+        });
+    }
+    /* ===== AI 스타일 결과 계산 ===== */
+    const STYLE_TYPES = {
+        minimal: '미니멀 모노톤',
+        casual:  '캐주얼 스트릿',
+        lovely:  '러블리 / 감성',
+        vintage: '빈티지 / 아메카지',
+        sporty:  '스포츠 / 애슬레저'
+    };
+    // 각 스타일에 대한 설명 (메인/서브 설명용)
+    const STYLE_DESCRIPTIONS = {
+        minimal: '무채색과 심플한 실루엣을 선호하는 깔끔한 타입으로, 발표·면접·일상 어디에나 잘 어울리는 코디를 좋아해요.',
+        casual:  '후드, 맨투맨, 데님처럼 편하고 데일리하게 입을 수 있는 아이템을 중심으로 코디하는 타입이에요.',
+        lovely:  '파스텔 톤, 니트, 가디건 등 포인트가 있는 아이템으로 부드럽고 러블리한 분위기를 내는 스타일이에요.',
+        vintage: '톤다운된 색감과 레이어드를 활용해 감성 있고 유니크한 무드를 좋아하는 빈티지/아메카지 스타일이에요.',
+        sporty:  '트레이닝, 조거 팬츠, 기능성 티 등 활동성과 편안함을 최우선으로 하는 스포츠/애슬레저 스타일이에요.'
+    };
+
+    // AI 스타일 결과를 저장할 localStorage 키
+    const STYLE_STORAGE_KEY = 'closetoryStyleProfile';
+
+    // 5문항의 라디오 선택지를 기반으로 스타일 점수 계산
+    function computeAiStyleResult() {
+        const groups = document.querySelectorAll('.ai-q-group');
+        const scores = {
+            minimal: 0,
+            casual:  0,
+            lovely:  0,
+            vintage: 0,
+            sporty:  0
+        };
+
+        let answered = 0;
+        const totalQuestions = groups.length;
+
+        groups.forEach(group => {
+            const qIndex = group.dataset.q; // "1" ~ "5"
+            const checked = document.querySelector(`input[name="ai-q${qIndex}"]:checked`);
+            if (checked) {
+                answered++;
+                const key = checked.value; // minimal / casual / lovely / vintage / sporty
+                if (scores[key] !== undefined) {
+                    scores[key]++;
+                }
+            }
+        });
+
+        // 아직 안 고른 문항이 있으면 알림
+        if (answered < totalQuestions) {
+            alert(`아직 ${totalQuestions - answered}문항이 남았어요. 모든 문항을 선택해 주세요.`);
+            return null;
+        }
+
+        // 점수 높은 순으로 정렬해서 메인/서브 스타일 결정
+        const entries = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+        const [mainKey, mainScore] = entries[0];
+        const [subKey, subScore]   = entries[1]; // 서브 스타일 (2등)
+
+        return {
+            mainKey,
+            subKey,
+            mainLabel: STYLE_TYPES[mainKey],
+            subLabel:  STYLE_TYPES[subKey],
+            scores
+        };
+    }
+
+    // "결과 보기" 버튼 클릭 시 처리
+    if (aiSubmitBtn) {
+        aiSubmitBtn.addEventListener('click', () => {
+            const result = computeAiStyleResult();
+            if (!result) return; // 문항 덜 선택한 경우
+
+            const { mainKey, subKey, mainLabel, subLabel, scores } = result;
+
+            // localStorage에 스타일 프로필 저장 → closet.html에서 그대로 활용
+            const profile = {
+                mainKey,
+                subKey,
+                mainLabel,
+                subLabel,
+                scores,
+                updatedAt: new Date().toISOString()
+            };
+
+            try {
+                localStorage.setItem(STYLE_STORAGE_KEY, JSON.stringify(profile));
+            } catch (e) {
+                console.warn('스타일 프로필 저장 실패', e);
+            }
+
+            // 결과 문구 UI 업데이트
+            const descMain = STYLE_DESCRIPTIONS[mainKey] || '';
+            const descSub  = STYLE_DESCRIPTIONS[subKey]  || '';
+
+            aiResultText.innerHTML =
+                `<strong>${mainLabel}</strong> 타입이에요.` +
+                (subKey ? ` (서브 스타일: <strong>${subLabel}</strong>)` : '') +
+                `<br><span style="color:#6b7280;font-size:11px;">${descMain}</span>` +
+                (descSub
+                        ? `<br><span style="color:#9ca3af;font-size:11px;">+ ${descSub}</span>`
+                        : ''
+                ) +
+                `<br><span style="color:#9ca3af;font-size:11px;">※ 이 결과는 나만의 옷장(closet) 추천에 활용됩니다.</span>`;
+        });
+    }
+    /* ===== 하루 하나 코디 Tip – 10개 로테이션 ===== */
+    const DAILY_TIPS = [
+        '바람이 강한 날에는 목 주변을 따뜻하게 해 주세요. 머플러나 목폴라를 더하면 같은 코디도 보온성이 확 달라집니다.',
+        '실내·실외 온도 차가 큰 날에는 가벼운 아우터를 꼭 챙기세요. 벗었다 입었다 하기 쉬운 집업이나 가디건이 좋아요.',
+        '무채색 코디에는 가방이나 신발로 한 가지 포인트 컬러를 넣어 보세요. 전체 인상이 훨씬 세련돼 보여요.',
+        '하의 핏이 넉넉하면 상의는 좀 더 슬림하게, 상의가 오버핏이면 하의는 슬림하게 입으면 비율이 좋아 보입니다.',
+        '추운 날 패딩 안에는 너무 두꺼운 니트 대신 얇은 이너를 여러 겹 레이어드하면 더 따뜻하고 덜 부해 보여요.',
+        '운동하는 날에는 상·하의 중 하나만 타이트하게, 나머지는 여유 있게 입으면 활동성도 좋고 실루엣도 예쁩니다.',
+        '발표·면접 코디에는 구김이 적은 소재를 선택해 주세요. 아침에 아이롱 한 번만 해도 하루 종일 깔끔한 인상을 줄 수 있어요.',
+        '비 오는 날에는 밑단이 긴 하의보다 발목이 드러나는 바지와 방수 재질 신발을 매치하면 훨씬 편하게 이동할 수 있습니다.',
+        '옷이 밋밋하게 느껴질 때는 벨트, 목걸이, 시계 등 작은 액세서리 하나만 추가해도 분위기가 완전히 달라져요.',
+        '오늘 코디가 어색하게 느껴진다면, 상·하의 컬러 중 하나를 “신발이나 가방” 색과 맞춰 통일감을 만들어 보세요.'
+    ];
+
+    // 기준일을 하나 정해 두고, (오늘-기준일) 일수로 인덱스를 만들기
+    function getDailyTipIndex() {
+        const now = new Date();
+        const base = new Date(2025, 0, 1); // 2025-01-01 기준
+        const diffDays = Math.floor((now - base) / (1000 * 60 * 60 * 24));
+        const len = DAILY_TIPS.length;
+        return ((diffDays % len) + len) % len; // 항상 0~len-1
+    }
+
+    function updateDailyTip() {
+        const tipEl = document.querySelector('.clo-tip');
+        if (!tipEl) return;
+        const idx = getDailyTipIndex();
+        tipEl.textContent = DAILY_TIPS[idx];
+    }
+
+    // 자정(24:00)에 자동으로 다음 팁으로 변경
+    function scheduleNextTipUpdate() {
+        const now = new Date();
+        const next = new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            now.getDate() + 1,
+            0, 0, 1
+        ); // 다음날 00:00:01
+        const delay = next.getTime() - now.getTime();
+        setTimeout(() => {
+            updateDailyTip();
+            scheduleNextTipUpdate();
+        }, delay);
+    }
+
+    // 페이지 로드 시 한 번 적용 + 다음 자정 예약
+    updateDailyTip();
+    scheduleNextTipUpdate();
+    document.addEventListener("DOMContentLoaded", () => {
+        const btns = document.querySelectorAll("button, div");
+
+        btns.forEach(btn => {
+            if (btn.textContent.trim() === "설명 보기") {
+                btn.style.display = "none";
+            }
+        });
+    });
+</script>
+<!-- ===== 전역 검색 오버레이 ===== -->
+<div id="cloSearchOverlay" class="clo-search-overlay">
+    <div class="clo-search-panel">
+        <div class="clo-search-top">
+            <input
+                    id="cloSearchField"
+                    type="text"
+                    placeholder="코디, 아이템, 상황으로 검색해보세요"
+                    autocomplete="off"
+            />
+            <button id="cloSearchClose" class="clo-search-close">&times;</button>
+        </div>
+        <div id="cloSearchResult" class="clo-search-result">
+            <p class="clo-search-empty">검색어를 입력하면 결과가 여기에 나타납니다.</p>
+        </div>
+    </div>
+</div>
+<!-- ===== 전역 검색 오버레이 ===== -->
+<div id="cloSearchOverlay" class="clo-search-overlay">
+    <div class="clo-search-panel">
+        <div class="clo-search-top">
+            <input
+                    id="cloSearchField"
+                    type="text"
+                    placeholder="코디, 아이템, 상황으로 검색해보세요"
+                    autocomplete="off"
+            />
+            <button id="cloSearchClose" class="clo-search-close">&times;</button>
+        </div>
+        <div id="cloSearchResult" class="clo-search-result">
+            <p class="clo-search-empty">검색어를 입력하면 결과가 여기에 나타납니다.</p>
+        </div>
+    </div>
+</div>
+
+<!-- JS는 항상 body 맨 아래 -->
+<script src="/js/search-overlay.js"></script>
+</body>
+</html>

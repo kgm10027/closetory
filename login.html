@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Closetory - 로그인</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: "Noto Sans KR", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f5f7fb;
+            color: #111827;
+        }
+
+        /* ===== 공통 상단 헤더 ===== */
+        .clo-topbar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 72px;
+            background: #ffffff;
+            box-shadow: 0 6px 20px rgba(15,23,42,0.06);
+            z-index: 50;
+        }
+        .clo-top-inner {
+            max-width: 1180px;
+            margin: 0 auto;
+            height: 100%;
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .clo-top-left { display: flex; align-items: center; gap: 14px; }
+        .clo-hamburger {
+            width: 36px; height: 36px;
+            border-radius: 999px;
+            border: none;
+            background: #111827;
+            color: #f9fafb;
+            font-size: 18px;
+            cursor: pointer;
+        }
+        .clo-logo-main a {
+            text-decoration: none;
+            color: inherit;
+        }
+        .clo-logo-main {
+            font-size: 22px;
+            font-weight: 900;
+            letter-spacing: -0.4px;
+            cursor: pointer;
+        }
+        .clo-logo-sub {
+            font-size: 11px;
+            color: #9ca3af;
+            margin-top: 2px;
+        }
+        .clo-top-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .clo-search-form {
+            display: flex;
+            align-items: center;
+            background: #f3f4f6;
+            border-radius: 999px;
+            padding: 6px 12px;
+            min-width: 260px;
+        }
+        .clo-search-icon {
+            font-size: 14px;
+            color: #6b7280;
+            margin-right: 6px;
+        }
+        .clo-search-input {
+            border: none;
+            background: transparent;
+            outline: none;
+            font-size: 13px;
+            width: 100%;
+        }
+        .clo-top-btn {
+            height: 36px;
+            border-radius: 999px;
+            border: 1px solid #e5e7eb;
+            background: #ffffff;
+            padding: 0 14px;
+            font-size: 12px;
+            cursor: pointer;
+            color: #374151;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+        }
+        .clo-top-btn.primary {
+            background: #111827;
+            color: #f9fafb;
+            border-color: #111827;
+            font-weight: 600;
+        }
+        .clo-top-btn:hover { background: #f3f4f6; }
+        .clo-top-btn.primary:hover { background: #020617; }
+        .clo-user-status {
+            font-size: 12px;
+            color: #6b7280;
+            margin-right: 4px;
+        }
+
+        /* ===== 본문 ===== */
+        .clo-main-outer { padding-top: 96px; }
+        .clo-main-wrap {
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 0 24px 40px;
+        }
+        h1 {
+            font-size: 26px;
+            margin-bottom: 10px;
+        }
+        .clo-desc {
+            font-size: 13px;
+            color: #6b7280;
+            margin-bottom: 24px;
+        }
+        .clo-form-card {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 22px 24px 26px;
+            box-shadow: 0 12px 28px rgba(15,23,42,0.06);
+        }
+        .clo-field { margin-bottom: 16px; }
+        .clo-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+        .clo-input {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+            font-size: 13px;
+            outline: none;
+        }
+        .clo-input:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 1px rgba(37,99,235,0.2);
+        }
+        .clo-submit {
+            margin-top: 12px;
+            width: 100%;
+            border-radius: 999px;
+            border: none;
+            padding: 11px 16px;
+            font-size: 14px;
+            cursor: pointer;
+            background: #111827;
+            color: #f9fafb;
+            font-weight: 600;
+        }
+        .clo-submit:hover { background: #020617; }
+        .clo-helper {
+            margin-top: 12px;
+            font-size: 12px;
+            color: #6b7280;
+        }
+        .clo-helper a {
+            color: #2563eb;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+<header class="clo-topbar">
+    <div class="clo-top-inner">
+        <div class="clo-top-left">
+            <button class="clo-hamburger" disabled>☰</button>
+            <div>
+                <div class="clo-logo-main">
+                    <a href="index.html">Closetory</a>
+                </div>
+                <div class="clo-logo-sub">옷장에서 꺼내는 작은 행복</div>
+            </div>
+        </div>
+        <div class="clo-top-right">
+            <form class="clo-search-form" onsubmit="return false;">
+                <span class="clo-search-icon">🔍</span>
+                <input class="clo-search-input" type="text" placeholder="코디, 아이템 검색">
+            </form>
+            <span class="clo-user-status" id="userStatus"></span>
+            <button class="clo-top-btn primary" id="loginBtn">로그인</button>
+            <button class="clo-top-btn" id="signupBtn">회원가입</button>
+            <button class="clo-top-btn" id="mypageBtn" style="display:none;">마이페이지</button>
+            <button class="clo-top-btn" id="logoutBtn" style="display:none;">로그아웃</button>
+        </div>
+    </div>
+</header>
+
+<div class="clo-main-outer">
+    <main class="clo-main-wrap">
+        <h1>로그인</h1>
+        <p class="clo-desc">회원가입 시 입력한 아이디와 비밀번호로 로그인하세요.</p>
+
+        <section class="clo-form-card">
+            <form id="loginForm">
+                <div class="clo-field">
+                    <label class="clo-label" for="loginId">아이디</label>
+                    <input class="clo-input" id="loginId" required>
+                </div>
+                <div class="clo-field">
+                    <label class="clo-label" for="loginPw">비밀번호</label>
+                    <input class="clo-input" id="loginPw" type="password" required>
+                </div>
+                <button type="submit" class="clo-submit">로그인</button>
+            </form>
+            <p class="clo-helper">
+                아직 계정이 없으신가요? <a href="signup.html">회원가입 하기</a>
+            </p>
+        </section>
+    </main>
+</div>
+
+<script>
+    /* ===== Auth 유틸 ===== */
+    function getUsers() {
+        try {
+            return JSON.parse(localStorage.getItem('closetoryUsers')) || [];
+        } catch (e) {
+            return [];
+        }
+    }
+    function saveUsers(users) {
+        localStorage.setItem('closetoryUsers', JSON.stringify(users));
+    }
+    function getCurrentUser() {
+        const currentId = localStorage.getItem('closetoryCurrentUser');
+        if (!currentId) return null;
+        const users = getUsers();
+        return users.find(u => u.id === currentId) || null;
+    }
+    function setCurrentUser(id) {
+        localStorage.setItem('closetoryCurrentUser', id);
+    }
+    function clearCurrentUser() {
+        localStorage.removeItem('closetoryCurrentUser');
+    }
+
+    const loginBtn   = document.getElementById('loginBtn');
+    const signupBtn  = document.getElementById('signupBtn');
+    const logoutBtn  = document.getElementById('logoutBtn');
+    const mypageBtn  = document.getElementById('mypageBtn');
+    const userStatus = document.getElementById('userStatus');
+
+    function checkAuthState() {
+        const user = getCurrentUser();
+        if (user) {
+            userStatus.textContent = (user.name || '사용자') + ' 님 로그인 중';
+            loginBtn.style.display   = 'none';
+            signupBtn.style.display  = 'none';
+            mypageBtn.style.display  = 'inline-flex';
+            logoutBtn.style.display  = 'inline-flex';
+        } else {
+            userStatus.textContent = '';
+            loginBtn.style.display   = 'inline-flex';
+            signupBtn.style.display  = 'inline-flex';
+            mypageBtn.style.display  = 'none';
+            logoutBtn.style.display  = 'none';
+        }
+    }
+
+    loginBtn.addEventListener('click', () => location.href = 'login.html');
+    signupBtn.addEventListener('click', () => location.href = 'signup.html');
+    mypageBtn.addEventListener('click', () => location.href = 'mypage.html');
+    logoutBtn.addEventListener('click', () => {
+        clearCurrentUser();
+        localStorage.removeItem('closetoryUser');
+        localStorage.setItem('closetoryLoggedIn', 'false');
+
+        checkAuthState();
+        alert('로그아웃 되었습니다.');
+        location.href = 'index.html';
+    });
+
+    checkAuthState();
+
+    /* ===== 로그인 처리 ===== */
+    const loginForm = document.getElementById('loginForm');
+
+    loginForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const id = document.getElementById('loginId').value.trim();
+        const pw = document.getElementById('loginPw').value;
+
+        const users = getUsers();
+        const user = users.find(u => u.id === id);
+
+        if (!user) {
+            alert('존재하지 않는 아이디입니다.');
+            return;
+        }
+        if (user.password !== pw) {
+            alert('비밀번호가 올바르지 않습니다.');
+            return;
+        }
+
+        setCurrentUser(user.id);
+        setCurrentUser(user.id);
+
+        // 🔄 예전 페이지들과 호환용: closetoryUser / closetoryLoggedIn도 같이 세팅
+        localStorage.setItem('closetoryUser', JSON.stringify({
+            id: user.id,
+            name: user.name,
+            address: user.address,
+            region: user.region,
+            password: user.password
+        }));
+        localStorage.setItem('closetoryLoggedIn', 'true');
+
+        alert('로그인 성공!');
+        location.href = 'index.html';
+    });
+</script>
+</body>
+</html>
